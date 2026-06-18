@@ -1,7 +1,8 @@
 From 05548ad88b4964f969c6896a7ebf3ebf3020630e Mon Sep 17 00:00:00 2001
 From: Jed Blenkhorn <hello@jedbillyb.com>
 Date: Sun, 14 Jun 2026 20:23:42 +1200
-Subject: [PATCH] goodixtls55x4: accept the GF3268_RTSEC_APP firmware family
+Subject: [PATCH 2/9] goodixtls55x4: accept the GF3268_RTSEC_APP firmware
+ family
 
 The firmware check required the exact string GF3268_RTSEC_APP_10041 and
 rejected otherwise-identical sensors shipping a newer minor revision

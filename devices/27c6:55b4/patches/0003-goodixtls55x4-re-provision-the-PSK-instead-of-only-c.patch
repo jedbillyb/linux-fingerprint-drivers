@@ -1,8 +1,8 @@
 From 23951cd36c483865073a7a5e3c4b44a28fdfe2c1 Mon Sep 17 00:00:00 2001
 From: Jed Blenkhorn <hello@jedbillyb.com>
 Date: Sun, 14 Jun 2026 20:24:35 +1200
-Subject: [PATCH] goodixtls55x4: (re)provision the PSK instead of only checking
- it
+Subject: [PATCH 3/9] goodixtls55x4: (re)provision the PSK instead of only
+ checking it
 
 The activation SSM only read the device PMK hash and failed if it did
 not match goodix_55x4_psk_0. A sensor last provisioned by another OS

@@ -1,0 +1,152 @@
+From d10eb07484f5216d4308d3d0b2c472187e98e7e0 Mon Sep 17 00:00:00 2001
+From: Jed Blenkhorn <hello@jedbillyb.com>
+Date: Mon, 15 Jun 2026 20:51:29 +1200
+Subject: [PATCH 7/9] goodix55x4: keep device + TLS session warm across verify
+ retries
+
+pam_fprintd deactivates and re-verifies on every failed scan, and the
+driver was running the full activate sequence (chip enable, fw check, PSK
+read, reset, MCU config) plus a fresh TLS handshake on each one, with a
+sleep + TLS shutdown on the way out. That down-up cycle was ~3s per retry.
+
+Track an "active" (warm) flag: set it once the TLS session is up, make
+deactivate a no-op that completes immediately, and make activate skip the
+whole sequence + handshake while warm (reusing the cached background frame
+too). The real teardown still happens on device close (dev_deinit), and the
+flag is reset on open/close so each fresh claim cold-handshakes once.
+
+Result: only the first scan per claim pays the handshake; subsequent retries
+are near-instant.
+---
+ libfprint/drivers/goodixtls/goodix55x4.c | 56 +++++++++++++++++++++---
+ 1 file changed, 51 insertions(+), 5 deletions(-)
+
+diff --git a/libfprint/drivers/goodixtls/goodix55x4.c b/libfprint/drivers/goodixtls/goodix55x4.c
+index 042a411..632baed 100644
+--- a/libfprint/drivers/goodixtls/goodix55x4.c
++++ b/libfprint/drivers/goodixtls/goodix55x4.c
+@@ -63,6 +63,16 @@ struct _FpiDeviceGoodixTls55X4 {
+   GSList *frames;
+ 
+   Goodix55X4Pix empty_img[GOODIX55X4_FRAME_SIZE];
++  // The empty/background frame barely changes within an activation, so capture
++  // it once and reuse it instead of re-reading a full frame before every scan
++  // (that per-scan recapture was the bulk of the retry cooldown).
++  gboolean empty_img_valid;
++  // TRUE once the device has been fully activated (chip enabled, MCU configured,
++  // TLS session up) and kept warm. While warm, deactivate is a no-op and the
++  // next activate skips the whole activate sequence + TLS handshake, so
++  // pam_fprintd's verify-stop/start retries are near-instant. Reset on device
++  // close (dev_deinit), where the TLS session is actually torn down.
++  gboolean active;
+ };
+ 
+ G_DECLARE_FINAL_TYPE(FpiDeviceGoodixTls55X4, fpi_device_goodixtls55x4, FPI,
+@@ -348,6 +358,10 @@ static void tls_activation_complete(FpDevice *dev, gpointer user_data,
+   }
+   FpImageDevice *image_dev = FP_IMAGE_DEVICE(dev);
+ 
++  // The TLS session is up; mark the device warm so subsequent activations
++  // (pam_fprintd retries) skip the handshake until the device is closed.
++  FPI_DEVICE_GOODIXTLS55X4(dev)->active = TRUE;
++
+   fpi_image_device_activate_complete(image_dev, error);
+ }
+ 
+@@ -650,6 +664,7 @@ static void on_scan_empty_img(FpDevice *dev, guint8 *data, guint16 length,
+   }
+   FpiDeviceGoodixTls55X4 *self = FPI_DEVICE_GOODIXTLS55X4(dev);
+   decode_frame(self->empty_img, data);
++  self->empty_img_valid = TRUE;
+   // FpImage *bgk = fp_image_new(GOODIX55X4_WIDTH, GOODIX55X4_HEIGHT);
+   // squash_frame(self->empty_img, bgk->data);
+   // save_image_to_pgm(bgk, "./background.pgm");
+@@ -698,7 +713,12 @@ static void scan_run_state(FpiSsm *ssm, FpDevice *dev) {
+ 
+   switch (fpi_ssm_get_cur_state(ssm)) {
+   case SCAN_STAGE_CALIBRATE:
+-    scan_empty_img(dev, ssm);
++    if (FPI_DEVICE_GOODIXTLS55X4(dev)->empty_img_valid) {
++      // Reuse the cached background frame; skip the slow per-scan recapture.
++      fpi_ssm_next_state(ssm);
++    } else {
++      scan_empty_img(dev, ssm);
++    }
+     break;
+   case SCAN_STAGE_SWITCH_TO_FDT_MODE:
+     g_print("SWITCH TO FDT MODE\n");
+@@ -819,6 +839,9 @@ static void dev_init(FpImageDevice *img_dev) {
+   FpDevice *dev = FP_DEVICE(img_dev);
+   GError *error = NULL;
+ 
++  // Freshly opened device: not warm yet, force a cold activate + handshake.
++  FPI_DEVICE_GOODIXTLS55X4(dev)->active = FALSE;
++
+   if (goodix_dev_init(dev, &error)) {
+     fpi_image_device_open_complete(img_dev, error);
+     return;
+@@ -831,6 +854,10 @@ static void dev_deinit(FpImageDevice *img_dev) {
+   FpDevice *dev = FP_DEVICE(img_dev);
+   GError *error = NULL;
+ 
++  // Device is being closed: drop the warm state. goodix_dev_deinit tears down
++  // the TLS session (goodix_shutdown_tls), so the next open must re-handshake.
++  FPI_DEVICE_GOODIXTLS55X4(dev)->active = FALSE;
++
+   if (goodix_dev_deinit(dev, &error)) {
+     fpi_image_device_close_complete(img_dev, error);
+     return;
+@@ -841,6 +868,21 @@ static void dev_deinit(FpImageDevice *img_dev) {
+ 
+ static void dev_activate(FpImageDevice *img_dev) {
+   FpDevice *dev = FP_DEVICE(img_dev);
++  FpiDeviceGoodixTls55X4 *self = FPI_DEVICE_GOODIXTLS55X4(dev);
++
++  if (self->active) {
++    // Warm path: the device is still enabled/configured and the TLS session is
++    // live from the previous verify. Skip the full activate sequence and the
++    // TLS handshake entirely (this is the per-retry cost we're eliminating).
++    // The cached background frame is reused too, so the next scan is immediate.
++    fp_dbg("device still warm, skipping activate + TLS handshake");
++    fpi_image_device_activate_complete(img_dev, NULL);
++    return;
++  }
++
++  // Cold path: force a fresh background capture on the first scan, then run the
++  // full activate sequence (activate_complete does the TLS handshake).
++  self->empty_img_valid = FALSE;
+ 
+   fpi_ssm_start(fpi_ssm_new(dev, activate_run_state, ACTIVATE_NUM_STATES),
+                 activate_complete);
+@@ -861,8 +903,12 @@ static void dev_change_state(FpImageDevice *img_dev,
+ 
+ 
+ static void dev_deactivate(FpImageDevice *img_dev) {
+-  FpDevice *dev = FP_DEVICE(img_dev);
+-  fpi_device_add_timeout(dev, 250, sleep_start, NULL, NULL);
++  // Keep the device warm instead of sleeping the MCU and tearing down TLS.
++  // pam_fprintd deactivates between each verify retry; doing the full sleep +
++  // TLS shutdown here (and re-doing it all in activate) was the ~3s-per-attempt
++  // cooldown. The real teardown happens on device close (dev_deinit). Complete
++  // the deactivation immediately so the next verify can start at once.
++  fpi_image_device_deactivate_complete(img_dev, NULL);
+ }
+ 
+ // ---- DEV SECTION END ----
+@@ -885,11 +931,11 @@ fpi_device_goodixtls55x4_class_init(FpiDeviceGoodixTls55X4Class *class) {
+   dev_class->full_name = "Goodix TLS Fingerprint Sensor 55X4";
+   dev_class->type = FP_DEVICE_TYPE_USB;
+   dev_class->id_table = id_table;
+-  dev_class->nr_enroll_stages = 10;
++  dev_class->nr_enroll_stages = 24;
+   dev_class->scan_type = FP_SCAN_TYPE_PRESS;
+ 
+   // TODO
+-  img_dev_class->bz3_threshold = 24 * 5;
++  img_dev_class->bz3_threshold = 24 * 1;
+   img_dev_class->algorithm = FPI_DEVICE_ALGO_SIGFM;
+   img_dev_class->img_width = GOODIX55X4_WIDTH;
+   img_dev_class->img_height = GOODIX55X4_HEIGHT;
+-- 
+2.54.0
+

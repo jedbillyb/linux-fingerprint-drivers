@@ -1,7 +1,8 @@
 From 81a538599b64fd2784546b6498bd81bc6381f2d4 Mon Sep 17 00:00:00 2001
 From: Jed Blenkhorn <hello@jedbillyb.com>
 Date: Sun, 14 Jun 2026 20:25:57 +1200
-Subject: [PATCH] sigfm: tighten matching thresholds to reduce false positives
+Subject: [PATCH 6/9] sigfm: tighten matching thresholds to reduce false
+ positives
 
 Raise the minimum match count from 5 to 15, tighten Lowe's ratio from
 0.75 to 0.70, and raise the goodixtls55x4 bz3 match-score threshold from

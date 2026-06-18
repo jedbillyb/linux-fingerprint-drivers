@@ -1,7 +1,8 @@
 From 682b46c91f5de6f1145ddc5cc8c8a44efb43fbf4 Mon Sep 17 00:00:00 2001
 From: Jed Blenkhorn <hello@jedbillyb.com>
 Date: Sun, 14 Jun 2026 20:25:37 +1200
-Subject: [PATCH] goodixtls: enable PSK ciphers for the sensor TLS handshake
+Subject: [PATCH 5/9] goodixtls: enable PSK ciphers for the sensor TLS
+ handshake
 
 The TLS server used cipher list "ALL", which excludes PSK cipher suites,
 and on modern OpenSSL the default security level rejects the PSK ciphers

@@ -1,0 +1,39 @@
+From 13ab542c5b7d649af31e5a17a954bcde8d48a274 Mon Sep 17 00:00:00 2001
+From: Jed Blenkhorn <hello@jedbillyb.com>
+Date: Sun, 14 Jun 2026 20:23:04 +1200
+Subject: [PATCH 1/9] sigfm: make sigfm-tests conditional on doctest
+
+doctest ships header-only with no pkg-config file on some distros (e.g.
+Void Linux), which makes the required dependency lookup fail and blocks
+meson setup for the whole project. Mark it not-required and only build
+the sigfm-tests executable when doctest is found, so the library still
+configures while users who have doctest keep the test target.
+---
+ libfprint/sigfm/meson.build | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/libfprint/sigfm/meson.build b/libfprint/sigfm/meson.build
+index 454d412..424afbe 100644
+--- a/libfprint/sigfm/meson.build
++++ b/libfprint/sigfm/meson.build
+@@ -2,10 +2,15 @@
+ sigfm_sources = ['sigfm.cpp']
+ 
+ opencv = dependency('opencv4', required: true)
+-doctest = dependency('doctest', required: true, version: ['>=2.0.0', '<3.0.0'])
++doctest = dependency('doctest', required: false, version: ['>=2.0.0', '<3.0.0'])
+ 
+ libsigfm = static_library('sigfm',
+         sigfm_sources,
+         dependencies: [opencv],
+ )
+-sigfm_tests = executable('sigfm-tests', ['./tests.cpp'], dependencies: [doctest, opencv], link_with: [libsigfm])
++
++# doctest ships header-only with no pkg-config file on some distros; only build
++# the unit tests when it is actually available so the library still configures.
++if doctest.found()
++        sigfm_tests = executable('sigfm-tests', ['./tests.cpp'], dependencies: [doctest, opencv], link_with: [libsigfm])
++endif
+-- 
+2.54.0
+

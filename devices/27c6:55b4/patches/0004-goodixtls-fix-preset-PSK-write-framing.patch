@@ -1,7 +1,7 @@
 From 528d490b6e5de65c1bd6109fde4e9f1a6260d4a1 Mon Sep 17 00:00:00 2001
 From: Jed Blenkhorn <hello@jedbillyb.com>
 Date: Sun, 14 Jun 2026 20:25:03 +1200
-Subject: [PATCH] goodixtls: fix preset PSK write framing
+Subject: [PATCH 4/9] goodixtls: fix preset PSK write framing
 
 goodix_send_preset_psk_write built its payload with the 12-byte
 GoodixPresetPsk struct but never initialised the trailing offset field,
