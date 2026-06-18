@@ -1,0 +1,115 @@
+From 23951cd36c483865073a7a5e3c4b44a28fdfe2c1 Mon Sep 17 00:00:00 2001
+From: Jed Blenkhorn <hello@jedbillyb.com>
+Date: Sun, 14 Jun 2026 20:24:35 +1200
+Subject: [PATCH] goodixtls55x4: (re)provision the PSK instead of only checking
+ it
+
+The activation SSM only read the device PMK hash and failed if it did
+not match goodix_55x4_psk_0. A sensor last provisioned by another OS
+(e.g. Windows) reports a different hash and could never activate.
+
+Follow goodix-fp-dump's approach: when the stored hash differs, write the
+known white-box PSK (flags 0xbb010003) via a new ACTIVATE_WRITE_PSK state
+and continue. Once provisioned the device reports the expected hash, so
+the check passes and the write is skipped on subsequent activations.
+---
+ libfprint/drivers/goodixtls/goodix55x4.c | 37 +++++++++++++++++++++---
+ libfprint/drivers/goodixtls/goodix55x4.h | 17 +++++++++++
+ 2 files changed, 50 insertions(+), 4 deletions(-)
+
+diff --git a/libfprint/drivers/goodixtls/goodix55x4.c b/libfprint/drivers/goodixtls/goodix55x4.c
+index a00efba..3e8107b 100644
+--- a/libfprint/drivers/goodixtls/goodix55x4.c
++++ b/libfprint/drivers/goodixtls/goodix55x4.c
+@@ -81,6 +81,7 @@ enum activate_states {
+   ACTIVATE_NOP,
+   ACTIVATE_CHECK_FW_VER,
+   ACTIVATE_CHECK_PSK,
++  ACTIVATE_WRITE_PSK,
+   ACTIVATE_RESET,
+   ACTIVATE_SET_MCU_IDLE,
+   ACTIVATE_SET_MCU_CONFIG,
+@@ -177,13 +178,33 @@ static void check_preset_psk_read(FpDevice *dev, gboolean success,
+     return;
+   }
+ 
+-  if (memcmp(psk, goodix_55x4_psk_0, sizeof(goodix_55x4_psk_0))) {
+-    g_set_error(&error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+-                "Invalid device PSK: 0x%s", psk_str);
+-    fpi_ssm_mark_failed(user_data, error);
++  if (memcmp(psk, goodix_55x4_psk_0, sizeof(goodix_55x4_psk_0)) == 0) {
++    /* Device already provisioned with the expected PMK hash; skip the write. */
++    fpi_ssm_jump_to_state(user_data, ACTIVATE_RESET);
+     return;
+   }
+ 
++  /* Device was provisioned with a different PSK (e.g. by Windows). Fall through
++   * to ACTIVATE_WRITE_PSK to (re)provision it with the known white-box PSK so
++   * the all-zeros TLS-PSK handshake will succeed. */
++  fp_warn("Device PSK 0x%s does not match expected; will write known PSK to "
++          "(re)provision the sensor", psk_str);
++  fpi_ssm_next_state(user_data);
++}
++
++static void check_psk_write(FpDevice *dev, gboolean success, gpointer user_data,
++                            GError *error) {
++  if (error) {
++    fpi_ssm_mark_failed(user_data, error);
++    return;
++  }
++  if (!success) {
++    g_set_error(&error, G_IO_ERROR, G_IO_ERROR_FAILED,
++                "Failed to write PSK to device");
++    fpi_ssm_mark_failed(user_data, error);
++    return;
++  }
++  fp_info("Device PSK (re)provisioned successfully");
+   fpi_ssm_next_state(user_data);
+ }
+ static void check_idle(FpDevice *dev, gpointer user_data, GError *err) {
+@@ -280,6 +301,14 @@ static void activate_run_state(FpiSsm *ssm, FpDevice *dev) {
+                                 check_preset_psk_read, ssm);
+     break;
+ 
++  case ACTIVATE_WRITE_PSK:
++    g_print("Writing PSK\n");
++    goodix_send_preset_psk_write(dev, GOODIX_55X4_PSK_WRITE_FLAGS,
++                                 goodix_55x4_psk_white_box,
++                                 sizeof(goodix_55x4_psk_white_box), NULL,
++                                 check_psk_write, ssm);
++    break;
++
+   case ACTIVATE_RESET:
+     g_print("Reset Device\n");
+     goodix_send_reset(dev, TRUE, 20, check_reset, ssm);
+diff --git a/libfprint/drivers/goodixtls/goodix55x4.h b/libfprint/drivers/goodixtls/goodix55x4.h
+index e9c7f17..5502bf0 100644
+--- a/libfprint/drivers/goodixtls/goodix55x4.h
++++ b/libfprint/drivers/goodixtls/goodix55x4.h
+@@ -30,6 +30,23 @@
+ #define GOODIX_55X4_FIRMWARE_PREFIX ("GF3268_RTSEC_APP_")
+ 
+ #define GOODIX_55X4_PSK_FLAGS (0xbb020007)
++#define GOODIX_55X4_PSK_WRITE_FLAGS (0xbb010003)
++
++/* "White box" PSK blob written to the device to (re)provision it so that the
++ * device's stored PMK hash becomes goodix_55x4_psk_0 and the all-zeros TLS-PSK
++ * handshake succeeds. Fixed constant for all 55x4 units (from goodix-fp-dump
++ * driver_55x4.py PSK_WHITE_BOX). Re-applied on every Linux activation; Windows
++ * rewrites its own on its next boot. */
++guint8 goodix_55x4_psk_white_box[] = {
++    0xec, 0x35, 0xae, 0x3a, 0xbb, 0x45, 0xed, 0x3f, 0x12, 0xc4, 0x75,
++    0x1f, 0x1e, 0x5c, 0x2c, 0xc0, 0x5b, 0x3c, 0x54, 0x52, 0xe9, 0x10,
++    0x4d, 0x9f, 0x2a, 0x31, 0x18, 0x64, 0x4f, 0x37, 0xa0, 0x4b, 0x6f,
++    0xd6, 0x6b, 0x1d, 0x97, 0xcf, 0x80, 0xf1, 0x34, 0x5f, 0x76, 0xc8,
++    0x4f, 0x03, 0xff, 0x30, 0xbb, 0x51, 0xbf, 0x30, 0x8f, 0x2a, 0x98,
++    0x75, 0xc4, 0x1e, 0x65, 0x92, 0xcd, 0x2a, 0x2f, 0x9e, 0x60, 0x80,
++    0x9b, 0x17, 0xb5, 0x31, 0x60, 0x37, 0xb6, 0x9b, 0xb2, 0xfa, 0x5d,
++    0x4c, 0x8a, 0xc3, 0x1e, 0xdb, 0x33, 0x94, 0x04, 0x6e, 0xc0, 0x6b,
++    0xbd, 0xac, 0xc5, 0x7d, 0xa6, 0xa7, 0x56, 0xc5};
+ 
+ #define GOODIX_55X4_RESET_NUMBER (1024)
+ 
+-- 
+2.54.0
+

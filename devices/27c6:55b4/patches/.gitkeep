@@ -1,5 +1,0 @@
-# Patch files for the Goodix 27c6:55b4 fix go in this directory.
-#
-# Add the .patch / .diff files generated against the libfprint base stated in
-# ../README.md (or the goodix-55b4-fixes branch in ../CREDITS). State the
-# libfprint version/commit the patches apply against.

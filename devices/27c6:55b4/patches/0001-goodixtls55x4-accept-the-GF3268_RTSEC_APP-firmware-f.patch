@@ -1,0 +1,45 @@
+From 05548ad88b4964f969c6896a7ebf3ebf3020630e Mon Sep 17 00:00:00 2001
+From: Jed Blenkhorn <hello@jedbillyb.com>
+Date: Sun, 14 Jun 2026 20:23:42 +1200
+Subject: [PATCH] goodixtls55x4: accept the GF3268_RTSEC_APP firmware family
+
+The firmware check required the exact string GF3268_RTSEC_APP_10041 and
+rejected otherwise-identical sensors shipping a newer minor revision
+(e.g. GF3268_RTSEC_APP_10056). Compare against the GF3268_RTSEC_APP_
+prefix so the whole family is accepted.
+---
+ libfprint/drivers/goodixtls/goodix55x4.c | 3 ++-
+ libfprint/drivers/goodixtls/goodix55x4.h | 3 +++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/libfprint/drivers/goodixtls/goodix55x4.c b/libfprint/drivers/goodixtls/goodix55x4.c
+index 20db582..a00efba 100644
+--- a/libfprint/drivers/goodixtls/goodix55x4.c
++++ b/libfprint/drivers/goodixtls/goodix55x4.c
+@@ -106,7 +106,8 @@ static void check_firmware_version(FpDevice *dev, gchar *firmware,
+   fp_dbg("Device firmware: \"%s\"", firmware);
+   g_print("%s\n", firmware);
+ 
+-  if (strcmp(firmware, GOODIX_55X4_FIRMWARE_VERSION)) {
++  if (strncmp(firmware, GOODIX_55X4_FIRMWARE_PREFIX,
++              strlen(GOODIX_55X4_FIRMWARE_PREFIX))) {
+     g_set_error(&error, G_IO_ERROR, G_IO_ERROR_INVALID_DATA,
+                 "Invalid device firmware: \"%s\"", firmware);
+     fpi_ssm_mark_failed(user_data, error);
+diff --git a/libfprint/drivers/goodixtls/goodix55x4.h b/libfprint/drivers/goodixtls/goodix55x4.h
+index ccbcfaa..e9c7f17 100644
+--- a/libfprint/drivers/goodixtls/goodix55x4.h
++++ b/libfprint/drivers/goodixtls/goodix55x4.h
+@@ -25,6 +25,9 @@
+ #define GOODIX_55X4_EP_OUT (0x1 | FPI_USB_ENDPOINT_OUT)
+ 
+ #define GOODIX_55X4_FIRMWARE_VERSION ("GF3268_RTSEC_APP_10041")
++/* Accept any firmware in the GF3268_RTSEC_APP family (e.g. _10041, _10056)
++ * rather than a single exact revision. */
++#define GOODIX_55X4_FIRMWARE_PREFIX ("GF3268_RTSEC_APP_")
+ 
+ #define GOODIX_55X4_PSK_FLAGS (0xbb020007)
+ 
+-- 
+2.54.0
+

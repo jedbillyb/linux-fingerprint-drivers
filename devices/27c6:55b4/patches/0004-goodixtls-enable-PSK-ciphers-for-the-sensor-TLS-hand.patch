@@ -1,0 +1,46 @@
+From 682b46c91f5de6f1145ddc5cc8c8a44efb43fbf4 Mon Sep 17 00:00:00 2001
+From: Jed Blenkhorn <hello@jedbillyb.com>
+Date: Sun, 14 Jun 2026 20:25:37 +1200
+Subject: [PATCH] goodixtls: enable PSK ciphers for the sensor TLS handshake
+
+The TLS server used cipher list "ALL", which excludes PSK cipher suites,
+and on modern OpenSSL the default security level rejects the PSK ciphers
+the sensor offers, so SSL_accept failed with "cipher operation failed".
+Set "PSK:@SECLEVEL=0" on the sensor's TLS context and SSL object. This
+only affects the local in-process TLS-PSK channel to the fingerprint
+sensor (a socketpair), not any other OpenSSL usage.
+---
+ libfprint/drivers/goodixtls/goodixtls.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/libfprint/drivers/goodixtls/goodixtls.c b/libfprint/drivers/goodixtls/goodixtls.c
+index 60eccc1..88ab3a5 100644
+--- a/libfprint/drivers/goodixtls/goodixtls.c
++++ b/libfprint/drivers/goodixtls/goodixtls.c
+@@ -92,9 +92,13 @@ static void tls_server_config_ctx(SSL_CTX* ctx)
+ {
+     SSL_CTX_set_ecdh_auto(ctx, 1);
+     SSL_CTX_set_dh_auto(ctx, 1);
+-    SSL_CTX_set_cipher_list(ctx, "ALL");
+     SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
+     SSL_CTX_set_max_proto_version(ctx, TLS1_2_VERSION);
++    /* "ALL" excludes PSK cipher suites, and modern OpenSSL's default security
++     * level rejects the PSK ciphers this sensor uses, so SSL_accept fails with
++     * "cipher operation failed". Explicitly enable PSK at SECLEVEL=0 for this
++     * local sensor channel only. */
++    SSL_CTX_set_cipher_list(ctx, "PSK:@SECLEVEL=0");
+     SSL_CTX_set_psk_server_callback(ctx, tls_server_psk_server_callback);
+ }
+ 
+@@ -121,7 +125,7 @@ static void tls_config_ssl(SSL* ssl)
+     SSL_set_min_proto_version(ssl, TLS1_2_VERSION);
+     SSL_set_max_proto_version(ssl, TLS1_2_VERSION);
+     SSL_set_psk_server_callback(ssl, tls_server_psk_server_callback);
+-    SSL_set_cipher_list(ssl, "ALL");
++    SSL_set_cipher_list(ssl, "PSK:@SECLEVEL=0");
+ }
+ 
+ 
+-- 
+2.54.0
+
