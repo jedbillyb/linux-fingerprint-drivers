@@ -83,6 +83,16 @@ will change to Working here once confirmed (or drop off once merged upstream).
 | crfpmoc (cros_ec) | Chromium OS EC FPMCU | [!512](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/512) | not USB |
 | mafp8800 (SPI) | Microarray MAFP8800 | [!580](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/580) | not USB (SPI) |
 
+### Experimental community forks (not upstream)
+
+Drivers from community forks rather than upstream merge requests. These are not
+in libfprint and may be unstable; see each device entry for details.
+
+| Device ID | Chip / sensor | Source | Notes |
+|-----------|---------------|--------|-------|
+| 27c6:521d (538d) | Goodix 521d/538d | [goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev) | Works via AUR `libfprint-goodix-521d` |
+| 27c6:5110 + family | Goodix (newer) | [goodix-fp-linux-dev/libfprint](https://github.com/goodix-fp-linux-dev/libfprint) | **Experimental, not for daily use** |
+
 
 ## No known fix yet
 
@@ -95,7 +105,7 @@ contributor gap-map: if you have one of these, a dump or a driver is welcome.
 "Lead" flags a known reverse-engineering effort, partial result, or WIP/PoC
 noted on the wiki (follow the device's wiki page for links).
 
-Source: libfprint wiki (fetched 2026-06-18). Count below: 118 devices.
+Source: libfprint wiki (fetched 2026-06-18). Count below: 116 devices.
 
 | USB ID | Hardware | Lead |
 |--------|----------|------|
@@ -186,12 +196,10 @@ Source: libfprint wiki (fetched 2026-06-18). Count below: 118 devices.
 | [2541:0236](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/2541:0236) | External, GPD Win Max 2, AYANEO 2 | WIP/PoC upstream |
 | [2541:9711](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/2541:9711) | External, GPD Win Max 2, AYANEO 2 | WIP/PoC upstream |
 | [27c6:5042](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5042) | External |  |
-| [27c6:5110](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5110) | HUAWEI MateBook D 14 AMD / HUAWEI MateBook D 15 AMD | WIP/PoC upstream |
 | [27c6:5117](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5117) | MagicBook 2019 R7 / Huawei Matebook 13 2020 |  |
 | [27c6:5120](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5120) | Matebook D16 |  |
 | [27c6:5125](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5125) | HONOR HYM-WXX MagicBook 16 |  |
 | [27c6:5201](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5201) | ASUS ZenBook S UX391FA-AH001T |  |
-| [27c6:521d](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:521d) | ASUS Zephyrus-G14 |  |
 | [27c6:5301](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5301) | - |  |
 | [27c6:530c](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:530c) | Dell G5 15 5590 |  |
 | [27c6:532d](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:532d) | Dell XPS 13 7390 2-in-1 |  |

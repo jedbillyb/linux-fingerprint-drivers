@@ -1,0 +1,10 @@
+Device: Goodix 521d (USB 27c6:521d, 27c6:538d)
+
+Driver source: goodix-fp-linux-dev
+  https://github.com/goodix-fp-linux-dev
+
+Packaging (Arch AUR): libfprint-goodix-521d
+  https://aur.archlinux.org/packages/libfprint-goodix-521d
+  (builds a patched libfprint ~1.94.1, "For Goodix 521d and 538d")
+
+Based on libfprint (LGPL-2.1).

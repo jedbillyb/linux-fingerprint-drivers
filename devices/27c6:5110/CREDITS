@@ -1,0 +1,9 @@
+Device: Goodix newer sensors, experimental (USB 27c6:5110 and family)
+
+Driver source (experimental): goodix-fp-linux-dev
+  https://github.com/goodix-fp-linux-dev/libfprint
+  Protocol/firmware tooling: https://github.com/goodix-fp-linux-dev/goodix-fp-dump
+
+Sponsored by @markusressel and @PJungkamp (per the project's README).
+
+Based on libfprint (LGPL-2.1). Experimental - not production ready.
