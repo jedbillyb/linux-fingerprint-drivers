@@ -1,0 +1,7 @@
+Device: FocalTech (USB 2808:9e65)
+
+Driver author: armoredvortex
+  https://github.com/armoredvortex/focaltech_2808-9e65
+  License: MIT
+
+Built as a libfprint driver (focaltech / focaltech_moc).

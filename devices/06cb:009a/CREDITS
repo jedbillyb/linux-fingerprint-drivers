@@ -1,0 +1,14 @@
+Device: Synaptics "Prometheus" (USB 06cb:009a; also 138a:0090/0097/009d)
+
+Driver (userspace daemon): uunicorn
+  https://github.com/uunicorn/python-validity
+  License: MIT
+
+fprintd-compatible DBus shim: open-fprintd
+  (install alongside python-validity)
+
+Protocol reverse engineering: nmikhailov, uunicorn and contributors
+  https://github.com/nmikhailov/Validity90
+
+Not a libfprint driver - a userspace driver daemon that registers with
+open-fprintd so standard fprintd clients and pam_fprintd work.

@@ -1,0 +1,9 @@
+Device: FPC match-on-host / fpcmoh (USB 10a5:9800)
+
+Driver source (AUR): xuwd1
+  https://aur.archlinux.org/packages/libfprint-fpcmoh-git
+
+Fedora/dnf packaging: furcom (archived)
+  https://github.com/furcom/libfprint-patched
+
+Based on libfprint (LGPL-2.1).

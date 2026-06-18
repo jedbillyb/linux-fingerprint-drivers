@@ -1,0 +1,9 @@
+Device: ELAN Match-on-Chip 2 (USB 04f3:0c6c)
+
+Driver author: Prashant Adhikari (ITx-prash)
+  https://github.com/ITx-prash/libfprint-elan-04f3-0c6c
+
+Adapted from Davide Depau's elanmoc2 driver for 04f3:0c4c:
+  https://gitlab.freedesktop.org/depau/libfprint/-/tree/elanmoc2
+
+Based on libfprint (LGPL-2.1).
