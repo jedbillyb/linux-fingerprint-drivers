@@ -1,0 +1,10 @@
+Device: Validity / Synaptics VFS0090 (USB 138a:0090, 138a:0097)
+
+Driver author: 3v1n0 (Marco Trevisan)
+  vfs0090 branch: https://github.com/3v1n0/libfprint
+  (forked from aryanshar/libfprint)
+
+Protocol reverse engineering: nmikhailov, uunicorn and contributors
+  https://github.com/nmikhailov/Validity90
+
+Based on libfprint (LGPL-2.1).

@@ -1,0 +1,10 @@
+Device: ELAN match-on-chip / elanmoc2 (USB 04f3:0c4c, 04f3:0c00)
+
+Driver author: Depau
+  elanmoc2 branch, libfprint fork on freedesktop GitLab:
+  https://gitlab.freedesktop.org/depau/libfprint/-/tree/elanmoc2
+
+Debian/Ubuntu packaging: Greek64
+  https://github.com/Greek64/libfprint-elanmoc2-deb
+
+Based on libfprint (LGPL-2.1).

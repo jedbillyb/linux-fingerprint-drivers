@@ -27,9 +27,12 @@ Synaptics `06cb`, Elan `04f3`, etc.).
 
 ## Supported devices
 
-| Device ID   | Chip                | Status  | Distros tested |
-|-------------|---------------------|---------|----------------|
-| 27c6:55b4   | Goodix GF3268       | Working | Void Linux     |
+| Device ID            | Chip                    | Status  | Distros tested              |
+|----------------------|-------------------------|---------|-----------------------------|
+| 27c6:55b4            | Goodix GF3268           | Working | Void Linux                  |
+| 27c6:5385 (5335/5395)| Goodix HTK32            | Working | Arch, Fedora, Ubuntu/Debian |
+| 04f3:0c4c (0c00)     | ELAN match-on-chip      | Working | Debian/Ubuntu               |
+| 138a:0090 (0097)     | Validity/Synaptics VFS0090 | Working | Ubuntu, Arch, Fedora, NixOS |
 
 Status legend: **Working** (enroll + verify reliable), **Partial** (works with
 caveats), **WIP** (in progress).
