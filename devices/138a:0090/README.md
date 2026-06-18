@@ -18,6 +18,11 @@ prototype.
 Note: for `138a:0097`, match-on-chip is the only supported path on some
 firmware; behaviour can vary by unit.
 
+There is also an unmerged upstream effort for this sensor family: libfprint MR
+[!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579)
+("validity: Add new driver for Validity/Synaptics VCSFW sensors", Draft; covers
+138a:0090/0097/009d and 06cb:009a).
+
 ## Build and install
 
 The driver lives on the **`vfs0090`** branch of 3v1n0's libfprint fork (see

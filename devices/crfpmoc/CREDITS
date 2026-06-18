@@ -1,0 +1,8 @@
+Device: Chromium OS EC FPMCU (match-on-chip)
+Device ID(s): cros_ec (not USB)
+
+Status: unmerged libfprint merge request !512
+Author: Xelef2000 (@Xelef2000)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/512
+
+Part of libfprint (LGPL-2.1).

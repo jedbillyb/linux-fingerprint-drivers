@@ -1,0 +1,8 @@
+Device: FPC1022 (FPC Disum, USB)
+Device ID(s): 10a5:9200
+
+Status: unmerged libfprint merge request !570
+Author: Sergey Subbotin (@ssubbotin)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/570
+
+Part of libfprint (LGPL-2.1).

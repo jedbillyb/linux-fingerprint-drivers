@@ -1,0 +1,8 @@
+Device: NextBiometrics NB-2033-U (nb2033)
+Device ID(s): 298d:2033, 298d:2020
+
+Status: unmerged libfprint merge request !574
+Author: Sebastian van de Meer (@Kernel-Error)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/574
+
+Part of libfprint (LGPL-2.1).

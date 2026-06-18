@@ -1,0 +1,8 @@
+Device: Microarray match-on-chip (PID 8012)
+Device ID(s): 3274:8012
+
+Status: unmerged libfprint merge request !492
+Author: wsj (@FarmerCode)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492
+
+Part of libfprint (LGPL-2.1).

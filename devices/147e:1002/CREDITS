@@ -1,0 +1,8 @@
+Device: UPEK Touchstrip (upeksonly)
+Device ID(s): 147e:1002
+
+Status: unmerged libfprint merge request !585
+Author: Nikolay Metchev (@nikolaymetchev)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/585
+
+Part of libfprint (LGPL-2.1).

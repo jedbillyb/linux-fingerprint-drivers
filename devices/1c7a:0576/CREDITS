@@ -1,0 +1,8 @@
+Device: EgisTec 0576
+Device ID(s): 1c7a:0576
+
+Status: unmerged libfprint merge request !571
+Author: MarcelWRLD (@Sprayxe)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/571
+
+Part of libfprint (LGPL-2.1).

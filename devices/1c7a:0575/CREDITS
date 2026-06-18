@@ -1,0 +1,8 @@
+Device: EgisTec EGIS0575 (swipe)
+Device ID(s): 1c7a:0575
+
+Status: unmerged libfprint merge request !357
+Author: topni1 (@topni1)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357
+
+Part of libfprint (LGPL-2.1).

@@ -1,0 +1,8 @@
+Device: Microarray MAFP8800 (SPI)
+Device ID(s): ACPI HID MAFP8800 (SPI, not USB)
+
+Status: unmerged libfprint merge request !580
+Author: Mark (@IngeniousIdiocy)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/580
+
+Part of libfprint (LGPL-2.1).

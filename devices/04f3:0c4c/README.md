@@ -14,6 +14,10 @@ protocol for these readers (enroll, verify, identify, and template management
 are handled on the sensor). Once the elanmoc2 driver lands upstream this entry
 becomes obsolete.
 
+There is also an unmerged upstream effort for this exact device: libfprint MR
+[!330](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/330)
+("Add driver for ELAN MoC 0c4c").
+
 ## Build and install
 
 The driver lives on the **`elanmoc2`** branch of Depau's libfprint fork on

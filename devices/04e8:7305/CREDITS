@@ -1,0 +1,8 @@
+Device: Samsung 7305
+Device ID(s): 04e8:7305
+
+Status: unmerged libfprint merge request !586
+Author: Justin Hall (@jwhall)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/586
+
+Part of libfprint (LGPL-2.1).

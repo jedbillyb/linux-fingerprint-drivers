@@ -1,0 +1,8 @@
+Device: FocalTech FT9362 (match-on-host)
+Device ID(s): 2808:c652
+
+Status: unmerged libfprint merge request !588
+Author: Danny Trunk (@dtrunk90)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/588
+
+Part of libfprint (LGPL-2.1).

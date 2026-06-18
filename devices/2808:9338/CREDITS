@@ -1,0 +1,8 @@
+Device: FocalTech FT9201
+Device ID(s): 2808:9338, 2808:93a9
+
+Status: unmerged libfprint merge request !572
+Author: 0xCoDSnet (@0xCoDSnet)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/572
+
+Part of libfprint (LGPL-2.1).

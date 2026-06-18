@@ -1,0 +1,8 @@
+Device: ELAN elanmoc2 (0c8e)
+Device ID(s): 04f3:0c8e
+
+Status: unmerged libfprint merge request !560
+Author: REYSEIL FULLBRYGER (@reyseilfullbryger)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/560
+
+Part of libfprint (LGPL-2.1).

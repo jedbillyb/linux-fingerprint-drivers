@@ -15,6 +15,10 @@ Upstream libfprint does not support this FPC sensor, so it is unrecognised.
 Adds the `fpcmoh` (FPC match-on-host) driver to libfprint plus the udev rules
 needed for the device, enabling enroll and verify.
 
+The underlying driver also has an unmerged upstream merge request: libfprint MR
+[!396](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/396)
+("fpcmoh: Support FPC moh (match on host) devices", PID 0x9800).
+
 ## Build and install
 
 The cleanest source is xuwd1's AUR package `libfprint-fpcmoh-git` (see

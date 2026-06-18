@@ -24,6 +24,11 @@ normal `fprintd` clients and PAM modules work on top of it.
 So the stack is: `python-validity` (device driver daemon) -> `open-fprintd`
 (fprintd-compatible DBus service) -> `fprintd-clients` / `pam_fprintd`.
 
+There is also an unmerged upstream effort to support this family natively in
+libfprint: MR
+[!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579)
+("validity: Add new driver for Validity/Synaptics VCSFW sensors", Draft).
+
 ## Install
 
 Packages exist for major distros (see `CREDITS`):

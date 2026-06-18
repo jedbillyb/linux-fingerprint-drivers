@@ -1,0 +1,8 @@
+Device: ELAN ARM-M4 (0c9c)
+Device ID(s): 04f3:0c9c
+
+Status: unmerged libfprint merge request !568
+Author: Petapton (@Petapton)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568
+
+Part of libfprint (LGPL-2.1).

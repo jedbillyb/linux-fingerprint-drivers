@@ -1,0 +1,8 @@
+Device: Samsung 730B (image)
+Device ID(s): 04e8:730b
+
+Status: unmerged libfprint merge request !556
+Author: lignah (@lignah)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/556
+
+Part of libfprint (LGPL-2.1).
