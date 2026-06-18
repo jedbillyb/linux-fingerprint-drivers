@@ -1,0 +1,9 @@
+Device: Goodix GF3268 (USB 27c6:55b4)
+
+Author: jedbillyb
+
+Source fork:   https://github.com/jedbillyb/libfprint
+Branch:        goodix-55b4-fixes
+
+Based on the goodixtls libfprint work by TheWeirdDev and contributors.
+Original driver code is LGPL-2.1; this fork keeps that license.
