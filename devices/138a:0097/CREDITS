@@ -1,0 +1,13 @@
+Device: Validity/Synaptics VFS0097 (VCSFW protocol)
+Device ID(s): 138a:0097, 138a:009d (family also covers 138a:0090, 06cb:009a)
+
+Status: unmerged libfprint merge requests !579 and !619
+Authors:
+  - @lewohart (MR !579, native VCSFW driver)
+  - Willem Mulder (@14mRh4X0r) (MR !619, port of @3v1n0's TOD vfs0090 driver)
+Upstream base for MR !619: https://github.com/3v1n0/libfprint-tod-vfs0090
+MRs:
+  https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579
+  https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/619
+
+Part of libfprint (LGPL-2.1).

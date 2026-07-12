@@ -1,16 +1,17 @@
 # ELAN ARM-M4 (0c9c)
 
-**Status: WIP (unmerged upstream MR)**
+**Status: Merged upstream (libfprint MR !568, merged 2026-06-18)**
 
 Device ID(s): `04f3:0c9c`
 
-This is a driver that has been submitted to the **official libfprint project**
-but is **not merged yet**, so it is not in any released libfprint. Tracked here so
-people with this sensor can find and build the work in progress.
+This driver is now **merged into upstream libfprint** (git master). It is not in
+older released libfprint, so build from libfprint git (or wait for the first
+release/distro package that includes it) to get it. Entry kept for people still
+on an older libfprint.
 
 ## Upstream merge request
 
-- libfprint MR !568: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568
+- libfprint MR !568 (merged 2026-06-18): https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568
 - Author: Petapton (@Petapton)
 
 

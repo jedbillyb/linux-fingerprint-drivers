@@ -1,18 +1,18 @@
 # Microarray match-on-chip (PID 8012)
 
-**Status: WIP (unmerged upstream MR, Draft)**
+**Status: Merged upstream (libfprint MR !492, merged 2026-06-18)**
 
 Device ID(s): `3274:8012`
 
-This is a driver that has been submitted to the **official libfprint project**
-but is **not merged yet**, so it is not in any released libfprint. Tracked here so
-people with this sensor can find and build the work in progress.
+This driver is now **merged into upstream libfprint** (git master). It is not in
+older released libfprint, so build from libfprint git (or wait for the first
+release/distro package that includes it) to get it. Entry kept for people still
+on an older libfprint.
 
 ## Upstream merge request
 
-- libfprint MR !492: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492
+- libfprint MR !492 (merged 2026-06-18): https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492
 - Author: wsj (@FarmerCode)
-- Marked **Draft** by the author.
 
 ## What it does
 

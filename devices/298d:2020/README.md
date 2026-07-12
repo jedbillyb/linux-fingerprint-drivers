@@ -1,16 +1,17 @@
 # NextBiometrics NB-2020-U (nb1010)
 
-**Status: WIP (unmerged upstream MR)**
+**Status: Merged upstream (libfprint MR !569, merged 2026-07-02)**
 
 Device ID(s): `298d:2020`
 
-This is a driver that has been submitted to the **official libfprint project**
-but is **not merged yet**, so it is not in any released libfprint. Tracked here so
-people with this sensor can find and build the work in progress.
+This driver is now **merged into upstream libfprint** (git master). It is not in
+older released libfprint, so build from libfprint git (or wait for the first
+release/distro package that includes it) to get it. Entry kept for people still
+on an older libfprint.
 
 ## Upstream merge request
 
-- libfprint MR !569: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/569
+- libfprint MR !569 (merged 2026-07-02): https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/569
 - Author: Sebastian van de Meer (@Kernel-Error)
 
 

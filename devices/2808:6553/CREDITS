@@ -1,7 +1,7 @@
 Device: FocalTech FT9365 ESS (focaltech_moc)
 Device ID(s): 2808:6553
 
-Status: unmerged libfprint merge request !554
+Status: merged upstream (libfprint MR !554, merged 2026-06-18)
 Author: Sid1803 (@sid1803)
 MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/554
 

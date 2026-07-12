@@ -1,0 +1,8 @@
+Device: ELAN ELAN7006 fingerprint sensor
+Device ID(s): 04f3:310d
+
+Status: unmerged libfprint merge request !383 (early draft, not functional)
+Author: Evgeny Boykov (@boykov)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/383
+
+Part of libfprint (LGPL-2.1).

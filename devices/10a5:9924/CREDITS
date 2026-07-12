@@ -1,0 +1,9 @@
+Device: FPC match-on-host fingerprint sensor (fpcmoc)
+Device ID(s): 10a5:9924
+
+Status: unmerged libfprint merge request !611
+Author: zeno (@Zeno-sole) <lichenggang@uniontech.com>
+Origin fork: https://github.com/reackcjq/honor-fpc-fingerprint-linux
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/611
+
+Part of libfprint (LGPL-2.1).

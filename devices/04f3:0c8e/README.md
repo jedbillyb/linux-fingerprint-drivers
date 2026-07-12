@@ -1,16 +1,18 @@
 # ELAN elanmoc2 (0c8e)
 
-**Status: WIP (unmerged upstream MR)**
+**Status: Stale (upstream MR !560 was closed without merging)**
 
 Device ID(s): `04f3:0c8e`
 
-This is a driver that has been submitted to the **official libfprint project**
-but is **not merged yet**, so it is not in any released libfprint. Tracked here so
-people with this sensor can find and build the work in progress.
+A driver was submitted to the **official libfprint project** but the merge
+request was **closed without being merged**, so there is no maintained upstream
+work for this sensor right now. The MR branch below still exists and may be a
+usable starting point, but it is unmaintained - treat this as a lead for someone
+to pick up rather than a ready driver.
 
 ## Upstream merge request
 
-- libfprint MR !560: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/560
+- libfprint MR !560 (**closed, not merged**): https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/560
 - Author: REYSEIL FULLBRYGER (@reyseilfullbryger)
 
 

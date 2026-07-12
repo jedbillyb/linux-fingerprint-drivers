@@ -67,21 +67,37 @@ will change to Working here once confirmed (or drop off once merged upstream).
 | Device ID | Chip / sensor | MR | Notes |
 |-----------|---------------|----|-------|
 | 147e:1002 | UPEK Touchstrip (upeksonly) | [!585](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/585) | Draft |
-| 2808:6553 | FocalTech FT9365 ESS | [!554](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/554) | Galaxy Book 4; verified Arch |
+| 0a5c:xxxx (Dell) | Broadcom ControlVault3 (fp + NFC) | [!620](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620) | Dell family; needs vendor firmware; see [entry](devices/broadcom-controlvault3/) |
+| 138a:0097 / 009d | Validity/Synaptics VFS0097 (VCSFW) | [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579), [!619](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/619) | native driver; also covers 0090 + 06cb:009a |
 | 2808:c652 | FocalTech FT9362 (match-on-host) | [!588](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/588) | |
 | 2808:9338 / 93a9 | FocalTech FT9201 | [!572](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/572) | |
 | 10a5:9200 | FPC1022 (FPC Disum) | [!570](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/570) | |
+| 10a5:9924 | FPC match-on-host (Honor) | [!611](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/611) | |
 | 04e8:7305 | Samsung 7305 | [!586](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/586) | |
 | 04e8:730b | Samsung 730B (image) | [!556](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/556) | |
-| 04f3:0c9c | ELAN ARM-M4 (0c9c) | [!568](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568) | |
-| 04f3:0c8e | ELAN elanmoc2 (0c8e) | [!560](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/560) | |
+| 04f3:310d | ELAN ELAN7006 | [!383](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/383) | Draft, not working yet |
 | 1c7a:0576 | EgisTec 0576 | [!571](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/571) | |
-| 1c7a:0575 | EgisTec EGIS0575 (swipe) | [!357](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357) | |
+| 1c7a:0575 | EgisTec EGIS0575 (swipe) | [!357](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357) | Needs work |
 | 298d:2033 | NextBiometrics NB-2033-U | [!574](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/574) | |
-| 298d:2020 | NextBiometrics NB-2020-U | [!569](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/569) | |
-| 3274:8012 | Microarray match-on-chip | [!492](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492) | Draft |
 | crfpmoc (cros_ec) | Chromium OS EC FPMCU | [!512](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/512) | not USB |
 | mafp8800 (SPI) | Microarray MAFP8800 | [!580](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/580) | not USB (SPI) |
+
+### Recently merged upstream
+
+These were WIP here but their merge requests have since **merged into libfprint
+git master** (2026-06/07). They will be in the next libfprint release; build from
+git to get them now. Entries are kept for people still on an older libfprint.
+
+| Device ID | Chip / sensor | MR | Merged |
+|-----------|---------------|----|--------|
+| 2808:6553 | FocalTech FT9365 ESS | [!554](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/554) | 2026-06-18 |
+| 04f3:0c9c | ELAN ARM-M4 (0c9c) | [!568](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568) | 2026-06-18 |
+| 3274:8012 | Microarray match-on-chip | [!492](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492) | 2026-06-18 |
+| 298d:2020 | NextBiometrics NB-2020-U | [!569](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/569) | 2026-07-02 |
+
+_Stale:_ [`04f3:0c8e`](devices/04f3:0c8e/) (ELAN elanmoc2) - its MR
+[!560](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/560)
+was **closed without merging**; no maintained upstream work right now.
 
 ### Experimental community forks (not upstream)
 
@@ -105,7 +121,15 @@ contributor gap-map: if you have one of these, a dump or a driver is welcome.
 "Lead" flags a known reverse-engineering effort, partial result, or WIP/PoC
 noted on the wiki (follow the device's wiki page for links).
 
-Source: libfprint wiki (fetched 2026-06-18). Count below: 116 devices.
+Source: libfprint wiki (fetched 2026-06-18). Count below: ~115 devices.
+
+Note: some devices still listed below now have **WIP driver work** and are
+tracked above, so check the tables above before assuming there is no fix:
+the Dell **`0a5c:58xx` Broadcom** cluster is targeted by the ControlVault3 driver
+(MR [!620](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620),
+see [entry](devices/broadcom-controlvault3/)), and **`138a:009d`** by the Validity
+VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579),
+see [entry](devices/138a:0097/)).
 
 | USB ID | Hardware | Lead |
 |--------|----------|------|
@@ -130,7 +154,6 @@ Source: libfprint wiki (fetched 2026-06-18). Count below: 116 devices.
 | [04f3:3032](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:3032) | ASUS ZenBook UX330CA |  |
 | [04f3:3057](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:3057) | ASUS VivoBook Pro 15 N580GD |  |
 | [04f3:3104](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:3104) | ASUS Vivobook f571gt- al318t | partial |
-| [04f3:310d](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:310d) | ELAN7006 |  |
 | [04f3:3128](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:3128) | ELAN/FA461D-2203 |  |
 | [05ba:000e](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/05ba:000e) | DigitalPersona 5300 |  |
 | [06cb:0051](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:0051) | - |  |

@@ -1,7 +1,7 @@
 Device: ELAN ARM-M4 (0c9c)
 Device ID(s): 04f3:0c9c
 
-Status: unmerged libfprint merge request !568
+Status: merged upstream (libfprint MR !568, merged 2026-06-18)
 Author: Petapton (@Petapton)
 MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568
 

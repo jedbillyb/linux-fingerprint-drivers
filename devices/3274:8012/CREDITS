@@ -1,7 +1,7 @@
 Device: Microarray match-on-chip (PID 8012)
 Device ID(s): 3274:8012
 
-Status: unmerged libfprint merge request !492
+Status: merged upstream (libfprint MR !492, merged 2026-06-18)
 Author: wsj (@FarmerCode)
 MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492
 

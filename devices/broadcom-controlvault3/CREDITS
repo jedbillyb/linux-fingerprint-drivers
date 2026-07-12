@@ -1,0 +1,9 @@
+Device: Broadcom ControlVault3 fingerprint + NFC controller (Dell)
+Device ID(s): Broadcom 0a5c family (see MR for the model/ID table)
+
+Status: unmerged libfprint merge request !620
+Author: Erik Håkansson (@erikhakan)
+MR: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620
+
+Part of libfprint (LGPL-2.1). Vendor firmware blob is Broadcom-proprietary and
+is not redistributed here.
