@@ -1,5 +1,7 @@
 # FocalTech (USB 2808:9e65)
 
+**Status: Partial - reported working, no distro/hardware confirmation on record.**
+
 FocalTech press-type fingerprint sensor.
 
 ## What was broken

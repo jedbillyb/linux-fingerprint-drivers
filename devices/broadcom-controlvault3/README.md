@@ -56,3 +56,17 @@ See the MR discussion for the current list of confirmed Dell models.
 
 Part of libfprint (LGPL-2.1). The vendor firmware blob is Broadcom-proprietary
 and is not included here.
+
+## Vendor TOD route (works today, proprietary)
+
+While MR !620 is unmerged, the working route on these Dell machines is Broadcom's
+proprietary driver loaded through libfprint TOD. Nothing from it is hosted here.
+
+| Distro | Route |
+|--------|-------|
+| Ubuntu | Dell OEM package `libfprint-2-tod1-broadcom` ([Launchpad source](https://git.launchpad.net/~oem-solutions-engineers/libfprint-2-tod1-broadcom/+git/libfprint-2-tod1-broadcom/)) |
+| Arch | AUR `libfprint-2-tod1-broadcom` (Latitude 7300 class), or `libfprint-2-tod1-broadcom-cv3plus` for **ControlVault3 Plus** (`0a5c:586*`), sourced from [Broadcom's artifactory](https://packages.broadcom.com/artifactory/dell-controlvault-drivers/) |
+| Other | Extract Dell's `.deb` and install the TOD module against a TOD-enabled libfprint |
+
+You still need the ControlVault firmware described above. The blob is closed
+source, x86-64 only, and tied to a libfprint TOD ABI; keep password auth working.

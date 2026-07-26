@@ -1,5 +1,7 @@
 # FPC Match-on-Host / fpcmoh (USB 10a5:9800)
 
+**Status: Working via the out-of-tree fpcmoh packaging.**
+
 Fingerprint Cards (FPC) sensor.
 
 ## Hardware

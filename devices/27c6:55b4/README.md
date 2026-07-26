@@ -1,5 +1,7 @@
 # Goodix GF3268 (USB 27c6:55b4)
 
+**Status: Working (enroll + verify reliable) via a patched fork.**
+
 Goodix TLS fingerprint sensor, reported by libfprint as **Goodix TLS Fingerprint
 Sensor 55X4**. Firmware family `GF3268_RTSEC_APP_10056`. Found in various
 laptops behind the Goodix `27c6` vendor ID.

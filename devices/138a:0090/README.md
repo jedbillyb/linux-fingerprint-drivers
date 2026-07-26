@@ -1,5 +1,7 @@
 # Validity / Synaptics VFS0090 (USB 138a:0090, 138a:0097)
 
+**Status: Working via the established out-of-tree vfs0090 driver.**
+
 Validity Sensors (now Synaptics) fingerprint reader, found in 2016-era ThinkPad
 laptops. This entry covers `138a:0090` and `138a:0097`.
 
@@ -61,3 +63,9 @@ Enable fprintd in your PAM stack: distro helper where there is one, otherwise
 ## Tested on
 
 - Ubuntu (PPA), Arch Linux (AUR), Fedora 28, NixOS.
+
+## Packaged route (Arch)
+
+The AUR package `libfprint-vfs009x-git` builds libfprint with the libre vfs0090
+and vfs0097 drivers, which is the quickest way onto this driver on Arch without
+managing your own fork.

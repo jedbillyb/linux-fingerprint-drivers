@@ -1,0 +1,13 @@
+Device: Chipsailing CS9711 (USB 2541:0236, 2541:9711)
+
+Driver author: ddlsmurf
+  https://github.com/ddlsmurf/libfprint-CS9711  (unmaintained, points to the fork)
+  License: LGPL-2.1
+
+Maintained fork: archeYR
+  https://github.com/archeYR/libfprint-CS9711
+  License: LGPL-2.1
+
+Arch packaging: AUR libfprint-cs9711-git, libfprint-cs9711-rebase-git
+
+Uses the sigfm matcher (see libfprint MRs !418 / !530) rather than NBIS.

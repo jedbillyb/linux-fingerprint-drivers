@@ -1,5 +1,7 @@
 # ELAN Match-on-Chip 2 (USB 04f3:0c6c)
 
+**Status: Working via a community driver.**
+
 ELAN "Match-on-Chip 2" fingerprint reader.
 
 ## What was broken

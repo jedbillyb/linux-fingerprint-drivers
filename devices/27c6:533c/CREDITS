@@ -1,0 +1,9 @@
+Device: Goodix 27c6:533c (Dell XPS 13 9300, XPS 15 9500)
+
+No open driver exists. Vendor route only.
+
+Proprietary driver: Goodix, packaged by Dell OEM Solutions Engineering
+  https://git.launchpad.net/~oem-solutions-engineers/libfprint-2-tod1-goodix/+git/libfprint-2-tod1-goodix/
+  License: proprietary (not redistributed by this hub)
+
+Arch packaging: AUR libfprint-2-tod1-xps9300-bin

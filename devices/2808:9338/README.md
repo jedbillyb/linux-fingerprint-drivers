@@ -39,3 +39,21 @@ Not documented.
 ## License
 
 Part of libfprint (LGPL-2.1).
+
+## Alternative route: vendor matching engine on Linux
+
+[OMGrant/ft9201-libfprint](https://github.com/OMGrant/ft9201-libfprint)
+(LGPL-2.1, 20+ stars, active) is a working driver for `2808:93a9` that takes a
+different approach: the libfprint driver is open, but instead of NBIS it calls
+**FocalTech's own Windows matching engine** (`ftWbioEngineAdapter.dll`) through a
+small in-process PE loader. No Wine, and it runs under fprintd's
+`MemoryDenyWriteExecute` hardening.
+
+Trade-offs: you must supply the vendor DLL yourself, matching happens inside a
+blob nobody can fix, and it is x86-64 only. Tested by that author on the FT9348W
+variant of `2808:93a9`.
+
+Its [`PORTING.md`](https://github.com/OMGrant/ft9201-libfprint/blob/main/PORTING.md)
+generalises the method to other Windows-Hello-only readers, including SDCP
+sensors, which makes it worth reading for anyone attacking a sensor in the
+[gap-map](../../docs/unsupported-devices.md).

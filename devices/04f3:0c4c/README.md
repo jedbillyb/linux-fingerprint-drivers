@@ -1,5 +1,7 @@
 # ELAN Match-on-Chip / elanmoc2 (USB 04f3:0c4c, 04f3:0c00)
 
+**Status: Working via the elanmoc2 driver fork.**
+
 ELAN match-on-chip fingerprint reader. The same driver also covers `04f3:0c00`.
 
 ## What was broken

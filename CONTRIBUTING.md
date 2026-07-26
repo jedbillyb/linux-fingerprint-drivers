@@ -36,7 +36,9 @@ devices/<vendor>:<product>/
 
 ## Required files
 
-- **README.md** - must cover: the chip/sensor name, what is broken in upstream
+- **README.md** - must start with a `# <chip> (<USB ID>)` heading and a
+  `**Status: ...**` line (`tools/detect.sh` shows that status to users), then
+  cover: the chip/sensor name, what is broken in upstream
   libfprint, what the fix does, anything sensor-specific about building or
   installing it, and which distro(s) it was tested on (with a `## Tested on`
   section). Do **not** repeat the generic build/install/PAM steps: link

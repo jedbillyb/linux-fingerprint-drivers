@@ -1,0 +1,12 @@
+Device: ELAN image sensors, 04f3:0c28 and the wider 0c0x/0c1x/0c2x family
+
+Improvement authors:
+  Piotr Piastucki (@ppiastucki) - libfprint MR !217 (elan touch devices)
+    https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/217
+    Based in part on https://github.com/iafilatov/libfprint (elan-touch branch)
+
+  Tooniis (@Tooniis) - libfprint MR !530 (sigfm, ELAN enabled)
+    https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/530
+    Continues MR !418 by the original sigfm author
+
+Part of libfprint; LGPL-2.1.

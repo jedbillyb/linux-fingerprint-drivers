@@ -1,0 +1,10 @@
+Device: EgisTec 1c7a:0570, 1c7a:0571 (in-tree egis0570 driver)
+
+Calibration fix author: Saeed/Ali Rk (PesarAmmehZa) (@saeedark)
+  libfprint MR !548: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/548
+  Addresses libfprint issue #418
+
+Depends conceptually on Benjamin Berg's persistent-data work
+(libfprint branch benzea/persistent-data, MR !368, plus an fprintd branch).
+
+Part of libfprint; LGPL-2.1.

@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 115 USB fingerprint sensors below are on the official libfprint
+The 104 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -10,7 +10,8 @@ have one of these, a protocol dump or a driver is welcome.
 "Lead" flags a known reverse-engineering effort, partial result, or WIP/PoC
 noted on the wiki; follow the device's wiki page for links.
 
-Source: libfprint wiki, fetched 2026-06-18.
+Source: libfprint wiki, fetched 2026-06-18. Rows are removed as devices gain
+an entry; last reconciled 2026-07-26.
 
 Two clusters listed below do now have WIP driver work tracked in the README:
 the Dell **`0a5c:58xx` Broadcom** family is targeted by the ControlVault3 driver
@@ -52,19 +53,14 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | [06cb:00a1](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00a1) | Validity90 |  |
 | [06cb:00a2](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00a2) | Validity90 |  |
 | [06cb:00a8](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00a8) | Clevo Laptops |  |
-| [06cb:00b7](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00b7) | HP Probook 450 G6, HP Zbook 17 G6) |  |
 | [06cb:00bb](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00bb) | HP Spectre x360 - 13 -ap0xxxxx |  |
 | [06cb:00bc](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00bc) | dell latitude 7200 |  |
 | [06cb:00be](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00be) | Thinkpad C740, Yoga | RE effort exists |
-| [06cb:00c9](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00c9) | HP device? |  |
-| [06cb:00cb](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00cb) | HP Pavlion X360 |  |
 | [06cb:00d8](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00d8) | HP ProBook 430 G7 |  |
 | [06cb:00da](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00da) | ThinkPad E14 |  |
 | [06cb:00dc](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00dc) | Acer Spin 3, SP313-51N |  |
 | [06cb:00e4](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00e4) | Acer ConceptD CC314-72 |  |
-| [06cb:00e7](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00e7) | HP Envy x360 - 13" - ay0xxxx |  |
 | [06cb:00fd](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00fd) | Lenovo Thinkbook 15 G13 |  |
-| [06cb:00ff](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:00ff) | HP Spectre x360 2-in-1 Laptop 16-f1xxx |  |
 | [0a5c:5801](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/0a5c:5801) | Dell Latitude E6530 |  |
 | [0a5c:5802](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/0a5c:5802) | Dell Precision M4800 |  |
 | [0a5c:5805](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/0a5c:5805) | Dell Latitude e5470 |  |
@@ -83,7 +79,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | [0a5c:5867](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/0a5c:5867) | - |  |
 | [0bda:5812](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/0bda:5812) | Lenovo Yoga 9i 14ITL |  |
 | [10a5:0007](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/10a5:0007) | LG GRAM 2018 |  |
-| [10a5:9201](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/10a5:9201) | RedmiBook 14 Pro 2022 |  |
 | [10a5:a120](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/10a5:a120) | - |  |
 | [10a5:a900](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/10a5:a900) | magikbook 14x |  |
 | [10a5:a921](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/10a5:a921) | Honor Magicbook x16 plus 2024 |  |
@@ -98,14 +93,11 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | [138a:0094](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/138a:0094) | - |  |
 | [138a:009d](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/138a:009d) | - |  |
 | [138a:00a6](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/138a:00a6) | Dell Latitude 3490 |  |
-| [138a:00ab](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/138a:00ab) | HP EliteBook 1030 x360 G3 |  |
 | [1491:0088](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/1491:0088) | - |  |
 | [16d1:1027](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/16d1:1027) | - |  |
 | [1c7a:0300](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/1c7a:0300) | Acer Swift 1 (SF114-32-P78E)? | RE effort exists |
 | [1c7a:0577](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/1c7a:0577) | GTR5 mini |  |
 | [1c7a:057e](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/1c7a:057e) | Samsung GalaxyBook Pro 360 |  |
-| [2541:0236](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/2541:0236) | External, GPD Win Max 2, AYANEO 2 | WIP/PoC upstream |
-| [2541:9711](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/2541:9711) | External, GPD Win Max 2, AYANEO 2 | WIP/PoC upstream |
 | [27c6:5042](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5042) | External |  |
 | [27c6:5117](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5117) | MagicBook 2019 R7 / Huawei Matebook 13 2020 |  |
 | [27c6:5120](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5120) | Matebook D16 |  |
@@ -114,12 +106,10 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | [27c6:5301](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5301) | - |  |
 | [27c6:530c](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:530c) | Dell G5 15 5590 |  |
 | [27c6:532d](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:532d) | Dell XPS 13 7390 2-in-1 |  |
-| [27c6:533c](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:533c) | Dell XPS 13 9300 / Dell XPS 15 9500 |  |
 | [27c6:5381](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5381) | - |  |
 | [27c6:538c](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:538c) | Dell Inspiron 17 7000 |  |
 | [27c6:538d](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:538d) | Dell Inspiron 17 7000 |  |
 | [27c6:5503](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5503) | Lenovo ThinkPad E14 |  |
-| [27c6:550a](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:550a) | Lenovo ThinkPad E15 |  |
 | [27c6:550c](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:550c) | Lenovo Yoga 9 14IAP7 |  |
 | [27c6:5584](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:5584) | yoga 730-13IWL 81JR |  |
 | [27c6:55a2](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/27c6:55a2) | Ideapad 5 |  |

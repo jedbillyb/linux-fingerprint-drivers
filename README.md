@@ -17,6 +17,8 @@ use your distro's libfprint. This repo is only for the ones that are not.
 - [Recently merged upstream](#recently-merged-upstream)
 - [Stale (MR closed without merging)](#stale-merge-request-closed-without-merging)
 - [Experimental community forks](#experimental-community-forks-not-upstream)
+- [Vendor blob and non-LGPL routes](#vendor-blob-and-non-lgpl-routes-catalogued-never-hosted)
+- [Claimed upstream, but unreliable](#claimed-upstream-but-unreliable)
 - [No known fix yet](#no-known-fix-yet)
 - [Building: **docs/BUILD.md**](docs/BUILD.md) - build, install, PAM, troubleshooting
 - [Contributing](#contributing)
@@ -63,6 +65,8 @@ appear in `lsusb` at all.
 | 06cb:009a (138a:009d)| Synaptics Prometheus    | Working | Ubuntu, Arch, Fedora         |
 | 04f3:0c6c            | ELAN Match-on-Chip 2    | Working | Ubuntu/Debian, Fedora, Arch |
 | 10a5:9800            | FPC fpcmoh (match-on-host) | Working | Fedora, Arch              |
+| 2541:0236 (9711)     | Chipsailing CS9711      | Working | Arch (GPD Win Max 2, AYANEO 2) |
+| 06cb:00ff (+00c9/00d1/00e7/0124/0169) | Synaptics Tudor MiS | Working | Arch, Fedora, Ubuntu (community routes) |
 | 2808:9e65            | FocalTech               | Partial | Undocumented (unconfirmed)  |
 
 Status legend: **Working** (enroll + verify reliable), **Partial** (works with
@@ -79,17 +83,31 @@ Note: `06cb:009a` (Synaptics Prometheus) is handled by **python-validity**, a
 userspace driver daemon that plugs into `fprintd` via `open-fprintd`, rather than
 a libfprint driver. See its [entry](devices/06cb:009a/) for the different stack.
 
-### Out of scope
+## Vendor blob and non-LGPL routes (catalogued, never hosted)
 
-Some sensors only have fixes that do not fit this hub's LGPL-2.1 scope, so they
-are not catalogued here as device entries:
+Some very common sensors have **no open driver at all**: the only thing that works
+is a proprietary vendor driver loaded through libfprint's TOD (Touch OEM Driver)
+mechanism, or a project under a license this hub cannot host.
 
-- **27c6:550a** (Goodix) - works via Lenovo's proprietary `libfprint-2-tod-goodix`
-  TOD binary blob, not open driver code.
-- **10a5:9201** (FPC) - the `fingerprint-ocv` driver is a standalone AGPL-3.0
-  project, not an LGPL-2.1 libfprint driver.
-- Proprietary vendor blobs in general (e.g. various FocalTech `2808:a658` ASUS
-  drivers).
+This repo hosts **only LGPL-2.1 code**. But leaving these devices uncatalogued
+just means their owners find nothing and conclude Linux cannot use their reader,
+so they get entries that point at the vendor route and state the trade-offs
+plainly. Nothing proprietary is mirrored here, and a pointer is not an
+endorsement: read the caveats in each entry before putting a closed binary in
+your authentication path.
+
+| Device ID | Chip | Route | Entry |
+|-----------|------|-------|-------|
+| 27c6:550a | Goodix | Lenovo TOD blob (`libfprint-2-tod1-goodix`); ThinkPad E14/E15, ThinkBook | [entry](devices/27c6:550a/) |
+| 27c6:533c | Goodix | Dell OEM TOD blob; XPS 13 9300, XPS 15 9500 | [entry](devices/27c6:533c/) |
+| 04f3:0c4b | ELAN | Lenovo TOD blob (`libfprint-2-tod1-elan`); ThinkPad E14 Gen 4 | [entry](devices/04f3:0c4b/) |
+| 0a5c:58xx / 586x | Broadcom | Dell/Canonical TOD blob, alongside the open MR | [entry](devices/broadcom-controlvault3/) |
+| 10a5:9201 | FPC | `fingerprint-ocv`, standalone AGPL-3.0 daemon | [entry](devices/10a5:9201/) |
+| 06cb:00ff family | Synaptics Tudor | relinked vendor Windows driver, *or* a fully open native driver | [entry](devices/06cb:00ff/) |
+
+Still genuinely out of scope: sensors where nobody has published any working
+route at all (those live in the [gap-map](docs/unsupported-devices.md)), and
+routes we cannot verify (see [Contributing](#contributing) on the vetting bar).
 
 ## In progress (unmerged upstream MRs)
 
@@ -106,7 +124,10 @@ itself is always the authority.
 |-----------|---------------|----|-------|
 | 147e:1002 | UPEK Touchstrip (upeksonly) | [!585](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/585) | Draft |
 | 0a5c:xxxx (Dell) | Broadcom ControlVault3 (fp + NFC) | [!620](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620) | Dell family; needs vendor firmware; see [entry](devices/broadcom-controlvault3/) |
-| 138a:0097 / 009d | Validity/Synaptics VFS0097 (VCSFW) | [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579), [!619](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/619) | native driver; also covers 0090 + 06cb:009a |
+| 138a:0097 / 009d | Validity/Synaptics VFS0097 (VCSFW) | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626), [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579), [!619](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/619) | !626 is the active continuation of !579; also covers 0090 + 06cb:009a |
+| 138a:00ab | Validity VCSFW 0x969/0xd51 | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626) | hardware-validated; HP ZBook Studio x360 G5 |
+| 06cb:00cb | Validity VCSFW 0x969 | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626) | hardware-validated; HP Pavilion x360 14-dh |
+| 06cb:00b7 | Validity VCSFW 0xd51 | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626) | registered, untested; HP G6 series |
 | 2808:c652 | FocalTech FT9362 (match-on-host) | [!588](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/588) | |
 | 2808:9338 / 93a9 | FocalTech FT9201 | [!572](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/572) | |
 | 10a5:9200 | FPC1022 (FPC Disum) | [!570](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/570) | |
@@ -152,6 +173,19 @@ in libfprint and may be unstable; see each device entry for details.
 | 27c6:5110 + family | Goodix (newer) | [goodix-fp-linux-dev/libfprint](https://github.com/goodix-fp-linux-dev/libfprint) | **Experimental, not for daily use** |
 
 
+## Claimed upstream, but unreliable
+
+libfprint listing your sensor as supported does not always mean it works. These
+have in-tree drivers that fail in practice, with open MRs that fix them. If your
+reader is *detected* but you cannot finish an enrollment, start here.
+
+| Device ID | Chip | Problem | Fix MR | Entry |
+|-----------|------|---------|--------|-------|
+| 04f3:0c28 (0c0x-0c4x family) | ELAN image sensors | enroll fails every second capture; thresholds and swipe-mode assumptions wrong for the hardware | [!217](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/217), [!530](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/530) | [entry](devices/04f3:0c28/) |
+| 1c7a:0570 (0571) | EgisTec egis0570 | calibration not implemented, erratic captures | [!548](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/548) | [entry](devices/1c7a:0570/) |
+| 147e:1002 and upektc/upeksonly | UPEK swipe sensors | 144x384 captures yield too few minutiae to match reliably | [!576](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/576) | [entry](devices/147e:1002/) |
+| 1c7a:05ae, 1c7a:9201 | EgisTec etu905 | no firmware template update after verify | [!610](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/610) | - |
+
 ## No known fix yet
 
 115 more USB sensors are on the libfprint wiki's unsupported list with no
@@ -175,6 +209,16 @@ Two things are worth as much as a driver: a **report** that an entry works (or
 stopped working) on your distro, and a **protocol dump** for anything in the
 [gap-map](docs/unsupported-devices.md).
 
+**Hosting vs cataloguing.** Code and patches in this repo are LGPL-2.1 only.
+Cataloguing is broader: a device entry may point at a proprietary TOD blob or a
+differently-licensed project when that is the only thing that works, as long as
+the entry says so plainly and mirrors none of it.
+
+**Vetting bar.** There are many small per-device fingerprint repos on GitHub, and
+a fair number are abandoned, unlicensed, or generated. An entry gets added when
+the route can be checked: real driver code, a license, and some evidence it
+worked on hardware. Unverifiable leads belong in an issue, not in `devices/`.
+
 Where a fix belongs upstream, please also push it there: this hub exists to make
 unmerged work findable, not to replace
 [libfprint](https://gitlab.freedesktop.org/libfprint/libfprint). Entries whose
@@ -183,6 +227,11 @@ dropped.
 
 ## License
 
-All driver code and patches here are derived from libfprint and are licensed
-under **LGPL-2.1**. See [LICENSE](LICENSE). Contributions must be
+All driver code and patches **hosted** here are derived from libfprint and are
+licensed under **LGPL-2.1**. See [LICENSE](LICENSE). Contributed code must be
 LGPL-2.1-compatible.
+
+Device entries may *link* to routes under other licenses, including proprietary
+vendor drivers, where that is the only thing that works for a sensor. Those
+entries say so explicitly and mirror no code. See
+[Vendor blob and non-LGPL routes](#vendor-blob-and-non-lgpl-routes-catalogued-never-hosted).

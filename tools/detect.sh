@@ -42,8 +42,20 @@ report() {
 		return
 	fi
 
+	# Many entries cover several product IDs (one driver, a family of sensors),
+	# so an ID with no directory of its own may still be documented inside one.
+	owner=$(grep -lF "$id" "$devices"/*/README.md 2>/dev/null | head -1)
+	if [ -n "$owner" ]; then
+		entry=$(basename "$(dirname "$owner")")
+		printf 'Covered by entry devices/%s/ (that entry handles several product IDs).\n' \
+			"$entry"
+		sed -n 's/^\*\*Status: *\([^*]*\)\*\*.*/Status: \1/p' "$owner" | head -1
+		printf 'Read devices/%s/README.md, then docs/BUILD.md for build steps.\n' "$entry"
+		return
+	fi
+
 	if grep -qF "$id" "$readme" 2>/dev/null; then
-		printf 'Listed in README.md, probably as an alias of another entry:\n'
+		printf 'Mentioned in README.md - check the surrounding table:\n'
 		grep -nF "$id" "$readme" | head -3 | sed 's/^/  /'
 		return
 	fi

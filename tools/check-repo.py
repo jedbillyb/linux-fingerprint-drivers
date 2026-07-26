@@ -102,6 +102,12 @@ def check_device_readme(readme: Path) -> None:
         fail(readme, "should start with a '# <chip> (<USB ID>)' heading")
     if "## Tested on" not in text:
         fail(readme, "missing a '## Tested on' section")
+    if "**Status:" not in text:
+        fail(
+            readme,
+            "missing a '**Status: ...**' line near the top - tools/detect.sh "
+            "reports it to users",
+        )
 
 
 def check_links() -> None:

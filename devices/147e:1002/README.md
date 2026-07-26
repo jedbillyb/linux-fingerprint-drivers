@@ -39,3 +39,16 @@ Not documented.
 ## License
 
 Part of libfprint (LGPL-2.1).
+
+## Related: image quality fixes for UPEK swipe sensors
+
+libfprint MR [!576](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/576) ("upeksonly: Add image enhancement function for
+upek-sensors", Pascal Hoehnel / @phoehnel) targets the underlying reason these
+sensors match poorly: at 144x384 a perfect scan yields at most ~18 minutiae,
+under the threshold of 20. It adds contrast stretching plus 2x upscaling for
+`upektc_img`, lowers the rev1 `bz3_threshold` to 20, drops `FPI_IMAGE_PARTIAL`
+(which discarded a significant slice of a 144px-wide image), and raises enroll
+stages to 10.
+
+Worth combining with this entry's work if you have any UPEK swipe reader, including
+already-"supported" ones.

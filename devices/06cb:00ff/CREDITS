@@ -1,0 +1,18 @@
+Device: Synaptics Tudor match-in-sensor family
+        (USB 06cb:00c9, 00d1, 00e7, 00ff, 0124, 0169)
+
+Route 1 - native reverse-engineered driver:
+  Author: vojtapl
+  https://github.com/vojtapl/synaTudorMiS
+  Companion libfprint tree: https://github.com/vojtapl/libfprint
+  License: LGPL-2.1
+
+Route 2 - relinking of the vendor Windows driver:
+  Author: Popax21
+  https://github.com/Popax21/synaTudor
+  License: LGPL-2.1 (the relinked vendor driver itself is proprietary and is
+  not distributed by that project or by this hub)
+  Arch packaging: AUR libfprint-2-tod1-synatudor-git
+
+Device ID list taken from Synaptics' synaWudfBioUsbUwp.inf, as documented in the
+synaTudorMiS README.

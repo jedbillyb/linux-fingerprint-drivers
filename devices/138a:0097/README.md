@@ -16,7 +16,16 @@ progress.
 
 ## Upstream merge requests
 
-- libfprint MR !579 (native VCSFW driver):
+- **libfprint MR !626 (active continuation of !579, build this one):**
+  https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626
+  Author: Gary T. Giesen (@ggiesen). Preserves !579's driver as a single commit
+  with authorship intact, rebased onto master's driver-registration
+  restructuring, and adds 0x969/0xd51 silicon support plus robustness and
+  security hardening. Hardware-validated on two devices and dogfooded as a daily
+  fingerprint login. Newly covered IDs have their own entries:
+  [`138a:00ab`](../138a:00ab/), [`06cb:00cb`](../06cb:00cb/),
+  [`06cb:00b7`](../06cb:00b7/).
+- libfprint MR !579 (native VCSFW driver, inactive since April 2026):
   https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579
   Author: @lewohart
 - libfprint MR !619 (straight port of @3v1n0's TOD vfs0090/vfs0097 driver):

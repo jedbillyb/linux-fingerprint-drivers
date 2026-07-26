@@ -1,0 +1,9 @@
+Device: ELAN 04f3:0c4b (Lenovo ThinkPad E14 Gen 4 and relatives)
+
+No open driver exists. Vendor route only.
+
+Proprietary driver: ELAN, distributed by Lenovo
+  https://download.lenovo.com/pccbbs/mobiles/r1sle01w.zip
+  License: proprietary (not redistributed by this hub)
+
+Arch packaging: AUR libfprint-2-tod1-elan

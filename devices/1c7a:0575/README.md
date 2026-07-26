@@ -39,3 +39,11 @@ Not documented.
 ## License
 
 Part of libfprint (LGPL-2.1).
+
+## Reverse-engineering notes
+
+[Animeshz/EgisTec-EH575](https://github.com/Animeshz/EgisTec-EH575) collects
+protocol findings and a libfprint patch for this sensor (39 stars, last touched
+2022). It carries **no license file**, so nothing from it is mirrored here and it
+cannot be contributed upstream as-is, but the findings are a useful reference if
+you pick this driver up.

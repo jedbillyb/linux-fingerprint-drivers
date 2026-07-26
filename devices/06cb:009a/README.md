@@ -1,5 +1,7 @@
 # Synaptics "Prometheus" via python-validity (USB 06cb:009a)
 
+**Status: Working via python-validity (userspace daemon, not a libfprint driver).**
+
 Synaptics/Validity "Prometheus" fingerprint readers. The python-validity driver
 covers `06cb:009a` (Metallica MIS Touch) and the Validity `138a:0090`,
 `138a:0097`, `138a:009d` family.

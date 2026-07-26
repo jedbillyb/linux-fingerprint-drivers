@@ -1,5 +1,7 @@
 # Goodix HTK32 (USB 27c6:5385, 27c6:5335, 27c6:5395)
 
+**Status: Working via a community driver fork.**
+
 Goodix HTK32 capacitive press-type fingerprint sensor (108 x 88 px). The same
 driver covers product IDs `5335`, `5385`, and `5395`.
 

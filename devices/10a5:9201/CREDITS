@@ -1,0 +1,8 @@
+Device: FPC Sensor Controller L:0001 FW:021.26.2.x (USB 10a5:9201)
+
+Driver author: vrolife
+  https://github.com/vrolife/fingerprint-ocv
+  License: AGPL-3.0 (incompatible with this hub's LGPL-2.1 hosting scope, so
+  the code is not mirrored here - this entry is a pointer only)
+
+Standalone daemon with OpenCV-based matching, not a libfprint driver.

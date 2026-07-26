@@ -1,0 +1,10 @@
+Device: Validity/Synaptics VCSFW 0xd51 (USB 06cb:00b7)
+
+Driver author: Gary T. Giesen (@ggiesen)
+  libfprint MR !626: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626
+  Source branch: wip/validity-vcsfw-driver
+
+Builds on @lewohart's VCSFW driver (libfprint MR !579) and on device data from
+the python-validity project.
+
+Part of libfprint; LGPL-2.1.
