@@ -9,7 +9,7 @@
 
 set -eu
 
-repo=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+repo=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 devices="$repo/devices"
 readme="$repo/README.md"
 unsupported="$repo/docs/unsupported-devices.md"
@@ -64,7 +64,7 @@ report() {
 
 if [ $# -gt 0 ]; then
 	for arg; do
-		report "$(printf '%s' "$arg" | tr 'A-Z' 'a-z')"
+		report "$(printf '%s' "$arg" | tr '[:upper:]' '[:lower:]')"
 	done
 	exit 0
 fi
@@ -90,7 +90,7 @@ lsusb | while IFS= read -r line; do
 		continue
 		;;
 	esac
-	if is_fp_vendor "$(printf '%s' "${id%%:*}" | tr 'A-Z' 'a-z')"; then
+	if is_fp_vendor "$(printf '%s' "${id%%:*}" | tr '[:upper:]' '[:lower:]')"; then
 		printf '%s\t%s (matched on vendor ID - may not be the reader)\n' \
 			"$id" "$desc" >>"$matches"
 	fi
@@ -98,7 +98,7 @@ done
 
 if [ -s "$matches" ]; then
 	while IFS="$(printf '\t')" read -r id desc; do
-		report "$(printf '%s' "$id" | tr 'A-Z' 'a-z')" "$desc"
+		report "$(printf '%s' "$id" | tr '[:upper:]' '[:lower:]')" "$desc"
 	done <"$matches"
 else
 	cat <<-'EOF'
