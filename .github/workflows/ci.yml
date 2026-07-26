@@ -1,0 +1,31 @@
+name: checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repo-consistency:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Structure, README and link consistency
+        run: python3 tools/check-repo.py
+
+      - name: Lint shell scripts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          shellcheck --shell=sh tools/*.sh
+
+      - name: detect.sh reports a known device
+        run: |
+          out=$(sh tools/detect.sh 27c6:55b4)
+          printf '%s\n' "$out"
+          printf '%s\n' "$out" | grep -q 'devices/27c6:55b4/'

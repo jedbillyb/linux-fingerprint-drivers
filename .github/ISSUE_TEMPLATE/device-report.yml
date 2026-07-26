@@ -1,0 +1,69 @@
+name: Device report (it worked / it broke)
+description: Confirm an existing entry works on your machine, or report that it stopped working
+title: "[report] vendor:product - distro"
+labels: [device-report]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Reports are how the status column stays honest. "Working on X distro" is
+        just as useful as a bug report: it is the only way an entry moves from
+        Partial or undocumented to Working.
+
+  - type: input
+    id: usb-id
+    attributes:
+      label: USB ID / entry
+      description: The `devices/` entry this is about.
+      placeholder: 27c6:55b4
+    validations:
+      required: true
+
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Works (enroll and verify reliable)
+        - Works with caveats
+        - Builds but does not enroll or verify
+        - Does not build
+        - Used to work, now broken
+    validations:
+      required: true
+
+  - type: input
+    id: system
+    attributes:
+      label: Distro, libfprint and fprintd versions
+      placeholder: Fedora 42, libfprint git 1.94.9, fprintd 1.94.5
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware
+      placeholder: Lenovo Yoga 9 14IAP7
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: >
+        Which steps you followed (which fork/branch/MR, which docs), what worked,
+        what did not. Include enroll/verify/login/sudo/lock results and any
+        deviations from the entry's instructions.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: >
+        For failures, `FP_DEBUG=all G_MESSAGES_DEBUG=all` output from fprintd
+        while reproducing. See docs/BUILD.md for how to capture it.
+      render: shell

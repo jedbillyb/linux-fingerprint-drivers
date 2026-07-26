@@ -53,9 +53,8 @@ capture support for vfs0097).
 ## How to use it
 
 The code lives in the merge requests, not in this repo. Pick one MR, check out
-its source branch of libfprint, and build from source (see the
-[`27c6:55b4`](../27c6:55b4/) entry for the general libfprint-from-source build
-and PAM steps).
+its source branch of libfprint, and build from source (see
+[docs/BUILD.md](../../docs/BUILD.md) for the shared build, install and PAM steps).
 
 ```sh
 # native VCSFW driver (MR !579)

@@ -1,0 +1,86 @@
+name: New device
+description: Share a fingerprint sensor that is not supported upstream, with or without a fix
+title: "[device] vendor:product - chip name"
+labels: [new-device]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping. Run `./tools/detect.sh` (or `lsusb`) first: if this
+        repo already has an entry for your ID, open a **Device report** instead
+        so we can record your distro/hardware against it.
+
+  - type: input
+    id: usb-id
+    attributes:
+      label: USB ID
+      description: The `vendor:product` pair from `lsusb`, lowercase.
+      placeholder: 27c6:55b4
+    validations:
+      required: true
+
+  - type: input
+    id: chip
+    attributes:
+      label: Chip / sensor
+      description: Chip name and firmware family if you know it.
+      placeholder: Goodix GF3268, firmware GF3268_RTSEC_APP_10056
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware
+      description: Laptop make and model, or the device the sensor is in.
+      placeholder: ThinkPad E14 Gen 5
+    validations:
+      required: true
+
+  - type: textarea
+    id: broken
+    attributes:
+      label: What upstream libfprint does today
+      description: >
+        Unknown device? Enroll fails? Verify unreliable? Paste the error and any
+        `fprintd-list` / `fprintd-enroll` output.
+    validations:
+      required: true
+
+  - type: textarea
+    id: existing-fix
+    attributes:
+      label: Existing fix, if any
+      description: >
+        Link the fork, branch, patch, merge request, or issue this is based on,
+        or that already works for you. Say "none known" if there is nothing.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tested
+    attributes:
+      label: Distro and versions
+      description: >
+        Distro, libfprint and fprintd versions, and what works: enroll, verify,
+        login, sudo, lock screen.
+      placeholder: |
+        Void Linux, libfprint 1.94.6, fprintd 1.94.4
+        enroll: yes / verify: yes / login: yes / sudo: yes / lock: yes
+
+  - type: textarea
+    id: license
+    attributes:
+      label: License of the fix
+      description: >
+        Patches here must be LGPL-2.1-compatible (see CONTRIBUTING.md). Note the
+        license of any code you are pointing at, especially vendor blobs.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and notes
+      description: >
+        `FP_DEBUG=all` output, USB captures, reverse-engineering notes. Large
+        logs are better as a gist or attachment.
+      render: shell

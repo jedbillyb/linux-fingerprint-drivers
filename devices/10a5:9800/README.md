@@ -15,9 +15,10 @@ Upstream libfprint does not support this FPC sensor, so it is unrecognised.
 Adds the `fpcmoh` (FPC match-on-host) driver to libfprint plus the udev rules
 needed for the device, enabling enroll and verify.
 
-The underlying driver also has an unmerged upstream merge request: libfprint MR
+The upstream attempt to land this driver, libfprint MR
 [!396](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/396)
-("fpcmoh: Support FPC moh (match on host) devices", PID 0x9800).
+("fpcmoh: Support FPC moh (match on host) devices", PID 0x9800), was **closed
+without merging**, so the out-of-tree packaging below remains the working route.
 
 ## Build and install
 
@@ -38,8 +39,9 @@ this for Fedora/dnf.
 
 ## PAM setup
 
-Enable fprintd in your PAM stack (distro helper or `auth sufficient
-pam_fprintd.so`). Password fallback stays available.
+Enable fprintd in your PAM stack: distro helper where there is one, otherwise
+`auth sufficient pam_fprintd.so`. Never `required`. Full steps per distro are in
+[docs/BUILD.md](../../docs/BUILD.md#6-pam-setup-login--sudo--lock-screen).
 
 ## Tested on
 

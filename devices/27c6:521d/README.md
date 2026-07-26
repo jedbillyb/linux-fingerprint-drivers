@@ -33,8 +33,9 @@ On other distros, build libfprint from the goodix-fp-linux-dev source (see
 
 ## PAM setup
 
-Enable fprintd in your PAM stack (distro helper or `auth sufficient
-pam_fprintd.so`). Password fallback stays available.
+Enable fprintd in your PAM stack: distro helper where there is one, otherwise
+`auth sufficient pam_fprintd.so`. Never `required`. Full steps per distro are in
+[docs/BUILD.md](../../docs/BUILD.md#6-pam-setup-login--sudo--lock-screen).
 
 ## Tested on
 

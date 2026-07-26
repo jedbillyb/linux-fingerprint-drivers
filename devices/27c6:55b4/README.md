@@ -24,59 +24,35 @@ The fix is a patched goodixtls driver (branch linked in `CREDITS`). It:
   handshake completes.
 - Tunes the sigfm matcher thresholds for reliable enroll/verify on this sensor.
 
-## Build and install libfprint from source
+## Build and install
 
-These are Void Linux steps; adapt the package manager for your distro. You need
-meson, ninja, a C toolchain, and the libfprint build dependencies (glib, nss,
-gusb, pixman, etc.).
+Follow [docs/BUILD.md](../../docs/BUILD.md) for dependencies, install, PAM setup,
+package pinning and troubleshooting. The only sensor-specific part is which
+source to build:
 
 ```sh
-# 1. Clone the patched fork (see CREDITS for the URL/branch)
-git clone https://github.com/jedbillyb/libfprint.git
+git clone https://github.com/jedbillyb/libfprint.git   # see CREDITS
 cd libfprint
 git checkout goodix-55b4-fixes
-
-# 2. Configure and build as your normal user
-meson setup builddir
-meson compile -C builddir
-
-# 3. Install over the system libfprint (use an absolute path)
-sudo meson install -C "$PWD/builddir"
-sudo ldconfig
-
-# 4. Restart fprintd and confirm the sensor is detected
-sudo pkill -9 -x fprintd
-fprintd-list "$USER"   # should list "Goodix TLS Fingerprint Sensor 55X4"
 ```
 
-Note: installing over the system libfprint may wipe existing enrollments, and if
-your distro packages libfprint you may need to hold/pin the package so an update
-does not overwrite the patched library.
+Alternatively, apply the patch series in [`patches/`](patches/) on top of the
+upstream base commit named in [`patches/README.md`](patches/README.md).
+
+After installing, `fprintd-list "$USER"` should name **Goodix TLS Fingerprint
+Sensor 55X4**.
 
 ## Enroll
 
 ```sh
-sudo fprintd-enroll "$USER"    # press repeatedly, vary angle/edge/pressure
-sudo fprintd-verify "$USER"    # want: verify-match
+fprintd-enroll "$USER"    # press repeatedly, vary angle/edge/pressure
+fprintd-verify "$USER"    # want: verify-match
 ```
 
-If `verify` fails at odd angles, re-enroll with more captures and deliberately
-varied finger positions.
-
-## PAM setup
-
-To use the fingerprint for login/sudo/lock screen, add fprintd to your PAM
-stack. On Void, add this line to `/etc/pam.d/system-auth` (keep a backup first):
-
-```
-auth sufficient pam_fprintd.so
-```
-
-`sufficient` means a successful scan authenticates, and your password still works
-as a fallback. login, sudo, and screen lockers that chain to `system-auth` pick
-this up. On other distros, use the distro's helper (e.g.
-`pam-auth-update --enable fprintd` on Debian/Ubuntu) or edit the relevant
-`/etc/pam.d` files.
+This sensor is small and the matcher is sigfm-based, so enrollment quality
+matters more than usual: if verify fails at odd angles, delete the print
+(`fprintd-delete "$USER"`) and re-enroll with deliberately varied finger
+positions.
 
 ## Tested on
 

@@ -1,0 +1,37 @@
+name: link rot
+
+# Merge requests get merged or closed and wiki pages move, so the MR links and
+# statuses in this repo go stale on their own. This runs weekly and opens an
+# issue when something breaks, instead of failing contributors' PRs.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  external-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check external links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress --max-concurrency 4 --accept 200,206,429
+            README.md CONTRIBUTING.md docs/*.md 'devices/**/*.md'
+          fail: false
+
+      - name: Open an issue if links are broken
+        if: steps.lychee.outputs.exit_code != 0
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: Broken links found by the weekly link check
+          content-filepath: ./lychee/out.md
+          labels: maintenance

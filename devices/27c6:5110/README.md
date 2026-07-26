@@ -25,8 +25,8 @@ reverse engineering (encrypted protocol, per-device PSK provisioning).
 ## How to try it
 
 The code lives in the experimental fork (see `CREDITS`). Build it like any
-libfprint from source (see the [`27c6:55b4`](../27c6:55b4/) entry for the general
-meson/ninja + PAM steps), but treat it as throwaway/testing:
+libfprint from source ([docs/BUILD.md](../../docs/BUILD.md) covers the shared meson/ninja
+and PAM steps), but treat it as throwaway/testing:
 
 ```sh
 git clone https://github.com/goodix-fp-linux-dev/libfprint

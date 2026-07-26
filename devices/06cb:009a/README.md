@@ -51,7 +51,9 @@ the project's docs for `validity-sensors-firmware` and `dbus-init` steps.
 ## PAM setup
 
 Once open-fprintd is running, configure PAM exactly as for normal fprintd
-(distro helper or `auth sufficient pam_fprintd.so`).
+(distro helper or `auth sufficient pam_fprintd.so`); see
+[docs/BUILD.md](../../docs/BUILD.md#6-pam-setup-login--sudo--lock-screen). The build sections of that
+guide do not apply here, since python-validity is packaged rather than built.
 
 ## Tested on
 

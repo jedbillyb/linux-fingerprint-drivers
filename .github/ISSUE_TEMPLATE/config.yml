@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Is your sensor already supported upstream?
+    url: https://fprint.freedesktop.org/supported-devices.html
+    about: Check libfprint's own supported-devices list first. If it is there, use your distro's libfprint.
+  - name: libfprint upstream issue tracker
+    url: https://gitlab.freedesktop.org/libfprint/libfprint/-/issues
+    about: Bugs in libfprint itself, and where new drivers should ultimately land.
+  - name: libfprint unsupported-devices wiki
+    url: https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices
+    about: The upstream catalogue this repo's gap-map is derived from.

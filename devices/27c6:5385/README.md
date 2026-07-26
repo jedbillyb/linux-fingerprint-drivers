@@ -47,9 +47,9 @@ sudo fprintd-enroll "$USER"
 
 ## PAM setup
 
-Enable fprintd in your PAM stack (e.g. add `auth sufficient pam_fprintd.so` to
-the relevant `/etc/pam.d` file, or use your distro's helper). Password fallback
-stays available.
+Enable fprintd in your PAM stack: distro helper where there is one, otherwise
+`auth sufficient pam_fprintd.so` (never `required`). Per-distro steps:
+[docs/BUILD.md](../../docs/BUILD.md#6-pam-setup-login--sudo--lock-screen).
 
 ## Tested on
 
