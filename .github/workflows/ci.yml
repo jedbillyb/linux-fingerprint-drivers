@@ -13,7 +13,7 @@ jobs:
   repo-consistency:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Structure, README and link consistency
         run: python3 tools/check-repo.py
