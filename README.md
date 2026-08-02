@@ -148,7 +148,7 @@ git to get them now. Entries are kept for people still on an older libfprint.
 
 | Device ID | Chip / sensor | MR | Merged |
 |-----------|---------------|----|--------|
-| 2808:6553 | FocalTech FT9365 ESS | [!554](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/554) | 2026-06-18 |
+| 2808:6553 | FocalTech FT9365 ESS ([not the capture function on dual-function FT9201 modules](devices/2808:6553/README.md#caveat-on-dual-function-ft9201-modules)) | [!554](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/554) | 2026-06-18 |
 | 04f3:0c9c | ELAN ARM-M4 (0c9c) | [!568](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568) | 2026-06-18 |
 | 3274:8012 | Microarray match-on-chip | [!492](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492) | 2026-06-18 |
 | 298d:2020 | NextBiometrics NB-2020-U | [!569](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/569) | 2026-07-02 |
