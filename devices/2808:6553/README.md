@@ -19,6 +19,31 @@ on an older libfprint.
 
 Found in the Samsung Galaxy Book 4. Adds the ID to focaltech_moc and accepts status code 0x09 (which the in-tree driver wrongly treated as an error) so enroll completes.
 
+## Caveat on dual-function FT9201 modules
+
+> **This driver is not the right target if your module also exposes `2808:93a9`.**
+
+Some FocalTech modules present **two** USB functions from one physical part:
+`2808:93a9` (the FT9201 image sensor, USB class 255) and `2808:6553` (the FT9365
+secure-storage companion, USB class 220 / Diagnostic). On that hardware,
+`focaltech_moc` binds `6553` and everything *looks* correct - `fprintd-list`
+shows the device, `enroll_times` comes back from the chip, `scan-type = press`,
+and `EnrollStart` is accepted - but it never captures, because there is no
+sensor on that function. A reported `usbmon` trace over a 120 s enroll with the
+sensor being touched continuously shows the finger poll answered with one
+identical response 2249 times, with no variation; enroll then sits in
+`MOC_IDENTIFY` until it cancels. **No error is surfaced**, so it presents as a
+broken sensor rather than as the wrong function.
+
+Capture on those modules has to go through `93a9` - see
+[`devices/2808:9338`](../2808:9338/). Standalone `6553` devices (such as the
+Galaxy Book 4 hardware this MR was written and verified against) are unaffected;
+this is a note about which function to bind, not a defect in !554.
+
+Reported in [issue #2](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/2)
+by @NBN-N3 (Kali, kernel 6.17), on a single module - corroboration from other
+dual-function hardware is welcome.
+
 ## How to use it
 
 The code lives in the merge request, not in this repo. To try it, check out the
