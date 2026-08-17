@@ -399,8 +399,8 @@ def main() -> int:
     # Served from its own hostname, so pages sit at the root rather than under
     # a /linux-fingerprint-drivers/ path prefix.
     ap.add_argument("--base-url", default="")
-    ap.add_argument("--site-url", default="https://fingerprint.jedbillyb.com")
-    ap.add_argument("--cname", default="fingerprint.jedbillyb.com",
+    ap.add_argument("--site-url", default="https://fprint.jedbillyb.com")
+    ap.add_argument("--cname", default="fprint.jedbillyb.com",
                     help="custom domain written to site/CNAME; empty to omit")
     args = ap.parse_args()
 
