@@ -442,8 +442,10 @@ def main() -> int:
         f"User-agent: *\nAllow: /\nSitemap: {site_url}/sitemap.xml\n", encoding="utf-8")
     # Jekyll would otherwise eat directories it considers special.
     (out / ".nojekyll").write_text("", encoding="utf-8")
-    # GitHub Pages reads the custom domain from this file on every deploy; without
-    # it a deploy resets the domain back to the github.io default.
+    # With Actions-based publishing the custom domain comes from the repository's
+    # Pages settings, not from this file, so writing it does not configure
+    # anything on its own. It is kept because it documents the intended hostname
+    # next to the build, and because a branch-based deploy would need it.
     if args.cname:
         (out / "CNAME").write_text(args.cname + "\n", encoding="utf-8")
 
