@@ -7,10 +7,14 @@ sensors that are **not yet supported in upstream
 If your sensor shows up in `lsusb` but `fprintd-enroll` fails or the device is
 unknown to libfprint, there may be a working fix here, or you can contribute one.
 
+Browsable as a website, one page per sensor:
+**<https://jedbillyb.github.io/linux-fingerprint-drivers/>**
+
 **Check upstream first:** if your reader is on libfprint's own
 [supported devices](https://fprint.freedesktop.org/supported-devices.html) list,
 use your distro's libfprint. This repo is only for the ones that are not.
 
+- [**Find your laptop by model**](docs/laptops.md) - start here if you do not know your USB ID
 - [Find your device](#find-your-device)
 - [Working fixes](#working-fixes)
 - [In progress (unmerged upstream MRs)](#in-progress-unmerged-upstream-mrs)
@@ -25,8 +29,14 @@ use your distro's libfprint. This repo is only for the ones that are not.
 
 ## Find your device
 
-Clone the repo and let the helper script match your hardware against everything
-catalogued here:
+**Know your laptop but not your sensor?** Look your machine up in
+**[docs/laptops.md](docs/laptops.md)**, an index of every laptop model named
+anywhere in this repo or on the libfprint wiki, mapped to its USB ID and the
+route that works. Adding your own model there is the most useful small
+contribution you can make.
+
+Otherwise, clone the repo and let the helper script match your hardware against
+everything catalogued here:
 
 ```sh
 git clone https://github.com/jedbillyb/linux-fingerprint-drivers.git

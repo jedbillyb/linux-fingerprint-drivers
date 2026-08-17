@@ -30,6 +30,7 @@ works (or has broken) on your distro, or a protocol dump for something in the
 devices/<vendor>:<product>/
   README.md      # required - sensor info + build/install/setup instructions
   CREDITS        # required - author(s) and links to upstream fork/branch
+  MODELS         # optional - one laptop model per line, feeds docs/laptops.md
   patches/       # patch files (.patch / .diff) against a stated libfprint base
     .gitkeep
 ```
@@ -48,6 +49,31 @@ devices/<vendor>:<product>/
   patches come from, so changes can be traced and credited.
 - **patches/** - the actual `.patch`/`.diff` files, or a clear pointer to the
   branch they live on. State the libfprint version/commit they apply against.
+
+### MODELS (optional, and very welcome)
+
+Almost nobody knows their sensor's USB ID before they go looking; they know
+they own a ThinkPad. `MODELS` is how a machine name becomes findable. One
+model per line, no bullets or other markup, named the way the vendor names it:
+
+```
+Lenovo ThinkPad E14 Gen 4
+Lenovo ThinkPad E15
+```
+
+It is read by `tools/gen-laptop-index.py`, which regenerates
+[docs/laptops.md](docs/laptops.md), and by `tools/build-site.py`, which puts the
+model names in the published page's title. After editing one, run:
+
+```sh
+python3 tools/gen-laptop-index.py
+```
+
+and commit the regenerated `docs/laptops.md` alongside it. CI fails if the two
+are out of step. Do not edit `docs/laptops.md` directly.
+
+Only list machines somebody has actually seen the sensor in. A guess here sends
+the next person down the wrong path.
 
 ## Attribution
 

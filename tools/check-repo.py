@@ -148,6 +148,41 @@ def check_no_contradictions(readme: str) -> None:
         fail("README.md", "does not link to docs/unsupported-devices.md")
 
 
+def check_models() -> None:
+    """MODELS files feed docs/laptops.md and the per-page titles on the site.
+
+    They are optional (plenty of sensors have no reported machine yet), but a
+    malformed one silently distorts the laptop index, so the format is checked.
+    """
+    for entry in sorted(p for p in DEVICES.iterdir() if p.is_dir()):
+        models = entry / "MODELS"
+        if not models.is_file():
+            continue
+        lines = [ln.rstrip() for ln in models.read_text().splitlines()]
+        useful = [ln.strip() for ln in lines if ln.strip() and not ln.startswith("#")]
+        if not useful:
+            fail(models, "exists but lists no models; delete it instead")
+        if len(useful) != len(set(useful)):
+            fail(models, "lists the same model twice")
+        for line in useful:
+            if len(line) > 80:
+                fail(models, f"model name looks like prose, not a model: {line[:50]}...")
+            if line.startswith(("-", "*", "|")):
+                fail(models, f"one plain model per line, no list markup: {line[:50]}")
+
+
+def check_laptop_index() -> None:
+    index = REPO / "docs" / "laptops.md"
+    if not index.is_file():
+        fail("docs/laptops.md", "missing; run python3 tools/gen-laptop-index.py")
+        return
+    if "gen-laptop-index.py" not in index.read_text():
+        fail(
+            "docs/laptops.md",
+            "is missing its generated-file marker; it must not be hand-edited",
+        )
+
+
 def check_tools_executable() -> None:
     for script in sorted((REPO / "tools").glob("*.sh")):
         if not script.stat().st_mode & 0o111:
@@ -164,6 +199,8 @@ def main() -> int:
     check_device_entries(readme)
     check_links()
     check_no_contradictions(readme)
+    check_models()
+    check_laptop_index()
     check_tools_executable()
 
     entry_count = len([p for p in DEVICES.iterdir() if p.is_dir()])

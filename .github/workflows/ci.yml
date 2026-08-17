@@ -18,6 +18,14 @@ jobs:
       - name: Structure, README and link consistency
         run: python3 tools/check-repo.py
 
+      - name: Laptop index is up to date
+        run: python3 tools/gen-laptop-index.py --check
+
+      - name: Site builds
+        run: |
+          pip install --quiet markdown
+          python3 tools/build-site.py
+
       - name: Lint shell scripts
         run: |
           sudo apt-get update -qq
