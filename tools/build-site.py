@@ -348,6 +348,9 @@ def render_page(page: Page, body_html: str, base: str, site_url: str) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="{base}/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="{base}/favicon.ico" sizes="48x48 32x32 16x16">
+<link rel="apple-touch-icon" href="{base}/apple-touch-icon.png">
 <title>{html.escape(page.title)}</title>
 <meta name="description" content="{html.escape(page.description)}">
 <link rel="canonical" href="{html.escape(canonical)}">
@@ -448,6 +451,16 @@ def main() -> int:
     # next to the build, and because a branch-based deploy would need it.
     if args.cname:
         (out / "CNAME").write_text(args.cname + "\n", encoding="utf-8")
+
+    # Icons live in assets/ as committed files rather than being generated, so
+    # the build needs no image tooling in CI.
+    assets = REPO / "assets"
+    for name in ("favicon.svg", "favicon.ico", "apple-touch-icon.png"):
+        src = assets / name
+        if src.is_file():
+            shutil.copyfile(src, out / name)
+        else:
+            print(f"warning: missing {src.relative_to(REPO)}", file=sys.stderr)
 
     print(f"built {len(pages)} pages into {out.relative_to(REPO) if out.is_relative_to(REPO) else out}")
     return 0

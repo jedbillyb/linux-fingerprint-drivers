@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Fingerprint">
+  <rect width="64" height="64" rx="14" fill="#0b5fd0"/>
+  <g fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round">
+    <path d="M9 40a23 23 0 0 1 46 0v6"/>
+    <path d="M19 41a13 13 0 0 1 26 0v9"/>
+    <path d="M29 42a3.5 3.5 0 0 1 7 0v12"/>
+  </g>
+</svg>
