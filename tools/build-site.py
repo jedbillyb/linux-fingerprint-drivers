@@ -2,7 +2,7 @@
 """Render the repo's markdown into a static site for GitHub Pages.
 
     pip install markdown
-    python3 tools/build-site.py [--out site] [--base-url /linux-fingerprint-drivers]
+    python3 tools/build-site.py [--out site] [--base-url ''] [--cname host]
 
 Why this exists: essentially everyone who reaches this repo arrives from a
 search engine having typed a laptop model or a USB ID, and GitHub's own blob
@@ -265,7 +265,11 @@ STYLE = """
 --line:#2a2f37;--accent:#6aa8ff;--code-bg:#161a20;--card:#141821;--ok:#4cc38a;
 --warn:#d9a441;--bad:#f2777a}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);
+/* No rubber-band overscroll past the header or footer. The background is set
+   on html as well so the browser has nothing of its own to paint if a platform
+   bounces anyway. */
+html{overscroll-behavior-y:none;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--fg);overscroll-behavior-y:none;
 font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .wrap{max-width:52rem;margin:0 auto;padding:1.25rem 1.15rem 4rem}
 header.site{border-bottom:1px solid var(--line);margin-bottom:1.75rem}
@@ -294,6 +298,9 @@ padding:.85rem 1rem;margin:0 0 1.5rem;font-size:.94rem}
 .meta dd{margin:0}
 footer.site{border-top:1px solid var(--line);margin-top:3rem;padding-top:1rem;
 color:var(--muted);font-size:.88rem}
+footer.site p{margin:0 0 .6rem}
+footer.site p:last-child{margin-bottom:0}
+footer.site .credit{padding-top:.6rem;border-top:1px solid var(--line)}
 .breadcrumb{color:var(--muted);font-size:.88rem;margin-bottom:.5rem}
 img{max-width:100%}
 """
@@ -359,10 +366,21 @@ def render_page(page: Page, body_html: str, base: str, site_url: str) -> str:
 {body_html}
 </main>
 <footer class="site"><div class="wrap">
-Community catalogue of Linux fingerprint reader drivers.
+<p>Community catalogue of Linux fingerprint reader drivers.
 Content mirrors <a href="{GITHUB}">the repository</a>; hosted code is LGPL-2.1.
 Always check <a href="https://fprint.freedesktop.org/supported-devices.html">upstream
-libfprint</a> first.
+libfprint</a> first.</p>
+<p><strong>The drivers and patches catalogued here are the work of their
+individual authors</strong>, credited in each entry and in the upstream merge
+requests. If an entry helped you, thank them: report back on the
+<a href="{GITHUB}/issues">issue tracker</a> so the status stays honest, or send a
+fix upstream to
+<a href="https://gitlab.freedesktop.org/libfprint/libfprint">libfprint</a>.</p>
+<p class="credit">This catalogue is maintained by
+<a href="https://jedbillyb.com">Jed Blenkhorn</a>
+&middot; <a href="https://github.com/jedbillyb">GitHub</a>
+&middot; <a href="https://buymeacoffee.com/jedbillyb">buy me a coffee</a>
+if it saved you an evening.</p>
 </div></footer>
 </body>
 </html>
@@ -378,8 +396,12 @@ def wrap_tables(body: str) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="site")
-    ap.add_argument("--base-url", default="/linux-fingerprint-drivers")
-    ap.add_argument("--site-url", default="https://jedbillyb.github.io/linux-fingerprint-drivers")
+    # Served from its own hostname, so pages sit at the root rather than under
+    # a /linux-fingerprint-drivers/ path prefix.
+    ap.add_argument("--base-url", default="")
+    ap.add_argument("--site-url", default="https://fingerprint.jedbillyb.com")
+    ap.add_argument("--cname", default="fingerprint.jedbillyb.com",
+                    help="custom domain written to site/CNAME; empty to omit")
     args = ap.parse_args()
 
     try:
@@ -420,6 +442,10 @@ def main() -> int:
         f"User-agent: *\nAllow: /\nSitemap: {site_url}/sitemap.xml\n", encoding="utf-8")
     # Jekyll would otherwise eat directories it considers special.
     (out / ".nojekyll").write_text("", encoding="utf-8")
+    # GitHub Pages reads the custom domain from this file on every deploy; without
+    # it a deploy resets the domain back to the github.io default.
+    if args.cname:
+        (out / "CNAME").write_text(args.cname + "\n", encoding="utf-8")
 
     print(f"built {len(pages)} pages into {out.relative_to(REPO) if out.is_relative_to(REPO) else out}")
     return 0
