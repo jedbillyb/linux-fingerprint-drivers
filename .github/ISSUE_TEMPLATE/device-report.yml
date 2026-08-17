@@ -44,6 +44,10 @@ body:
     id: hardware
     attributes:
       label: Hardware
+      description: >-
+        The exact laptop model, as the vendor names it. This is what gets added
+        to the by-model index (docs/laptops.md), so the next person with your
+        machine finds the entry without having to know their USB ID.
       placeholder: Lenovo Yoga 9 14IAP7
     validations:
       required: true
