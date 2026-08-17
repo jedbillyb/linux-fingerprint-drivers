@@ -8,7 +8,7 @@ If your sensor shows up in `lsusb` but `fprintd-enroll` fails or the device is
 unknown to libfprint, there may be a working fix here, or you can contribute one.
 
 Browsable as a website, one page per sensor:
-**<https://jedbillyb.github.io/linux-fingerprint-drivers/>**
+**<https://fingerprint.jedbillyb.com>**
 
 **Check upstream first:** if your reader is on libfprint's own
 [supported devices](https://fprint.freedesktop.org/supported-devices.html) list,
