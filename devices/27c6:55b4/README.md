@@ -58,5 +58,5 @@ positions.
 
 ## Tested on
 
-- **Void Linux** (libfprint 1.94.6, fprintd) - login, sudo, and screen-lock
-  unlock all working.
+- **Lenovo IdeaPad Flex 5 16ABR8** (82XY) on **Void Linux** (libfprint 1.94.6,
+  fprintd) - login, sudo, and screen-lock unlock all working.
