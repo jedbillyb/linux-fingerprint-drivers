@@ -94,8 +94,11 @@ def classify(status_text: str) -> str:
         return "WIP"
     if low.startswith(("working", "works")):
         # A vendor blob route works, but it is not the same offer as open code.
-        if "proprietary" in low or "vendor" in low or "agpl" in low:
-            return "Working (vendor blob)"
+        # Match the claim, not the word: entries that say "no vendor blob" or
+        # "LGPL-2.1" are open, and used to be mislabelled as proprietary.
+        if not re.search(r"\b(no|without a|not a)\s+(vendor|proprietary)\b", low):
+            if "proprietary" in low or "vendor" in low or "agpl" in low:
+                return "Working (vendor blob)"
         return "Working"
     return "WIP"
 

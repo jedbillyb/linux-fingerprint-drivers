@@ -182,8 +182,8 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
-| AYANEO 2 | `2541:0236` | Chipsailing CS9711 | Working (vendor blob) | [entry](../devices/2541:0236/) |
-| GPD Win Max 2 | `2541:0236` | Chipsailing CS9711 | Working (vendor blob) | [entry](../devices/2541:0236/) |
+| AYANEO 2 | `2541:0236` | Chipsailing CS9711 | Working | [entry](../devices/2541:0236/) |
+| GPD Win Max 2 | `2541:0236` | Chipsailing CS9711 | Working | [entry](../devices/2541:0236/) |
 | Chuwi MiniBook X | `mafp8800` | Microarray MAFP8800 (SPI) | WIP | [entry](../devices/mafp8800/) |
 | GPD MicroPC 2 | `mafp8800` | Microarray MAFP8800 (SPI) | WIP | [entry](../devices/mafp8800/) |
 | GTR5 mini | `1c7a:0577` | - | No known fix | [gap-map](unsupported-devices.md) |
