@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-28 model listings map to a catalogued sensor; the rest are on the
+30 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -184,6 +184,8 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 |--------------|--------|--------|--------|-------------|
 | AYANEO 2 | `2541:0236` | Chipsailing CS9711 | Working (vendor blob) | [entry](../devices/2541:0236/) |
 | GPD Win Max 2 | `2541:0236` | Chipsailing CS9711 | Working (vendor blob) | [entry](../devices/2541:0236/) |
+| Chuwi MiniBook X | `mafp8800` | Microarray MAFP8800 (SPI) | WIP | [entry](../devices/mafp8800/) |
+| GPD MicroPC 2 | `mafp8800` | Microarray MAFP8800 (SPI) | WIP | [entry](../devices/mafp8800/) |
 | GTR5 mini | `1c7a:0577` | - | No known fix | [gap-map](unsupported-devices.md) |
 
 ## Other vendors
