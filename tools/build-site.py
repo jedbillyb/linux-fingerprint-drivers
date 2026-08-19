@@ -349,7 +349,7 @@ def render_page(page: Page, body_html: str, base: str, site_url: str) -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="{base}/favicon.svg" type="image/svg+xml">
-<link rel="alternate icon" href="{base}/favicon.ico" sizes="48x48 32x32 16x16">
+<link rel="alternate icon" href="{base}/favicon.ico" sizes="64x64 48x48 32x32 16x16">
 <link rel="apple-touch-icon" href="{base}/apple-touch-icon.png">
 <title>{html.escape(page.title)}</title>
 <meta name="description" content="{html.escape(page.description)}">
