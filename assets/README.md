@@ -24,14 +24,34 @@ blues.
 
 ## Legibility
 
-The glyph is deliberately coarse: three ridges, stroke and gap both about
-2.9 units on the 32-unit tile, sized so the outer ridge nearly touches the
-edge. Favicons are read at 16-24 px, where the stroke is barely a pixel
-wide, so any extra ridge or padding turns the whole thing into grey mush.
-An earlier version used the full nine-path Lucide `fingerprint` icon inset
-in the tile; it was illegible below 32 px. Keep the ridge count and the
-generous gaps if you edit this.
+The glyph is a dense one, so two things keep it readable and both are easy to
+undo by accident:
+
+- It is scaled to fill the tile. The `translate(1.978,1.978) scale(1.1685)`
+  on the group grows the Lucide artwork from a 22.25-unit ink box to 26 units
+  on the 32-unit tile, which widens the gaps between ridges by the same
+  factor. `stroke-width` is divided by that scale so the strokes still render
+  at 2.4 units; raising it back to 2.4 would close the gaps again.
+- It must be rendered, not upscaled. See the `-density` note above.
+
+Even so, expect it to soften below about 24 px, which is a browser tab. That
+is the cost of nine ridges and it was accepted deliberately.
 
 ## Attribution
 
-The fingerprint glyph is original to this repository.
+The fingerprint glyph is the `fingerprint` icon from
+[Lucide](https://lucide.dev), used unmodified except for stroke width,
+colour and a uniform scale, on a solid tile.
+
+Lucide is ISC licensed:
+
+> Copyright (c) 2020, Lucide Contributors
+>
+> Permission to use, copy, modify, and/or distribute this software for any
+> purpose with or without fee is hereby granted, provided that the above
+> copyright notice and this permission notice appear in all copies.
+
+Lucide derives from [Feather](https://github.com/feathericons/feather)
+(MIT, Copyright (c) 2013-2017 Cole Bemis). ISC and MIT are both compatible
+with this repository's LGPL-2.1 licensing; see the root
+[LICENSE](../LICENSE) for the code terms.
