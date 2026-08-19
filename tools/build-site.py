@@ -350,6 +350,8 @@ def render_page(page: Page, body_html: str, base: str, site_url: str) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="{base}/favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="{base}/favicon.ico" sizes="64x64 48x48 32x32 16x16">
+<link rel="icon" type="image/png" sizes="192x192" href="{base}/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="{base}/icon-512.png">
 <link rel="apple-touch-icon" href="{base}/apple-touch-icon.png">
 <title>{html.escape(page.title)}</title>
 <meta name="description" content="{html.escape(page.description)}">
@@ -455,7 +457,8 @@ def main() -> int:
     # Icons live in assets/ as committed files rather than being generated, so
     # the build needs no image tooling in CI.
     assets = REPO / "assets"
-    for name in ("favicon.svg", "favicon.ico", "apple-touch-icon.png"):
+    for name in ("favicon.svg", "favicon.ico", "apple-touch-icon.png",
+                 "icon-192.png", "icon-512.png"):
         src = assets / name
         if src.is_file():
             shutil.copyfile(src, out / name)
