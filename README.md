@@ -78,6 +78,7 @@ appear in `lsusb` at all.
 | 2541:0236 (9711)     | Chipsailing CS9711      | Working | Arch (GPD Win Max 2, AYANEO 2) |
 | 06cb:00ff (+00c9/00d1/00e7/0124/0169) | Synaptics Tudor MiS | Working | Arch, Fedora, Ubuntu (community routes) |
 | 2808:9e65            | FocalTech               | Partial | Undocumented (unconfirmed)  |
+| gxfp5187 (SPI)       | Goodix GXFP5187         | Working | Ubuntu 24.04 ([entry](devices/gxfp5187/)) |
 
 Status legend: **Working** (enroll + verify reliable), **Partial** (works with
 caveats), **WIP** (in progress). Statuses only move when someone reports back,

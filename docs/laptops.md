@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-30 model listings map to a catalogued sensor; the rest are on the
+31 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -138,6 +138,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
+| Huawei MateBook X Pro | `gxfp5187` | Goodix GXFP5187 (SPI) | Working | [entry](../devices/gxfp5187/) |
 | MagicBook 2019 R7 / Huawei Matebook 13 2020 | `27c6:5117` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Matebook D16 | `27c6:5120` | - | No known fix | [gap-map](unsupported-devices.md) |
 

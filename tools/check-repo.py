@@ -18,7 +18,7 @@ REPO = Path(__file__).resolve().parent.parent
 DEVICES = REPO / "devices"
 
 # Entries for sensors that are not on USB, so they have no vendor:product ID.
-NON_USB_ENTRIES = {"broadcom-controlvault3", "crfpmoc", "mafp8800"}
+NON_USB_ENTRIES = {"broadcom-controlvault3", "crfpmoc", "gxfp5187", "mafp8800"}
 
 USB_ID = re.compile(r"^[0-9a-f]{4}:[0-9a-f]{4}$")
 ANY_USB_ID = re.compile(r"\b[0-9a-f]{4}:[0-9a-f]{4}\b")
