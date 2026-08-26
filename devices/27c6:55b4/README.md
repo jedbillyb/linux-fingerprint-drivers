@@ -3,8 +3,9 @@
 **Status: Working (enroll + verify reliable) via a patched fork.**
 
 Goodix TLS fingerprint sensor, reported by libfprint as **Goodix TLS Fingerprint
-Sensor 55X4**. Firmware family `GF3268_RTSEC_APP_10056`. Found in various
-laptops behind the Goodix `27c6` vendor ID.
+Sensor 55X4**. Confirmed firmware revisions include
+`GF3268_RTSEC_APP_10042` and `GF3268_RTSEC_APP_10056`. Found in various laptops
+behind the Goodix `27c6` vendor ID.
 
 ## What was broken
 
@@ -44,6 +45,44 @@ upstream base commit named in [`patches/README.md`](patches/README.md).
 After installing, `fprintd-list "$USER"` should name **Goodix TLS Fingerprint
 Sensor 55X4**.
 
+### Arch / Omarchy notes
+
+Arch currently exposes OpenCV 5 through `opencv5.pc`. If Meson fails with
+`Dependency "opencv4" not found`, change the sigfm dependency in
+`libfprint/sigfm/meson.build` for that build:
+
+```meson
+opencv = dependency('opencv5', required: true)
+```
+
+When packaging the patched library locally, the package must satisfy both the
+package and shared-library dependencies used by Arch's `fprintd` package:
+
+```bash
+provides=('libfprint=1.94.6' 'libfprint-2.so=2-64')
+conflicts=('libfprint' 'libfprint-git')
+```
+
+Omarchy's stock fingerprint wizard explicitly installs the repository
+`libfprint` package. Pacman will then offer to remove the custom Goodix package,
+which returns this sensor to an unsupported driver. Install `fprintd` directly,
+then enroll and verify with the commands below instead of rerunning the stock
+wizard.
+
+For Omarchy lock-screen integration, create its dedicated PAM service only
+after enrollment and verification succeed:
+
+```bash
+printf '%s\n' \
+  '#%PAM-1.0' \
+  'auth       required                    pam_fprintd.so' \
+  'account    include                     system-local-login' |
+  sudo tee /etc/pam.d/omarchy-lock-fingerprint >/dev/null
+```
+
+This service is used only for the fingerprint path; Omarchy keeps password
+unlock as a separate fallback.
+
 ## Enroll
 
 ```sh
@@ -60,3 +99,6 @@ positions.
 
 - **Lenovo IdeaPad Flex 5 16ABR8** (82XY) on **Void Linux** (libfprint 1.94.6,
   fprintd) - login, sudo, and screen-lock unlock all working.
+- **Lenovo IdeaPad Flex 5 14ARE05** (81X2) on **Omarchy / Arch Linux**
+  (firmware `GF3268_RTSEC_APP_10042`, libfprint 1.94.6, fprintd 1.94.5) -
+  enrollment, verification, and Omarchy screen-lock unlock all working.
