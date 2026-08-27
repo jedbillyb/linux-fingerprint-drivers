@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-31 model listings map to a catalogued sensor; the rest are on the
+32 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.

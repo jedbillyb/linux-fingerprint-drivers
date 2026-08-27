@@ -4,20 +4,20 @@ Driver and protocol reverse-engineering:
   Base: commit d7ed1db (branch main), against libfprint-2-tod1 1.94.7+tod1.
 
 Reference work this build relied on:
-  JJJollyjim — wireshark-goodix: Wireshark dissector for the GXFP5187 SPI
+  JJJollyjim - wireshark-goodix: Wireshark dissector for the GXFP5187 SPI
     protocol, with a sample SPI capture. The key protocol reference.
     https://github.com/JJJollyjim/wireshark-goodix
-  PeshalaDilshan — OpenGoodixSPI: experimental kernel driver for Goodix SPI
+  PeshalaDilshan - OpenGoodixSPI: experimental kernel driver for Goodix SPI
     sensors, GXFP5187 referenced.
     https://github.com/PeshalaDilshan/OpenGoodixSPI
-  lexakimov — goodix51c0_spi-reversing: Goodix 51C0 SPI protocol RE.
+  lexakimov - goodix51c0_spi-reversing: Goodix 51C0 SPI protocol RE.
     https://github.com/lexakimov/goodix51c0_spi-reversing
-  goodix-fp-linux-dev — goodix-fp-dump: Goodix USB protocol work, useful for
+  goodix-fp-linux-dev - goodix-fp-dump: Goodix USB protocol work, useful for
     comparison. https://github.com/goodix-fp-linux-dev/goodix-fp-dump
-  archshift — goodix_fingerprint_re: Goodix driver RE (Dell XPS 15 2019).
+  archshift - goodix_fingerprint_re: Goodix driver RE (Dell XPS 15 2019).
     https://github.com/archshift/goodix_fingerprint_re
 
 Matcher technique references:
   D. Lowe, "Distinctive Image Features from Scale-Invariant Keypoints" (2004).
   Arandjelović & Zisserman, "Three things everyone should know to improve
-    object retrieval" — RootSIFT (2012).
+    object retrieval" - RootSIFT (2012).

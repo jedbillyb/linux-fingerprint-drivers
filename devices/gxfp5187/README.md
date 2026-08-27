@@ -8,7 +8,7 @@ Enrols and verifies through `fprintd` and GNOME Settings; session unlock and
 Upstream libfprint has no driver for this sensor (tracked in
 [libfprint issue #112](https://gitlab.freedesktop.org/libfprint/libfprint/-/issues/112)).
 This entry points at an out-of-tree **TOD** driver (a shared module libfprint
-loads at runtime), not a patch against libfprint's own sources — see
+loads at runtime), not a patch against libfprint's own sources. See
 [patches/](patches/) for the base version and where the code lives.
 
 The driver, its full protocol write-up and the reasoning behind the matcher are
@@ -24,7 +24,7 @@ are listed here.
 - **It is SPI, not USB.** libfprint reaches it through the `spidev` node. The
   `spidev` kernel module must be bound to the SPI device (`spi-GXFP5187:00`);
   the driver ships a udev rule that does this on every appearance. `spidev` has
-  no alias for this hardware, so nothing loads it on its own — the install
+  no alias for this hardware, so nothing loads it on its own, so the install
   step forces it.
 - **`spidev` must be given a larger buffer.** The image arrives as a single
   ~22 kB SPI transfer, above the 4096-byte default; `options spidev

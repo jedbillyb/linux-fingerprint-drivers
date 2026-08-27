@@ -81,7 +81,7 @@ index 2e52403..41b8703 100644
 +
 +### If verify suddenly fails
 +
-+`verify-disconnected` / instant "Wrong" usually means a stale TLS session — run
++`verify-disconnected` / instant "Wrong" usually means a stale TLS session, so run
 +`sudo pkill -9 -x fprintd` to force a fresh cold handshake. If it persists, the
 +sensor PSK was likely rewritten (e.g. by a Windows Hello boot, which can't share
 +the sensor with Linux); re-enroll to re-provision it.

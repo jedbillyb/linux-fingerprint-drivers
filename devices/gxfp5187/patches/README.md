@@ -1,7 +1,7 @@
 # Patches
 
-This sensor is served by an out-of-tree **TOD** driver — a shared module that
-libfprint loads at runtime — not by a patch series against libfprint's own
+This sensor is served by an out-of-tree **TOD** driver, a shared module that
+libfprint loads at runtime, not by a patch series against libfprint's own
 source tree. There are therefore no `.patch` files here; the code lives in its
 own repository and is built and installed as a module.
 
