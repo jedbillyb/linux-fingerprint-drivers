@@ -35,6 +35,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
+| Lenovo IdeaPad Flex 5 14ARE05 | `27c6:55b4` | Goodix GF3268 | Working | [entry](../devices/27c6:55b4/) |
 | Lenovo IdeaPad Flex 5 16ABR8 | `27c6:55b4` | Goodix GF3268 | Working | [entry](../devices/27c6:55b4/) |
 | Lenovo ThinkPad E14 Gen 5 | `10a5:9800` | FPC Match-on-Host / fpcmoh | Working | [entry](../devices/10a5:9800/) |
 | Lenovo ThinkBook | `27c6:550a` | Goodix 550a - vendor TOD blob route | Working (vendor blob) | [entry](../devices/27c6:550a/) |

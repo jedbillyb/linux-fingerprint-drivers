@@ -7,3 +7,7 @@ Branch:        goodix-55b4-fixes
 
 Based on the goodixtls libfprint work by TheWeirdDev and contributors.
 Original driver code is LGPL-2.1; this fork keeps that license.
+
+Additional GF32xx driver source tested on Arch/Omarchy:
+https://github.com/GuNanOvO/goodix-55x4-linux
+Release: v0.1.4 (commit c6920bf786c00c5e23882ecc155588dd3c3e8d05)
