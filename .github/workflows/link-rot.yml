@@ -13,6 +13,14 @@ permissions:
   contents: read
   issues: write
 
+env:
+  # Kept in one place so the first pass and the confirmation pass below can
+  # never drift apart.
+  LYCHEE_ARGS: >-
+    --no-progress --max-concurrency 4 --accept 200,206,429
+    --max-retries 5 --retry-wait-time 15
+    README.md CONTRIBUTING.md docs/*.md 'devices/**/*.md'
+
 jobs:
   external-links:
     runs-on: ubuntu-latest
@@ -23,15 +31,30 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          args: >-
-            --no-progress --max-concurrency 4 --accept 200,206,429
-            README.md CONTRIBUTING.md docs/*.md 'devices/**/*.md'
+          args: ${{ env.LYCHEE_ARGS }}
+          fail: false
+
+      # git.launchpad.net and gitlab.freedesktop.org both hand out sporadic
+      # 500s to CI runners for pages that are perfectly alive, so a single bad
+      # answer is not evidence of link rot. Wait for the upstream hiccup to
+      # pass, ask again, and only file an issue if the second run agrees.
+      - name: Wait out transient upstream errors
+        if: steps.lychee.outputs.exit_code != 0
+        run: sleep 180
+
+      - name: Re-check external links
+        id: recheck
+        if: steps.lychee.outputs.exit_code != 0
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: ${{ env.LYCHEE_ARGS }}
+          output: ./lychee/recheck.md
           fail: false
 
       - name: Open an issue if links are broken
-        if: steps.lychee.outputs.exit_code != 0
+        if: steps.lychee.outputs.exit_code != 0 && steps.recheck.outputs.exit_code != 0
         uses: peter-evans/create-issue-from-file@v5
         with:
           title: Broken links found by the weekly link check
-          content-filepath: ./lychee/out.md
+          content-filepath: ./lychee/recheck.md
           labels: maintenance
