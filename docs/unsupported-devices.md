@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 104 USB fingerprint sensors below are on the official libfprint
+The 103 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -11,7 +11,7 @@ have one of these, a protocol dump or a driver is welcome.
 noted on the wiki.
 
 Source: libfprint wiki, fetched 2026-06-18. Rows are removed as devices gain
-an entry; last reconciled 2026-08-02.
+an entry; last reconciled 2026-09-07.
 
 Most USB IDs below are plain text rather than links: the wiki's own
 `Unsupported-Devices` table links each device to a `Devices/<id>` subpage, but
@@ -42,7 +42,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `04f3:0c77` | - | partial |
 | `04f3:0c7c` | - | WIP/PoC upstream |
 | `04f3:0c7f` | Acer Swift 3 |  |
-| `04f3:0c80` | ELAN:ARM-M4 - Surface Laptop Go 2 |  |
 | `04f3:0c85` | ELAN:ARM-M4 ACER Aspire Vero |  |
 | `04f3:0c8a` | - |  |
 | `04f3:0c90` | ELAN:ARM-M4 ASUS Vivobook |  |

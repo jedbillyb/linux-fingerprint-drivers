@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-32 model listings map to a catalogued sensor; the rest are on the
+33 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -165,7 +165,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
-| ELAN:ARM-M4 - Surface Laptop Go 2 | `04f3:0c80` | - | No known fix | [gap-map](unsupported-devices.md) |
+| Microsoft Surface Laptop Go 2 | `04f3:0c80` | ELAN ARM-M4 | Partial | [entry](../devices/04f3:0c80/) |
 | Surface Laptop Go | `04f3:0c5a` | - | No known fix | [gap-map](unsupported-devices.md) |
 
 ## MSI

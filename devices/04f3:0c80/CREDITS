@@ -1,0 +1,18 @@
+Device: ELAN ARM-M4 (USB 04f3:0c80)
+Device ID(s): 04f3:0c80
+
+Status: experimental community patch, not upstream
+
+Reported and tested by: ChuChua-Tech (@ChuChua-Tech)
+  Report and patch: https://gist.github.com/ChuChua-Tech/37e7636c0276974547ff36e3ee51030e
+  Origin issue: https://github.com/jedbillyb/linux-fingerprint-drivers/issues/16
+
+Patch base: Davide Depau's libfprint fork, commit
+  11f0316d069cc90c154c8cb0e46478388c5e2a74
+  https://gitlab.freedesktop.org/Depau/libfprint.git
+
+The EP83 and NO_DELETE_BY_ID quirks come from the Surface Laptop Go 1
+(04f3:0c5a) reports in linux-surface:
+  https://github.com/linux-surface/linux-surface/issues/1380
+
+Part of libfprint (LGPL-2.1). Experimental - not production ready.
