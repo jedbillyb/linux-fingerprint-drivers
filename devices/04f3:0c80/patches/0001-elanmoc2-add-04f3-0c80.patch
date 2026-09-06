@@ -1,0 +1,178 @@
+diff --git a/libfprint/drivers/elanmoc2/elanmoc2.c b/libfprint/drivers/elanmoc2/elanmoc2.c
+index bec6aeb..7ebdb59 100644
+--- a/libfprint/drivers/elanmoc2/elanmoc2.c
++++ b/libfprint/drivers/elanmoc2/elanmoc2.c
+@@ -56,6 +56,9 @@ struct _FpiDeviceElanMoC2
+   FpPrint *enroll_print;
+ };
+ 
++static guint8
++elanmoc2_cmd_ep_in_for_device (FpiDeviceElanMoC2 *self, const Elanmoc2Cmd *cmd);
++
+ G_DEFINE_TYPE (FpiDeviceElanMoC2, fpi_device_elanmoc2, FP_TYPE_DEVICE);
+ 
+ 
+@@ -66,7 +69,6 @@ elanmoc2_cmd_usb_callback (FpiUsbTransfer *transfer,
+                            GError         *error)
+ {
+   FpiDeviceElanMoC2 *self = FPI_DEVICE_ELANMOC2 (device);
+-  const gboolean short_is_error = GPOINTER_TO_INT (user_data);
+ 
+   if (self->ssm == NULL)
+     {
+@@ -85,6 +87,7 @@ elanmoc2_cmd_usb_callback (FpiUsbTransfer *transfer,
+ 
+   if (error)
+     {
++      self->in_flight_cmd = NULL;
+       fpi_ssm_mark_failed (g_steal_pointer (&self->ssm),
+                            g_steal_pointer (&error));
+       return;
+@@ -94,8 +97,12 @@ elanmoc2_cmd_usb_callback (FpiUsbTransfer *transfer,
+     {
+       /* Send callback */
+       const Elanmoc2Cmd *cmd = g_steal_pointer (&self->in_flight_cmd);
++      const gboolean short_is_error = GPOINTER_TO_INT (user_data);
++      const gint in_len =
++        cmd == &cmd_wipe_sensor && (self->dev_type & ELANMOC2_QUIRK_WIPE_ACK) ?
++        2 : cmd->in_len;
+ 
+-      if (cmd->in_len == 0)
++      if (in_len == 0)
+         {
+           /* Nothing to receive */
+           fpi_ssm_next_state (self->ssm);
+@@ -106,15 +113,16 @@ elanmoc2_cmd_usb_callback (FpiUsbTransfer *transfer,
+ 
+       transfer_in->short_is_error = short_is_error;
+ 
+-      fpi_usb_transfer_fill_bulk (transfer_in, cmd->ep_in,
+-                                  cmd->in_len);
++      fpi_usb_transfer_fill_bulk (transfer_in,
++                                  elanmoc2_cmd_ep_in_for_device (self, cmd),
++                                  in_len);
+ 
+       fpi_usb_transfer_submit (transfer_in,
+                                ELANMOC2_USB_RECV_TIMEOUT,
+                                cmd->is_cancellable ?
+                                fpi_device_get_cancellable (device) : NULL,
+                                elanmoc2_cmd_usb_callback,
+-                               NULL);
++                               (gpointer) cmd);
+     }
+   else
+     {
+@@ -132,11 +140,30 @@ elanmoc2_cmd_usb_callback (FpiUsbTransfer *transfer,
+           self->buffer_in =
+             g_bytes_new_take (g_steal_pointer (&(transfer->buffer)),
+                               transfer->actual_length);
+-          fpi_ssm_next_state (self->ssm);
++          if (user_data == &cmd_wipe_sensor &&
++              (self->dev_type & ELANMOC2_QUIRK_WIPE_ACK))
++            {
++              /* Consume the erase acknowledgement before issuing another
++               * command, and allow the sensor time to finish erasing. */
++              fp_info ("Erase acknowledgement received; waiting for sensor");
++              fpi_ssm_next_state_delayed (self->ssm, 5000);
++            }
++          else
++            fpi_ssm_next_state (self->ssm);
+         }
+     }
+ }
+ 
++static guint8
++elanmoc2_cmd_ep_in_for_device (FpiDeviceElanMoC2 *self, const Elanmoc2Cmd *cmd)
++{
++  if ((self->dev_type & ELANMOC2_QUIRK_USE_EP83) &&
++      (cmd == &cmd_identify || cmd == &cmd_enroll))
++    return ELANMOC2_EP_MOC_CMD_IN_83;
++
++  return cmd->ep_in;
++}
++
+ static void
+ elanmoc2_cmd_transceive_full (FpDevice          *device,
+                               const Elanmoc2Cmd *cmd,
+@@ -147,7 +174,11 @@ elanmoc2_cmd_transceive_full (FpDevice          *device,
+   FpiDeviceElanMoC2 *self = FPI_DEVICE_ELANMOC2 (device);
+ 
+   g_assert (buffer_out->len == cmd->out_len);
+-  g_assert_null (self->in_flight_cmd);
++  if (self->in_flight_cmd != NULL)
++    {
++      fp_warn ("Command started while previous command still in flight, dropping");
++      return;
++    }
+   self->in_flight_cmd = cmd;
+ 
+   g_autoptr(FpiUsbTransfer) transfer_out = fpi_usb_transfer_new (device);
+@@ -323,9 +354,13 @@ static void
+ elanmoc2_close (FpDevice *device)
+ {
+   g_autoptr(GError) error = NULL;
++  FpiDeviceElanMoC2 *self = FPI_DEVICE_ELANMOC2 (device);
+ 
+   fp_info ("Closing device");
+-  elanmoc2_cancel (device);
++  if (self->in_flight_cmd == NULL)
++    elanmoc2_cancel (device);
++  else
++    fp_info ("Skipping cancel while command is still in flight");
+   g_usb_device_release_interface (fpi_device_get_usb_device (FP_DEVICE (device)),
+                                   0, 0, &error);
+   fpi_device_close_complete (device, g_steal_pointer (&error));
+@@ -826,6 +861,12 @@ elanmoc2_enroll_run_state (FpiSsm *ssm, FpDevice *device)
+ 
+     case ENROLL_ATTEMPT_DELETE: {
+         fpi_device_report_finger_status (device, FP_FINGER_STATUS_NONE);
++        if (self->dev_type & ELANMOC2_QUIRK_NO_DELETE_BY_ID)
++          {
++            fp_info ("NO_DELETE_BY_ID quirk set, skipping delete by ID");
++            fpi_ssm_jump_to_state (ssm, ENROLL_WIPE_SENSOR);
++            break;
++          }
+         fp_info ("Deleting enrolled finger %d", self->print_index);
+         g_assert_nonnull (buffer_in);
+ 
+@@ -886,7 +927,6 @@ elanmoc2_enroll_run_state (FpiSsm *ssm, FpDevice *device)
+         self->print_index = 0;
+         fp_info (
+           "Wipe sensor command sent - next operation will take a while");
+-        fpi_ssm_next_state (ssm);
+         break;
+       }
+ 
+@@ -1159,6 +1199,10 @@ fpi_device_elanmoc2_init (FpiDeviceElanMoC2 *self)
+ static const FpIdEntry elanmoc2_id_table[] = {
+   {.vid = ELANMOC2_VEND_ID, .pid = 0x0c00, .driver_data = ELANMOC2_ALL_DEV},
+   {.vid = ELANMOC2_VEND_ID, .pid = 0x0c4c, .driver_data = ELANMOC2_ALL_DEV},
++  {.vid = ELANMOC2_VEND_ID, .pid = 0x0c80, .driver_data = ELANMOC2_ALL_DEV |
++   ELANMOC2_QUIRK_USE_EP83 |
++   ELANMOC2_QUIRK_NO_DELETE_BY_ID |
++   ELANMOC2_QUIRK_WIPE_ACK},
+   {.vid = ELANMOC2_VEND_ID, .pid = 0x0c5e, .driver_data = ELANMOC2_DEV_0C5E},
+   {.vid = ELANMOC2_VEND_ID, .pid = 0x0c7c, .driver_data = ELANMOC2_ALL_DEV},
+   {.vid = ELANMOC2_VEND_ID, .pid = 0x0c90, .driver_data = ELANMOC2_ALL_DEV},
+diff --git a/libfprint/drivers/elanmoc2/elanmoc2.h b/libfprint/drivers/elanmoc2/elanmoc2.h
+index 2a99089..7cb21a2 100644
+--- a/libfprint/drivers/elanmoc2/elanmoc2.h
++++ b/libfprint/drivers/elanmoc2/elanmoc2.h
+@@ -46,6 +46,7 @@
+ #define ELANMOC2_EP_CMD_OUT (0x1 | FPI_USB_ENDPOINT_OUT)
+ #define ELANMOC2_EP_CMD_IN (0x3 | FPI_USB_ENDPOINT_IN)
+ #define ELANMOC2_EP_MOC_CMD_IN (0x4 | FPI_USB_ENDPOINT_IN)
++#define ELANMOC2_EP_MOC_CMD_IN_83 (0x3 | FPI_USB_ENDPOINT_IN)
+ #define ELANMOC2_USB_SEND_TIMEOUT 10000
+ #define ELANMOC2_USB_RECV_TIMEOUT 10000
+ 
+@@ -62,6 +63,9 @@
+ // Currently only one device is supported, but I'd like to future-proof this driver for any new contributions.
+ #define ELANMOC2_ALL_DEV 0
+ #define ELANMOC2_DEV_0C5E (1 << 0)
++#define ELANMOC2_QUIRK_USE_EP83 (1 << 1)
++#define ELANMOC2_QUIRK_NO_DELETE_BY_ID (1 << 2)
++#define ELANMOC2_QUIRK_WIPE_ACK (1 << 3)
+ 
+ // Subtract the 2-byte header
+ #define ELANMOC2_USER_ID_MAX_LEN (cmd_finger_info.in_len - 2)
