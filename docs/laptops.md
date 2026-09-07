@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-33 model listings map to a catalogued sensor; the rest are on the
+35 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -132,6 +132,8 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
+| Samsung Galaxy Book2 360 | `2df0:0003` | CanvasBio CB2000 | Working | [entry](../devices/2df0:0003/) |
+| Samsung Galaxy Book3 360 | `2df0:0003` | CanvasBio CB2000 | Working | [entry](../devices/2df0:0003/) |
 | Samsung Galaxy Book 4 | `2808:6553` | FocalTech FT9365 ESS (focaltech_moc) | Merged upstream | [entry](../devices/2808:6553/) |
 | Samsung GalaxyBook Pro 360 | `1c7a:057e` | - | No known fix | [gap-map](unsupported-devices.md) |
 
@@ -194,7 +196,6 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
-| CanvasBio CB2000 | `2df0:0003` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Clevo Laptops | `06cb:00a8` | - | No known fix | [gap-map](unsupported-devices.md) |
 | realme book MP | `27c6:5e0a` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Teclast F6 Pro | `27c6:5740` | - | No known fix | [gap-map](unsupported-devices.md) |
