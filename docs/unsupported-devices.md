@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 103 USB fingerprint sensors below are on the official libfprint
+The 102 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -130,7 +130,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `2808:9348` | - |  |
 | `2808:a553` | Focaltech FT9365, Asus VivoBook |  |
 | `2808:a658` | Asus Vivobook K6500zc |  |
-| `2df0:0003` | CanvasBio CB2000 |  |
 | `3538:0930` | External |  |
 
 _SPI sensors (ELAN7001/7002/079C, GXFP5187/51B7, GDIX51C0, fpc1020, etc.) are

@@ -1,0 +1,32 @@
+Device: CanvasBio CB2000 (USB 2df0:0003)
+Device ID(s): 2df0:0003
+
+Status: working via community drivers, none upstream. No libfprint merge
+request exists for 2df0 in any state.
+
+Driver authors (independent efforts, all reverse-engineered from the Samsung
+Windows driver):
+
+  Kaue Pagnussat (@kpagnussat) - CanvasMancer, SIGFM matcher, LGPL-2.1
+    https://github.com/kpagnussat/canvasbio-cb2000
+    https://gitlab.com/-/snippets/4931207
+
+  Lennart Arnholdt (@LennartArnholdt) - SIFT matcher, LGPL-2.1-or-later AND MIT
+    https://github.com/LennartArnholdt/libfprint-tod-cb2000
+    SIGFM-derived method carries an MIT notice in sift_match.hpp
+
+  @latex - standalone driver and CLI tooling, MIT
+    https://github.com/latex/canvasbio-cb2000-linux-driver
+
+  @rfocosi - libfprint fork carrying a CB2000 driver, no licence stated
+    https://github.com/rfocosi/libfprint
+
+  @vgperess - earliest published attempt, no licence stated
+    https://github.com/vgperess/libfprint-canvasbio-cb2000
+
+Protocol notes on the sibling 2df0:0007 (match-on-chip, SDCP/TLS), third-party
+and unverified:
+  https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b
+
+No code from any of the above is hosted here. Licences are recorded so you can
+check compatibility before mixing them into libfprint (LGPL-2.1).
