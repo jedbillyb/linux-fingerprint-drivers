@@ -62,10 +62,68 @@ driver, against the plain unencrypted image sensor that `:0003` is known to be.
 That is third-party and unverified, but it is consistent with a device
 rejecting a bare vendor request outright.
 
-If you have a `:0007`, the useful contribution is a full `lsusb -v` dump,
-especially the BOS descriptor, and a Windows-side USB capture if you can get
-one. Tracked in
-[issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17).
+### What the descriptors say
+
+A full descriptor dump from a Book5 360, posted in
+[issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17),
+settles what that stall means, and a copy is kept here as
+[`2df0-0007-lsusb.txt`](2df0-0007-lsusb.txt) so it outlives the attachment
+URL. The interface is vendor specific, class 255
+subclass 2, with four endpoints:
+
+| Endpoint | Direction | Type | Max packet |
+|---|---|---|---|
+| `0x01` | OUT | Bulk | 512 |
+| `0x82` | IN | Bulk | 512 |
+| `0x83` | IN | Interrupt | 16 |
+| `0x84` | IN | Interrupt | 16 |
+
+The `:0003` driver declares only `0x01` and `0x82` and never touches either
+interrupt endpoint. Whether that is a real generational difference or just an
+unused pair on both parts is still open, because nobody has posted an
+`lsusb -v` from a working `:0003` to diff against.
+
+The BOS descriptor carries a Microsoft OS 2.0 platform capability with
+`CapabilityData` `00 00 03 06 b0 01 15 00`, decoding as a Windows 8.1 minimum,
+a 432 byte descriptor set and vendor request code `0x15`. Fetching that set
+over `bRequest=0x15` returns exactly the advertised 432 bytes, containing:
+
+- compatible ID `WINUSB`
+- `DeviceInterfaceGUID` `{62B96A71-9D46-49E7-A698-134007291217}`
+- WinUSB power properties: idle enabled, 5000 ms idle timeout, system wake
+  enabled
+
+A second BOS capability of type `0x11`, payload `01 03 00 00 00`, is present
+and lsusb does not decode it. Device revision is `bcdDevice f0.42`.
+
+### What that rules in and out
+
+**The stall is a firmware command set difference, not a broken device.** Vendor
+control transfers plainly work: `bRequest=0x15` succeeds on the same control
+endpoint where `bRequest=0xdb` stalls. The `:0007` firmware simply does not
+implement the `:0003` command vocabulary, which is what you would expect from a
+driver that was never run against it.
+
+**`WINUSB` does not settle the match-on-chip question either way.** It means
+Windows binds `winusb.sys` as the function driver and the biometric logic sits
+in a user mode WBDI driver above it. A plain image sensor and a match-on-chip
+sensor doing an SDCP handshake would look identical at this level, because the
+handshake would be spoken by that user mode driver over the same bulk
+endpoints. The
+[myso-kr notes](https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b/blob/main/docs/reverse-engineering/driver-analysis.md)
+describing `:0007` as match-on-chip with SDCP and TLS remain a lead, not a
+finding.
+
+**The transport is ordinary, so libusb can reproduce anything Windows sends.**
+The descriptor set is self-describing, so Windows binds without a vendor INF,
+and nothing about the link is privileged or kernel resident. The whole protocol
+therefore crosses the wire in front of any capture, and the reverse engineering
+target is the user mode component that opens that interface GUID. Searching a
+Samsung or CanvasBio driver package for the GUID string above is the way to
+find it.
+
+Still wanted: a Windows side capture, the vendor driver package, or an
+`lsusb -v` from a working `:0003` for the endpoint diff.
 
 ## Build and install
 
