@@ -1,0 +1,101 @@
+
+Bus 003 Device 002: ID 2df0:0007 CanvasBio CanvasBio CB2000
+Negotiated speed: High Speed (480Mbps)
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.01
+  bDeviceClass          239 Miscellaneous Device
+  bDeviceSubClass         2 [unknown]
+  bDeviceProtocol         1 Interface Association
+  bMaxPacketSize0        64
+  idVendor           0x2df0 CanvasBio
+  idProduct          0x0007 CanvasBio CB2000
+  bcdDevice           f0.42
+  iManufacturer           3 CanvasBio
+  iProduct                1 CanvasBio CB2000
+  iSerial                 2 201801010001
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x002e
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          4 CanvasBio CB2000
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           4
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      2 [unknown]
+      bInterfaceProtocol      0 
+      iInterface              5 CanvasBio CB2000
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               8
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x84  EP 4 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0010  1x 16 bytes
+        bInterval               8
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+Binary Object Store Descriptor:
+  bLength                 5
+  bDescriptorType        15
+  wTotalLength       0x0029
+  bNumDeviceCaps          2
+  Platform Device Capability:
+    bLength                28
+    bDescriptorType        16
+    bDevCapabilityType      5
+    bReserved               0
+    PlatformCapabilityUUID    {d8dd60df-4589-4cc7-9cd2-659d9e648a9f}
+    CapabilityData[0]    0x00
+    CapabilityData[1]    0x00
+    CapabilityData[2]    0x03
+    CapabilityData[3]    0x06
+    CapabilityData[4]    0xb0
+    CapabilityData[5]    0x01
+    CapabilityData[6]    0x15
+    CapabilityData[7]    0x00
+  ** UNRECOGNIZED:  08 10 11 01 03 00 00 00
+Device Status:     0x0000
+  (Bus Powered)
