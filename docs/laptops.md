@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-35 model listings map to a catalogued sensor; the rest are on the
+36 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -64,6 +64,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 |--------------|--------|--------|--------|-------------|
 | Dell XPS 13 7390 2-in-1 | `27c6:5385` | Goodix HTK32 | Working | [entry](../devices/27c6:5385/) |
 | Dell XPS 13 9305 | `27c6:5385` | Goodix HTK32 | Working | [entry](../devices/27c6:5385/) |
+| Dell XPS 13 9370 | `27c6:5385` | Goodix HTK32 | Working | [entry](../devices/27c6:5385/) |
 | Dell XPS 15 9570 | `27c6:5385` | Goodix HTK32 | Working | [entry](../devices/27c6:5385/) |
 | Dell XPS 13 9300 | `27c6:533c` | Goodix 533c - Dell OEM TOD blob route | Working (vendor blob) | [entry](../devices/27c6:533c/) |
 | Dell XPS 15 9500 | `27c6:533c` | Goodix 533c - Dell OEM TOD blob route | Working (vendor blob) | [entry](../devices/27c6:533c/) |

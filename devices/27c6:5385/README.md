@@ -7,7 +7,7 @@ driver covers product IDs `5335`, `5385`, and `5395`.
 
 ## Hardware
 
-Seen on Dell XPS 13 9305, Dell XPS 13 7390 2-in-1, and Dell XPS 15 9570.
+Seen on Dell XPS 13 9305, Dell XPS 13 7390 2-in-1, Dell XPS 13 9370, and Dell XPS 15 9570.
 
 ## What was broken
 
@@ -56,3 +56,4 @@ Enable fprintd in your PAM stack: distro helper where there is one, otherwise
 ## Tested on
 
 - Arch Linux, Fedora, and Ubuntu/Debian, on the Dell XPS models listed above.
+- Dell XPS 13 9370 on Ubuntu 26.04: `27c6:5385`, FW `GF5288_HTSEC_APP_10011`, chip `0x220c`, GNOME enroll/unlock via [goodix53x5](https://github.com/AndyHazz/goodix53x5-libfprint). Ubuntu glue: https://github.com/larches-technologies/goodix-htk32
