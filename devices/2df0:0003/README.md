@@ -59,8 +59,9 @@ Reverse-engineering notes in
 [myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b](https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b/blob/main/docs/reverse-engineering/driver-analysis.md)
 describe `2df0:0007` as match-on-chip with SDCP and TLS, off a Realtek UMDF
 driver, against the plain unencrypted image sensor that `:0003` is known to be.
-That is third-party and unverified, but it is consistent with a device
-rejecting a bare vendor request outright.
+That has since been confirmed from the vendor driver package, everything
+except the TLS part. See [the vendor driver package](#the-vendor-driver-package)
+below.
 
 ### What the descriptors say
 
@@ -111,8 +112,8 @@ sensor doing an SDCP handshake would look identical at this level, because the
 handshake would be spoken by that user mode driver over the same bulk
 endpoints. The
 [myso-kr notes](https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b/blob/main/docs/reverse-engineering/driver-analysis.md)
-describing `:0007` as match-on-chip with SDCP and TLS remain a lead, not a
-finding.
+describing `:0007` as match-on-chip with SDCP were a lead at this point. The
+vendor driver package below turned them into a finding.
 
 **The transport is ordinary, so libusb can reproduce anything Windows sends.**
 The descriptor set is self-describing, so Windows binds without a vendor INF,
@@ -122,8 +123,89 @@ target is the user mode component that opens that interface GUID. Searching a
 Samsung or CanvasBio driver package for the GUID string above is the way to
 find it.
 
-Still wanted: a Windows side capture, the vendor driver package, or an
-`lsusb -v` from a working `:0003` for the endpoint diff.
+### The vendor driver package
+
+The Windows package for `USB\VID_2DF0&PID_0007` was obtained and read, again in
+[issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17).
+Its INF installs a UMDF service `CanvasBioFingerprintDriver`, binary
+`CanvasBioFingerprintDriver.dll`, with `CanvasBioFingerprintAdapter.dll`
+registered as the WBF engine, sensor and storage adapter. The driver DLL
+contains the interface GUID above verbatim, which identifies it as the user
+mode component that opens the WinUSB interface.
+
+**`2df0:0007` is match-on-chip with SDCP.** That is now a finding rather than a
+lead. Strings in the driver DLL include `sdcpcli_gen_rand`, `sdcpcli_keygen`,
+`sdcpcli_secret_agreement` and `sdcp enroll commit`, alongside SHA-256/384/512,
+AES-128/256-GCM and AES-CCM, and on-device storage operations named
+`flash_write_enrollment`, `storage_write_subtemplate` and
+`flash_storage_write_verification`. So the host establishes an SDCP session and
+then drives a template store that lives on the sensor. The myso-kr notes were
+right on the substance. Their "TLS" is the one part to drop: the `.tls` strings
+in a PE are Thread Local Storage sections, not the protocol.
+
+**The silicon is Realtek.** The INF references `RtsMocWbdi`, which is Realtek's
+own driver naming: `Rts` is their prefix, `Moc` is match-on-chip, `Wbdi` is the
+Windows Biometric Driver Interface. The `2df0` vendor ID is CanvasBio's, not
+Realtek's `0bda`, but that is the normal arrangement for this part family.
+
+That last point matters more than anything else here, because **libfprint
+already ships a Realtek match-on-chip driver**, contributed by Realtek Corp
+themselves under LGPL-2.1-or-later, in
+[`libfprint/drivers/realtek`](https://gitlab.freedesktop.org/libfprint/libfprint/-/tree/master/libfprint/drivers/realtek).
+It is merged, in every distro build, and already carries Realtek MoC sensors
+under three vendor IDs that are not `0bda`:
+
+| ID | |
+|---|---|
+| `0bda:5813` | rts5813 |
+| `0bda:5816` | rts5816 |
+| `2541:fa03` | |
+| `3274:9003` | Generic Realtek USB2.0 Finger Print Bridge |
+
+A fourth under `2df0` would be unremarkable. The driver's shape fits the
+descriptors: it claims interface 0, uses bulk `0x01` OUT and `0x82` IN and
+ignores the interrupt endpoints, carries commands as 12-byte bulk frames, and
+issues exactly one vendor **control** request in the whole driver. Its command
+vocabulary also lines up with the strings above, `nor_enroll_commit` against
+`sdcp enroll commit`, `co_check_duplicate` against duplicate-enrollment
+reporting, plus `list`, `delete` and `clear_storage` for on-chip templates.
+
+**So the `:0003` drivers were never the right base for `:0007`.** The open
+question is no longer how to write a driver from scratch, it is whether the
+upstream Realtek driver already speaks this device.
+
+### The cheap test for that
+
+One control transfer, the Realtek driver's `get_device_info`:
+
+```text
+bmRequestType  0xC0   vendor, device-to-host
+bRequest       0x07
+wValue         0x000D
+wIndex         0x0000
+wLength        8
+```
+
+If `:0007` returns 8 bytes there instead of stalling, it is speaking the
+Realtek command set, and the next step is adding `{ .vid = 0x2df0, .pid =
+0x0007 }` to that driver's `id_table` and building it. If it stalls the way
+`bRequest=0xdb` does, the family is shared but the vocabulary is not, and the
+bulk framing has to be traced from Windows after all.
+
+**One caveat if it does work.** The upstream Realtek driver does not implement
+SDCP, and neither does any released libfprint: issue
+[#257](https://gitlab.freedesktop.org/libfprint/libfprint/-/issues/257) has
+been open since 2020 and
+[MR 547](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/547),
+"Implement SDCP v2", is still unmerged as of v1.94.100. Recent EgisTec firmware
+refuses to persist enrollments without an SDCP session, and a CB2000 whose
+driver calls `sdcp enroll commit` may behave the same way, so enrollment could
+appear to succeed and then not survive. That part is at least well trodden:
+Microsoft publishes the protocol and an MIT-licensed reference client at
+[microsoft/SecureDeviceConnectionProtocol](https://github.com/microsoft/SecureDeviceConnectionProtocol).
+
+Still wanted: a Windows side capture, and an `lsusb -v` from a working `:0003`
+for the endpoint diff.
 
 ## Build and install
 
