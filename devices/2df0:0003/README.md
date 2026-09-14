@@ -1,6 +1,6 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. It gets partway through enrollment on the upstream Realtek driver instead.**
+**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. On the upstream Realtek driver it captures real samples; a full enroll and verify is untested.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
 Book3 360 generation. Upstream libfprint has never supported it and there is no
@@ -259,22 +259,32 @@ Realtek test recordings has byte 0 `00`, with bytes 1 and 2 a per-device value
 (`e7 d4` and nearby on `5813`, `e1 bc` on `5816`), and none of them catches a
 working sensor in the "not yet" state.
 
-**Next test: force past state 3 and read `accept_sample`.** The diagnostic hack
-posted in #17 treats a change in byte 2 from its no-finger baseline as
-"captured", and logs the 9-byte `accept_sample` (`45 08`) reply. Byte 0 of that
-reply is the driver's own status:
+**Capture works; the stock driver's check is right.** A diagnostic hack in #17
+forced the driver past state 3 as soon as byte 2 left its baseline and logged
+the 9-byte `accept_sample` (`45 08`) reply. It never returned `0c` (command
+error), so there was always a real sample. It returned `03` (too left) once and
+then a run of `07` (poor quality), because the hack jumped ahead on every poll
+while the finger rested there, before each capture had finished. In the same
+run `finish_capture` reached a genuine `00 c5 51 00 00` on its own. Byte 0 was
+seen as `01`, `03` and `00`, so this firmware does report "done" the way the
+upstream driver expects.
 
-- `00` with data after it (a `5813` enroll gives e.g.
-  `00 d2 31 03 00 5c 5b 02 00`): the capture was real and `01` is just this
-  firmware's code. Then check whether enrollment survives a replug.
-- `01` to `0a`: a real capture rejected on quality (too high, too low, too
-  fast, poor quality, and so on).
-- `0c`, command error: no sample existed, so capture never ran. That points at
-  `05 05` needing parameters, or capture gated behind SDCP, and back to the
-  vendor DLL.
+The earlier endless state 3 loop was therefore most likely contact that was too
+light or too brief. **Press firmly and hold** until the stage advances.
 
-Still wanted, in order: the `accept_sample` bytes, a Windows side capture, and
-an `lsusb -v` from a working `:0003` for the endpoint diff.
+**Next test: stock Realtek driver, only the ID added.** Enroll all 8 stages with
+firm, held presses, then:
+
+1. verify with the enrolled finger, and with a different one (should fail)
+2. replug or reboot and verify again, since the vendor DLL's
+   `sdcp enroll commit` suggests the firmware might not keep an enrollment made
+   without an SDCP session
+
+If all of that passes, support is one line in the upstream `id_table` and
+belongs in a libfprint merge request.
+
+Still wanted, in order: that enroll, verify and replug result, a Windows side
+capture, and an `lsusb -v` from a working `:0003` for the endpoint diff.
 
 ## Build and install
 
