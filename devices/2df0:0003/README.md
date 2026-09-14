@@ -243,19 +243,38 @@ works. So the extra endpoints do not explain the loop on their own, though it
 is not ruled out that `:0007` firmware uses them. The same recording shows a
 good poll on `5813`: `45 06` answers `00 e7 d4 00 00`.
 
-**The deciding data is the reply bytes.** One `fp_dbg` of the 5 bytes in
-`fp_finish_capture_cb`, captured once with no finger and once with a finger
-held on the sensor:
+**The reply bytes: the sensor sees the finger, byte 0 never moves.** Logged
+from `fp_finish_capture_cb` in issue #17:
 
-- Byte 0 changes on touch, but not to `00`: the sensor is capturing and its
-  firmware uses a different "done" code. Likely a small fix in the callback.
-- Nothing changes: the sensor never started capturing. Suspects are the `05 05`
-  start-capture command, which upstream sends with every parameter byte zero,
-  or firmware that will not capture without an SDCP session. Either way the
-  next place to look is the vendor DLL.
+| Contact | `finish_capture` reply |
+|---|---|
+| none, or light | `01 45 cf 00 00`, stable |
+| firm | `01 c5 51 00 00`, reproducible |
 
-Still wanted, in order: those `finish_capture` bytes, a Windows side capture,
-and an `lsusb -v` from a working `:0003` for the endpoint diff.
+So bytes 1 and 2 react to a firmly pressed finger and byte 0 stays `01`. That
+shows finger **detection**, not a completed capture: bytes 1 and 2 could be a
+live detect reading reported whether or not a capture is armed. The
+recordings cannot settle it either. Every `finish_capture` reply in all three
+Realtek test recordings has byte 0 `00`, with bytes 1 and 2 a per-device value
+(`e7 d4` and nearby on `5813`, `e1 bc` on `5816`), and none of them catches a
+working sensor in the "not yet" state.
+
+**Next test: force past state 3 and read `accept_sample`.** The diagnostic hack
+posted in #17 treats a change in byte 2 from its no-finger baseline as
+"captured", and logs the 9-byte `accept_sample` (`45 08`) reply. Byte 0 of that
+reply is the driver's own status:
+
+- `00` with data after it (a `5813` enroll gives e.g.
+  `00 d2 31 03 00 5c 5b 02 00`): the capture was real and `01` is just this
+  firmware's code. Then check whether enrollment survives a replug.
+- `01` to `0a`: a real capture rejected on quality (too high, too low, too
+  fast, poor quality, and so on).
+- `0c`, command error: no sample existed, so capture never ran. That points at
+  `05 05` needing parameters, or capture gated behind SDCP, and back to the
+  vendor DLL.
+
+Still wanted, in order: the `accept_sample` bytes, a Windows side capture, and
+an `lsusb -v` from a working `:0003` for the endpoint diff.
 
 ## Build and install
 
