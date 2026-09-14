@@ -1,6 +1,6 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact.**
+**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. It gets partway through enrollment on the upstream Realtek driver instead.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
 Book3 360 generation. Upstream libfprint has never supported it and there is no
@@ -80,9 +80,12 @@ subclass 2, with four endpoints:
 | `0x84` | IN | Interrupt | 16 |
 
 The `:0003` driver declares only `0x01` and `0x82` and never touches either
-interrupt endpoint. Whether that is a real generational difference or just an
-unused pair on both parts is still open, because nobody has posted an
-`lsusb -v` from a working `:0003` to diff against.
+interrupt endpoint. Whether `:0003` has the same pair is still open, because
+nobody has posted an `lsusb -v` from a working `:0003` to diff against. What
+is known is that this exact layout is normal for Realtek match-on-chip parts,
+which is where `:0007` turned out to belong. See
+[the endpoint comparison](#result-it-answers-and-enrollment-loops-at-state-3)
+below.
 
 The BOS descriptor carries a Microsoft OS 2.0 platform capability with
 `CapabilityData` `00 00 03 06 b0 01 15 00`, decoding as a Windows 8.1 minimum,
@@ -204,8 +207,55 @@ appear to succeed and then not survive. That part is at least well trodden:
 Microsoft publishes the protocol and an MIT-licensed reference client at
 [microsoft/SecureDeviceConnectionProtocol](https://github.com/microsoft/SecureDeviceConnectionProtocol).
 
-Still wanted: a Windows side capture, and an `lsusb -v` from a working `:0003`
-for the endpoint diff.
+### Result: it answers, and enrollment loops at state 3
+
+Run in
+[issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17)
+against upstream libfprint `v1.94.100-10-g6f9479c3`, with
+`{ .vid = 0x2df0, .pid = 0x0007 }` added to the Realtek `id_table` and nothing
+else changed. **`:0007` speaks the Realtek command set.** It answers
+`get_device_info`, accepts `select_os`, reports its template count, enters
+enrollment and reports `FP_FINGER_STATUS_NEEDED`. Then it never gets past
+enroll state 3, which repeats rapidly with every transfer succeeding.
+
+**State 3 is a poll, not a hang.** In the Realtek driver's enroll state machine
+it is `FP_RTK_ENROLL_FINISH_CAPTURE`, which sends `co_finish_capture` (bulk
+command `45 06`, 5 bytes back). `fp_finish_capture_cb` advances only when byte 0
+of that reply is `00`; anything else re-enters the same state straight away,
+with no delay. So a fast state 3 loop is the driver waiting for a finger
+capture that the sensor never reports as done. The report also never reaches
+`FP_FINGER_STATUS_PRESENT`, which is set in that same branch.
+
+**The interrupt endpoints are probably not the difference.** libfprint's own
+test recordings for the Realtek driver (`tests/realtek/device` and
+`tests/realtek-5816/device`) carry the working sensors' USB descriptors:
+
+| Endpoint | `0bda:5813` | `0bda:5816` | `2df0:0007` |
+|---|---|---|---|
+| `0x01` OUT bulk | 512 | 512 | 512 |
+| `0x82` IN bulk | 512 | 512 | 512 |
+| `0x83` IN interrupt | 16 | 64 | 16 |
+| `0x84` IN interrupt | 16 | 64 | 16 |
+
+`0bda:5813` has the same four endpoints as `:0007`, with the same sizes, and
+the upstream driver ignores both interrupt endpoints there while enrollment
+works. So the extra endpoints do not explain the loop on their own, though it
+is not ruled out that `:0007` firmware uses them. The same recording shows a
+good poll on `5813`: `45 06` answers `00 e7 d4 00 00`.
+
+**The deciding data is the reply bytes.** One `fp_dbg` of the 5 bytes in
+`fp_finish_capture_cb`, captured once with no finger and once with a finger
+held on the sensor:
+
+- Byte 0 changes on touch, but not to `00`: the sensor is capturing and its
+  firmware uses a different "done" code. Likely a small fix in the callback.
+- Nothing changes: the sensor never started capturing. Suspects are the `05 05`
+  start-capture command, which upstream sends with every parameter byte zero,
+  or firmware that will not capture without an SDCP session. Either way the
+  next place to look is the vendor DLL.
+
+Still wanted, in order: those `finish_capture` bytes, a Windows side capture,
+and an `lsusb -v` from a working `:0003` for the endpoint diff.
 
 ## Build and install
 
