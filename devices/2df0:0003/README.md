@@ -1,6 +1,6 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. On the upstream Realtek driver it captures real samples; a full enroll and verify is untested.**
+**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. On the upstream Realtek driver it enrolls and matches on the chip, but verify then fails at a post-match template update and identify reports no match, so login does not work yet.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
 Book3 360 generation. Upstream libfprint has never supported it and there is no
@@ -28,7 +28,7 @@ replace or extend your libfprint. Read the source before installing.
 
 | Project | Approach | Licence | Notes |
 |---------|----------|---------|-------|
-| [kpagnussat/canvasbio-cb2000](https://github.com/kpagnussat/canvasbio-cb2000) | SIGFM feature matching, multi-capture mosaic template | LGPL-2.1 | Most actively developed. `R2.5` snapshot, 15 enroll stages, requires OpenCV, disables libfprint's virtual thermal shutdown for this device. Also published as a [single-file snippet](https://gitlab.com/-/snippets/4931207) |
+| [kpagnussat/canvasbio-cb2000](https://github.com/kpagnussat/canvasbio-cb2000) | SIGFM feature matching, multi-capture mosaic template | LGPL-2.1 | Most actively developed. `R2.5` snapshot, 15 enroll stages, requires OpenCV, disables libfprint's virtual thermal shutdown for this device. Use the repo: an older single-file [GitLab snippet](https://gitlab.com/-/snippets/4931207) ("V44", February) predates it and its current matcher, was never a release, and its author asks that it be disregarded |
 | [LennartArnholdt/libfprint-tod-cb2000](https://github.com/LennartArnholdt/libfprint-tod-cb2000) | SIFT feature matching, 30-frame template | LGPL-2.1-or-later AND MIT | Reports ~83% single-touch genuine acceptance and 0 false accepts in 1080 comparisons, measured across separate sessions on one device. PAM setup documented |
 | [latex/canvasbio-cb2000-linux-driver](https://github.com/latex/canvasbio-cb2000-linux-driver) | Standalone driver plus CLI tooling (`cb2000_demo`, `fpsudo`) | MIT | Ships an `install.sh`. Developed on a Book3 360 (730QFG) |
 | [rfocosi/libfprint](https://github.com/rfocosi/libfprint) | libfprint fork carrying a CB2000 driver | none stated | Whole-library fork rather than a patch |
@@ -55,6 +55,14 @@ the wake sequence, followed by an endless USB reset and re-init loop:
 Command transfer failed: endpoint stalled or request not supported
 ```
 
+**This is being fixed in that driver.** Its author confirmed it in
+[kpagnussat/canvasbio-cb2000#3](https://github.com/kpagnussat/canvasbio-cb2000/issues/3):
+`0x0007` is gone from `id_table` in their working tree, so a `:0007` will fail
+cleanly as "no driver found" and no udev rule is installed for it. That ships
+with their next release, which is held until the reworked driver passes testing
+on real hardware under GNOME and KDE. **Until that release is out, the
+published snapshot still lists `0x0007`, so do not install it on a `:0007`.**
+
 Reverse-engineering notes in
 [myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b](https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b/blob/main/docs/reverse-engineering/driver-analysis.md)
 describe `2df0:0007` as match-on-chip with SDCP and TLS, off a Realtek UMDF
@@ -79,11 +87,26 @@ subclass 2, with four endpoints:
 | `0x83` | IN | Interrupt | 16 |
 | `0x84` | IN | Interrupt | 16 |
 
-The `:0003` driver declares only `0x01` and `0x82` and never touches either
-interrupt endpoint. Whether `:0003` has the same pair is still open, because
-nobody has posted an `lsusb -v` from a working `:0003` to diff against. What
-is known is that this exact layout is normal for Realtek match-on-chip parts,
-which is where `:0007` turned out to belong. See
+The `:0003` driver's author has since posted the same dump from a working
+`:0003` (Galaxy Book3 360), with two control reads made against it,
+[in their issue #3](https://github.com/kpagnussat/canvasbio-cb2000/issues/3#issuecomment-5623280551):
+
+| Property | `2df0:0003` | `2df0:0007` |
+|---|---|---|
+| `bcdUSB` | `2.00` | `2.01` |
+| `bcdDevice` | `1.27` | `f0.42` |
+| Manufacturer string | `Generic` | `CanvasBio` |
+| `bmAttributes` | `0xe0`, self powered, remote wakeup | `0xa0`, remote wakeup |
+| Endpoints | `0x01`, `0x82`, `0x83` (16 bytes) | the same plus `0x84` (16 bytes) |
+| BOS descriptor | none, `GET_DESCRIPTOR(BOS)` stalls | Microsoft OS 2.0 capability, vendor code `0x15` |
+| Vendor request `0x15` | times out | returns the 432-byte WinUSB set |
+| `REQ_INIT 0xDB` (first wake command) | accepted | stalls |
+
+So these are different parts at every level that can be read without a driver.
+`:0003` does have the `0x83` interrupt endpoint, but its driver never reads it
+and, per its author, the Windows traces show no traffic on it. The four-endpoint
+layout of `:0007` is normal for Realtek match-on-chip parts, which is where it
+turned out to belong. See
 [the endpoint comparison](#result-it-answers-and-enrollment-loops-at-state-3)
 below.
 
@@ -272,19 +295,44 @@ upstream driver expects.
 The earlier endless state 3 loop was therefore most likely contact that was too
 light or too brief. **Press firmly and hold** until the stage advances.
 
-**Next test: stock Realtek driver, only the ID added.** Enroll all 8 stages with
-firm, held presses, then:
+### Result: enrollment and on-chip matching work, reporting does not
 
-1. verify with the enrolled finger, and with a different one (should fail)
-2. replug or reboot and verify again, since the vendor DLL's
-   `sdcp enroll commit` suggests the firmware might not keep an enrollment made
-   without an SDCP session
+With the stock Realtek driver and only the ID added, firm and held presses,
+[issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17)
+got this far:
 
-If all of that passes, support is one line in the upstream `id_table` and
-belongs in a libfprint merge request.
+- **Enrollment completes**, all 8 stages.
+- **The sensor matches on the chip.** Verify reaches
+  `FPI_MATCH_SUCCESS` for the enrolled finger. Its `accept_sample` reply is all
+  zeros, which is also what a working `0bda:5813` returns at that point.
+- **The template is stored.** Enrolling the same finger again reaches 8/8 and
+  is then rejected by `co_check_duplicate` as a duplicate, which is itself an
+  on-chip match against the stored templates.
 
-Still wanted, in order: that enroll, verify and replug result, a Windows side
-capture, and an `lsusb -v` from a working `:0003` for the endpoint diff.
+Two things still fail, and between them login does not work yet:
+
+1. **Verify fails after the match.** The Realtek driver follows a successful
+   verify with `co_update_template` (bulk `05 11`, all parameters zero) and
+   fails the whole action if byte 0 of the status reply is not `00`. `:0007`
+   answers it with a non-zero status. Both working recordings answer
+   `00 00 00 00 00`. By its name and position this is the adaptive template
+   update, the one verify step that writes to the sensor's storage. fprintd runs
+   verify when a single finger is enrolled.
+2. **Identify reports no match with the enrolled finger**, with no protocol
+   error. Identify sends the sensor the same commands as verify and skips the
+   template update; the only difference is that it compares the reply against
+   prints rebuilt from the sensor's template table (35-byte slots, finger byte at
+   offset 2, user ID from offset 3) instead of the print saved at enroll. A
+   different table layout on `:0007` would produce exactly this, but it is not
+   yet shown. fprintd runs identify when two or more fingers are enrolled.
+
+If both come down to small differences in this firmware, support is the
+`id_table` line plus those fixes, and belongs in a libfprint merge request.
+
+Still wanted, in order: the `05 11` status byte, a dump of the identify reply
+and the template table (debug lines for both are in #17), whether an enrollment
+survives a replug (the SDCP question above), and a Windows side capture, which
+would show what parameters Windows sends with `05 11`.
 
 ## Build and install
 
