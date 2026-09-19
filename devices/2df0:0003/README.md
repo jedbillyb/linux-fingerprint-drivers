@@ -1,6 +1,6 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. On the upstream Realtek driver it enrolls and matches on the chip, but verify then fails at a post-match template update and identify reports no match, so login does not work yet.**
+**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. On the upstream Realtek driver it enrolls and matches on the chip; an experimental community patch gets it to login and `sudo`, but its verify accepts any finger stored on the chip.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
 Book3 360 generation. Upstream libfprint has never supported it and there is no
@@ -329,10 +329,62 @@ Two things still fail, and between them login does not work yet:
 If both come down to small differences in this firmware, support is the
 `id_table` line plus those fixes, and belongs in a libfprint merge request.
 
-Still wanted, in order: the `05 11` status byte, a dump of the identify reply
-and the template table (debug lines for both are in #17), whether an enrollment
-survives a replug (the SDCP question above), and a Windows side capture, which
-would show what parameters Windows sends with `05 11`.
+The `05 11` status and whether an enrollment survives a reboot have since been
+answered, in the next section. Still wanted: a dump of the identify reply and
+the template table (debug lines for both are in #17), and a Windows side
+capture, which would show what parameters Windows sends with `05 11`.
+
+### Result: a community patch logs in, with a security hole
+
+[eliasdevx/cb2000-2df0-0007-linux](https://github.com/eliasdevx/cb2000-2df0-0007-linux)
+(LGPL-2.1, posted in
+[issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17)
+on 2026-09-18) patches the upstream Realtek driver until `:0007` works for
+login. On a Galaxy Book5 360 under Kubuntu, with libfprint `1.94.100` at
+`6f9479c3` and fprintd `1.94.5`, its author reports enrollment, `fprintd-verify`,
+`sudo` through PAM and the KDE lock screen all working, and the enrollment
+surviving a full reboot.
+
+Two open questions from above are answered by it:
+
+- **`co_update_template` (`05 11`) answers `01 f7 ff ff ff`**, a non-zero
+  status even straight after a successful match. The patch works around it by
+  ending verify at the match and never sending `05 11`.
+- **A template persists across a reboot** without any SDCP session, so this
+  firmware does not refuse to store enrollments the way recent EgisTec
+  firmware does.
+
+What the patch changes, read from its diff:
+
+- adds `2df0:0007` to the `id_table`
+- verify: reports a match as soon as `IDENTIFY_FEATURE` succeeds, and skips `05 11`
+- enroll: 5 stages instead of 8, restarts capture after a failed sample,
+  skips `co_check_duplicate`, and commits **without a user ID** (`data_len` 0)
+- blocking `g_usleep` delays of 0.3 to 1 s inside the USB callbacks
+
+**Its verify accepts any finger the chip holds a template for, not only the
+enrolled print.** Stock Realtek verify reads which template the chip matched
+out of the `IDENTIFY_FEATURE` reply, rebuilds it with `fp_print_from_data`, and
+succeeds only if `fp_print_equal` says it is the print being verified. The
+patch drops that check, and since its commit stores no user ID, nothing on the
+sensor ties a template to a print any more. So, probably, though none of it is
+tested yet:
+
+- a second person enrolled on the same sensor passes verify for your account
+- a finger removed with `fprintd-delete` may stay on the chip, because delete
+  finds its slot by that user ID, and would then still pass
+- fingers enrolled under Windows Hello on a dual-boot machine may count too
+
+Raised in #17 on 2026-09-19. Until verify checks which template matched, treat
+the patch as safe only where you are the only person whose finger has ever been
+enrolled on this sensor, and keep password login enabled, as its README
+already says.
+
+It is also not in a shape to go upstream: the device checks are inline, the
+sleeps block libfprint's main loop, and the unbound verify would not pass
+review. A merge request needs verify bound to a template again, which is what
+the identify reply and template table dumps above are for, plus a `:0007`
+specific answer to `05 11`.
 
 ## Build and install
 
@@ -360,3 +412,7 @@ troubleshooting. Sensor-specific deltas:
   threshold tuning.
 - `2df0:0003` also recorded on a Samsung 730QED by a linuxhw hardware probe
   under Fedora 38.
+- `2df0:0007` on a Samsung Galaxy Book5 360: login and `sudo` with
+  eliasdevx's patch, per its author, with the verify caveat
+  [above](#result-a-community-patch-logs-in-with-a-security-hole). Not a
+  `:0003` driver, so not in this entry's laptop list.

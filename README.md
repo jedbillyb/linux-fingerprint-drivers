@@ -182,7 +182,7 @@ in libfprint and may be unstable; see each device entry for details.
 |-----------|---------------|--------|-------|
 | 27c6:521d (538d) | Goodix 521d/538d | [goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev) | Works via AUR `libfprint-goodix-521d` |
 | 27c6:5110 + family | Goodix (newer) | [goodix-fp-linux-dev/libfprint](https://github.com/goodix-fp-linux-dev/libfprint) | **Experimental, not for daily use** |
-| [2df0:0003](devices/2df0:0003/) | CanvasBio CB2000 (Samsung Galaxy Book2/Book3 360) | [four independent drivers](devices/2df0:0003/#the-drivers) | Two report daily use. **`2df0:0007` is a different part and is not supported by any of them** |
+| [2df0:0003](devices/2df0:0003/) | CanvasBio CB2000 (Samsung Galaxy Book2/Book3 360) | [four independent drivers](devices/2df0:0003/#the-drivers) | Two report daily use. **`2df0:0007` is a different part and is not supported by any of them**; an experimental patch on the upstream Realtek driver logs it in, [with a security caveat](devices/2df0:0003/#result-a-community-patch-logs-in-with-a-security-hole) |
 | [04f3:0c80](devices/04f3:0c80/) | ELAN ARM-M4 (Surface Laptop Go 2) | [patch on Depau's libfprint](devices/04f3:0c80/patches/) | Enroll + verify work; **clearing sensor storage still times out**, and re-enroll wipes all prints |
 
 
