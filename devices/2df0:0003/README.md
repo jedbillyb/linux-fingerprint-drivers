@@ -295,7 +295,7 @@ upstream driver expects.
 The earlier endless state 3 loop was therefore most likely contact that was too
 light or too brief. **Press firmly and hold** until the stage advances.
 
-### Result: enrollment and on-chip matching work, reporting does not
+### Result: enrollment works, single-press matching does not
 
 With the stock Realtek driver and only the ID added, firm and held presses,
 [issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17)
@@ -319,20 +319,31 @@ Two things still fail, and between them login does not work yet:
    update, the one verify step that writes to the sensor's storage. fprintd runs
    verify when a single finger is enrolled.
 2. **Identify reports no match with the enrolled finger**, with no protocol
-   error. Identify sends the sensor the same commands as verify and skips the
-   template update; the only difference is that it compares the reply against
-   prints rebuilt from the sensor's template table (35-byte slots, finger byte at
-   offset 2, user ID from offset 3) instead of the print saved at enroll. A
-   different table layout on `:0007` would produce exactly this, but it is not
-   yet shown. fprintd runs identify when two or more fingers are enrolled.
+   error. fprintd runs identify when two or more fingers are enrolled.
 
-If both come down to small differences in this firmware, support is the
-`id_table` line plus those fixes, and belongs in a libfprint merge request.
+**The sensor itself says no match.** Dumps from 2026-09-19 in #17 settle where
+identify fails. The template table is exactly the layout the upstream driver
+reads: 10 slots of 35 bytes, slot 0 holding `01` (in use), finger byte `ff` at
+offset 2 (`SUB_FINGER_01`, what the driver writes at commit) and the 28-byte
+user ID from offset 3. So the driver's side of the comparison is fine. The
+`IDENTIFY_FEATURE` reply starts `0b`, which is `FP_RTK_MATCH_FAIL`, the chip's
+own no-match. Verify now gets the same `0b`; the one earlier successful verify
+has not been reproduced.
+
+**Leading explanation, untested: an enrollment that covers one placement.**
+`co_check_duplicate` still recognises the finger, but it compares a whole new
+8-sample template against the stored one, while verify compares a single
+press. After each accepted enroll sample the stock driver goes straight back
+to capture without waiting for the finger to lift, so a finger held down
+across stages can give 8 samples of one spot. The community patch below waits
+1 s for finger removal between samples and reports reliable on-chip matches.
+The test asked for in #17: clear storage, re-enroll lifting and shifting the
+finger between stages, then count `00` against `0b` over ten verifies.
 
 The `05 11` status and whether an enrollment survives a reboot have since been
-answered, in the next section. Still wanted: a dump of the identify reply and
-the template table (debug lines for both are in #17), and a Windows side
-capture, which would show what parameters Windows sends with `05 11`.
+answered, in the next section. Still wanted: the result of that re-enroll
+test, and a Windows side capture, which would show what parameters Windows
+sends with `05 11`.
 
 ### Result: a community patch logs in, with a security hole
 
