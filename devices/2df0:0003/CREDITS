@@ -28,5 +28,10 @@ Protocol notes on the sibling 2df0:0007 (match-on-chip, SDCP/TLS), third-party
 and unverified:
   https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b
 
+Experimental 2df0:0007 patch on libfprint's upstream Realtek driver, LGPL-2.1:
+
+  @eliasdevx - login works; verify accepts any template on the chip
+    https://github.com/eliasdevx/cb2000-2df0-0007-linux
+
 No code from any of the above is hosted here. Licences are recorded so you can
 check compatibility before mixing them into libfprint (LGPL-2.1).
