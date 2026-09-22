@@ -347,16 +347,26 @@ sends with `05 11`.
 
 ### Result: a community patch logs in, with a security hole
 
-[eliasdevx/cb2000-2df0-0007-linux](https://github.com/eliasdevx/cb2000-2df0-0007-linux)
-(LGPL-2.1, posted in
+**The patch is gone.** `eliasdevx/cb2000-2df0-0007-linux` (LGPL-2.1, posted in
 [issue #17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17)
-on 2026-09-18) patches the upstream Realtek driver until `:0007` works for
-login. On a Galaxy Book5 360 under Kubuntu, with libfprint `1.94.100` at
-`6f9479c3` and fprintd `1.94.5`, its author reports enrollment, `fprintd-verify`,
-`sudo` through PAM and the KDE lock screen all working, and the enrollment
-surviving a full reboot.
+on 2026-09-18) returned 404 when checked on 2026-09-22, and so does the
+`eliasdevx` account itself, so the repository was not renamed or made private:
+the author deleted their account and took it with them. No copy was kept here.
+The link has been removed rather than left to rot.
 
-Two open questions from above are answered by it:
+This section stays because the reading below was taken from the diff while it
+was up, and is now the only surviving record of what that patch did. Nobody
+can apply it any more, and nobody should go looking for it: the security
+problem described here was never fixed in it.
+
+It patched the upstream Realtek driver until `:0007` worked for login. On a
+Galaxy Book5 360 under Kubuntu, with libfprint `1.94.100` at `6f9479c3` and
+fprintd `1.94.5`, its author reported enrollment, `fprintd-verify`, `sudo`
+through PAM and the KDE lock screen all working, and the enrollment surviving
+a full reboot.
+
+Two open questions from above were answered by it, and both have since been
+reproduced independently in #17, so they do not rest on the vanished repo:
 
 - **`co_update_template` (`05 11`) answers `01 f7 ff ff ff`**, a non-zero
   status even straight after a successful match. The patch works around it by
@@ -365,7 +375,7 @@ Two open questions from above are answered by it:
   firmware does not refuse to store enrollments the way recent EgisTec
   firmware does.
 
-What the patch changes, read from its diff:
+What the patch changed, read from its diff while it was up:
 
 - adds `2df0:0007` to the `id_table`
 - verify: reports a match as soon as `IDENTIFY_FEATURE` succeeds, and skips `05 11`
@@ -386,16 +396,37 @@ tested yet:
   finds its slot by that user ID, and would then still pass
 - fingers enrolled under Windows Hello on a dual-boot machine may count too
 
-Raised in #17 on 2026-09-19. Until verify checks which template matched, treat
-the patch as safe only where you are the only person whose finger has ever been
-enrolled on this sensor, and keep password login enabled, as its README
-already says.
+Raised in #17 on 2026-09-19, and never answered before the repository went.
+Anyone still running a copy taken while it was up should treat it as safe only
+where they are the only person whose finger has ever been enrolled on this
+sensor, and keep password login enabled.
 
-It is also not in a shape to go upstream: the device checks are inline, the
-sleeps block libfprint's main loop, and the unbound verify would not pass
-review. A merge request needs verify bound to a template again, which is what
+It was also not in a shape to go upstream: the device checks were inline, the
+sleeps blocked libfprint's main loop, and the unbound verify would not have
+passed review. A merge request needs verify bound to a template, which is what
 the identify reply and template table dumps above are for, plus a `:0007`
 specific answer to `05 11`.
+
+### The path that is still open
+
+With the patch gone, the work in #17 is the live one, and it is further along
+in the part that matters: it keeps `fp_print_equal` and reaches a match anyway.
+Reported there on 2026-09-20, on `2df0:0007`:
+
+- **Enrollment needs a finger-off pause between accepted samples.** A one
+  second wait after each accepted sample, with the finger deliberately lifted
+  and repositioned between stages, took enrollment through all eight stages
+  and cleared the on-chip `0b` no-match that followed every previous attempt.
+  The first verify afterwards matched.
+- **`co_update_template` (`05 11`) still answers `01 f7 ff ff ff`**, confirming
+  the failure independently of the deleted patch. The fix is to skip it, or
+  treat it as non-fatal, **only after `fp_print_equal` has already said the
+  match is the right print**. That ordering is the whole difference between
+  this and the security hole above.
+
+That is the shape a merge request should take: stock verify, stock duplicate
+check, stock eight-stage enroll with the pause, and `05 11` non-fatal on
+`:0007` alone.
 
 ## Build and install
 
@@ -423,7 +454,7 @@ troubleshooting. Sensor-specific deltas:
   threshold tuning.
 - `2df0:0003` also recorded on a Samsung 730QED by a linuxhw hardware probe
   under Fedora 38.
-- `2df0:0007` on a Samsung Galaxy Book5 360: login and `sudo` with
-  eliasdevx's patch, per its author, with the verify caveat
+- `2df0:0007` on a Samsung Galaxy Book5 360: login and `sudo` with the
+  since-deleted community patch, per its author, with the verify caveat
   [above](#result-a-community-patch-logs-in-with-a-security-hole). Not a
   `:0003` driver, so not in this entry's laptop list.
