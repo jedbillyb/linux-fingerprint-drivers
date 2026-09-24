@@ -1,6 +1,6 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; the sibling ID `2df0:0007` is not covered by any of them and stalls on contact. On the upstream Realtek driver it enrolls and matches on the chip; an experimental community patch gets it to login and `sudo`, but its verify accepts any finger stored on the chip.**
+**Status: Working via community drivers, none of them upstream; kpagnussat's is now a packaged TOD module that installs alongside your distribution's libfprint. The sibling ID `2df0:0007` is a different, Realtek match-on-chip part that none of them cover. On the upstream Realtek driver it enrolls and has matched on the chip, but single-press verify is not yet reliable.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
 Book3 360 generation. Upstream libfprint has never supported it and there is no
@@ -28,7 +28,7 @@ replace or extend your libfprint. Read the source before installing.
 
 | Project | Approach | Licence | Notes |
 |---------|----------|---------|-------|
-| [kpagnussat/canvasbio-cb2000](https://github.com/kpagnussat/canvasbio-cb2000) | SIGFM feature matching, multi-capture mosaic template | LGPL-2.1 | Most actively developed. `R2.5` snapshot, 15 enroll stages, requires OpenCV, disables libfprint's virtual thermal shutdown for this device. Use the repo: an older single-file [GitLab snippet](https://gitlab.com/-/snippets/4931207) ("V44", February) predates it and its current matcher, was never a release, and its author asks that it be disregarded |
+| [kpagnussat/canvasbio-cb2000](https://github.com/kpagnussat/canvasbio-cb2000) | Own matcher, written from the Windows driver's observed behaviour; 15-touch template | LGPL-2.1 | Most actively developed. **Since 1.0.0 a libfprint TOD module** (`libfprint-2-tod1-canvasbio-cb2000`, currently [1.0.1](https://github.com/kpagnussat/canvasbio-cb2000/releases)), so your distribution's libfprint stays in place. Packaged for Ubuntu 26.04, openSUSE Tumbleweed, Fedora 44 (needs a TOD libfprint from a COPR plus an SELinux policy) and Arch; the accuracy figures come from Ubuntu, the other three are install-and-smoke tested on hardware. **If you installed the old `R2.5`, read [their migration section](https://github.com/kpagnussat/canvasbio-cb2000#did-you-install-the-r25-package-read-this-first) first**: R2.5 replaced your libfprint, it has been withdrawn, 1.0 installed on top of it silently does nothing, and R2.5 prints must be re-enrolled. Ignore the older single-file [GitLab snippet](https://gitlab.com/-/snippets/4931207) ("V44"), which was never a release and which its author asks be disregarded |
 | [LennartArnholdt/libfprint-tod-cb2000](https://github.com/LennartArnholdt/libfprint-tod-cb2000) | SIFT feature matching, 30-frame template | LGPL-2.1-or-later AND MIT | Reports ~83% single-touch genuine acceptance and 0 false accepts in 1080 comparisons, measured across separate sessions on one device. PAM setup documented |
 | [latex/canvasbio-cb2000-linux-driver](https://github.com/latex/canvasbio-cb2000-linux-driver) | Standalone driver plus CLI tooling (`cb2000_demo`, `fpsudo`) | MIT | Ships an `install.sh`. Developed on a Book3 360 (730QFG) |
 | [rfocosi/libfprint](https://github.com/rfocosi/libfprint) | libfprint fork carrying a CB2000 driver | none stated | Whole-library fork rather than a patch |
@@ -41,27 +41,28 @@ into an LGPL-2.1 library.
 ## Do not use these on 2df0:0007
 
 `2df0:0007` is a different part in the same family, reported in the Samsung
-Galaxy Book5 360. It is **not** supported by any driver here, and at least one
-of them lists the ID anyway.
+Galaxy Book5 360. It is **not** supported by any driver here, and until
+recently one of them listed the ID anyway.
 
-kpagnussat's `id_table` carries both `0x0003` and `0x0007`, but nothing else in
-that driver looks at which product it is talking to, so a `:0007` binds and is
-then driven with a command set traced entirely off `:0003` hardware. The
-observed result is an immediate stall on the first vendor control request of
-the wake sequence, followed by an endless USB reset and re-init loop:
+kpagnussat's `R2.5` carried both `0x0003` and `0x0007` in its `id_table`, but
+nothing else in that driver looked at which product it was talking to, so a
+`:0007` bound and was then driven with a command set traced entirely off
+`:0003` hardware. The observed result was an immediate stall on the first
+vendor control request of the wake sequence, followed by an endless USB reset
+and re-init loop:
 
 ```text
 [activation_wake] cmd 1/10 CTRL_OUT req=0xdb value=0x0001 index=1
 Command transfer failed: endpoint stalled or request not supported
 ```
 
-**This is being fixed in that driver.** Its author confirmed it in
-[kpagnussat/canvasbio-cb2000#3](https://github.com/kpagnussat/canvasbio-cb2000/issues/3):
-`0x0007` is gone from `id_table` in their working tree, so a `:0007` will fail
-cleanly as "no driver found" and no udev rule is installed for it. That ships
-with their next release, which is held until the reworked driver passes testing
-on real hardware under GNOME and KDE. **Until that release is out, the
-published snapshot still lists `0x0007`, so do not install it on a `:0007`.**
+**Fixed in [v1.0.0](https://github.com/kpagnussat/canvasbio-cb2000/releases/tag/v1.0.0).**
+The module now binds only `2df0:0003`, so a `:0007` is left unclaimed instead
+of being looped, and no udev rule is installed for it. The issue is closed in
+[kpagnussat/canvasbio-cb2000#3](https://github.com/kpagnussat/canvasbio-cb2000/issues/3).
+`R2.5` has been withdrawn, so no published build of that driver still lists
+`0x0007`, but an `R2.5` already installed on a `:0007` machine does, and should
+be removed with the migration steps linked in the table above.
 
 Reverse-engineering notes in
 [myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b](https://github.com/myso-kr/samsung-galaxy-book-fingerprint-sensor-device-730b/blob/main/docs/reverse-engineering/driver-analysis.md)
@@ -428,6 +429,25 @@ That is the shape a merge request should take: stock verify, stock duplicate
 check, stock eight-stage enroll with the pause, and `05 11` non-fatal on
 `:0007` alone.
 
+**Verify is not reliable yet.** Reported on 2026-09-22: twelve verifies after a
+clean enrollment with the pause gave no match at all. Eight were the on-chip
+`0b` no-match, and four (two `03`, two `07`) never reached a match decision.
+The last eight bytes of each `IDENTIFY_FEATURE` reply, read as two
+little-endian 32-bit words, separate the one earlier match from every failure:
+
+| | word 1 | word 2 / word 1 |
+|---|---|---|
+| the one match | 212,427 | 0.698 |
+| eight no-matches | 166,421 to 168,951 | 0.615 to 0.624 |
+
+The failures sit in a band about 1.5% wide; the match captured about 26% more
+by word 1. That points at how much of the finger each press captures, not at
+the template or the pause. The field meanings are inferred from nine samples
+and unconfirmed. The next tests, in
+[#17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17), are
+whether harder, flatter presses push word 1 past 200,000 and bring the matches
+back, and whether a second enrolled finger is correctly refused.
+
 ## Build and install
 
 Each project ships its own instructions and they differ, so follow the one you
@@ -435,15 +455,19 @@ pick. [docs/BUILD.md](../../docs/BUILD.md) covers the shared shape: building
 libfprint from source, installing over your distro's copy, PAM setup and
 troubleshooting. Sensor-specific deltas:
 
-- kpagnussat's `R2.5` needs OpenCV present at build and run time, and enrolls
-  in 15 stages rather than the usual 5, so expect a longer enrollment.
+- kpagnussat's driver is packaged, so install the release for your
+  distribution from its README rather than building. It enrolls in 15 touches
+  rather than the usual 5, lifting and shifting the finger between them, so
+  expect a longer enrollment.
 - Templates are multi-frame for every driver here. Re-enroll after switching
   drivers rather than expecting old prints to carry over.
 - Expect to re-touch on some verifications. A 5x4 mm capture area means two
   presses can share almost no skin, so allow three PAM attempts.
 
-> These replace a core system library. Keep a way to reinstall your distro's
-> stock libfprint, which will also silently undo the driver on the next update.
+> Apart from the two TOD modules (kpagnussat's since 1.0.0, and
+> LennartArnholdt's), these replace a core system library. Keep a way to
+> reinstall your distro's stock libfprint, which will also silently undo the
+> driver on the next update.
 
 ## Tested on
 
