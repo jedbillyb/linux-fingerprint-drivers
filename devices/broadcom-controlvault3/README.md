@@ -52,6 +52,23 @@ git checkout mr-620
 
 See the MR discussion for the current list of confirmed Dell models.
 
+## Reports
+
+- **Dell Precision 3490, `0a5c:5865` (ControlVault3 Plus), not working**
+  ([#28](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/28), 2026-09-26).
+  Vendor TOD blob `brcm_linux_fp_6.4.372_6.4.062.0` detects the reader and
+  upgrades its firmware (AAI 6.0.56.0 to 6.4.62.0), but enrollment fails at the
+  first stage every time with `Device status = (-99)`. The older 6.1.155 blob
+  fails the same way. The sensor behind the ControlVault is a Goodix GF5288, and
+  Ubuntu's certification page for this model says the reader is not supported.
+  A matching PID is not enough to assume a CV3+ machine will work: the PID names
+  the controller, not the sensor behind it.
+  USB notes from the report, for a future CV3+ port of MR !620: same transport
+  as CV3 (commands on EP1 OUT, an 8-byte `{status, len}` interrupt on EP5 IN,
+  response on EP1 IN, `03 00 00 00 00 00 00 00` = finger on sensor), but the
+  frames start `08 00 00 00` and the payload looks encrypted, where CV3 uses a
+  version-1 header and plaintext TLVs.
+
 ## License
 
 Part of libfprint (LGPL-2.1). The vendor firmware blob is Broadcom-proprietary
