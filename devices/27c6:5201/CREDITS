@@ -6,8 +6,7 @@ merge request !530.
 
 Driver:
 
-  Jodi U. H. (@J0UH) - goodix5201 libfprint driver, LGPL-2.1-or-later,
-  written with the help of Claude (Anthropic)
+  Jodi U. H. (@J0UH) - goodix5201 libfprint driver, LGPL-2.1-or-later
     https://github.com/J0UH/goodix-5201-linux (branch libfprint, tag v0.1.0)
 
 Builds on:
