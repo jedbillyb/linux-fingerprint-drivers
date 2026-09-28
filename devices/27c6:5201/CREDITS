@@ -1,0 +1,22 @@
+Device: Goodix GF5288 / HTK32 bridge (USB 27c6:5201)
+Device ID(s): 27c6:5201
+
+Status: working via a community driver, not upstream. It depends on the SIGFM
+merge request !530.
+
+Driver:
+
+  Jodi U. H. (@J0UH) - goodix5201 libfprint driver, LGPL-2.1-or-later,
+  written with the help of Claude (Anthropic)
+    https://github.com/J0UH/goodix-5201-linux (branch libfprint, tag v0.1.0)
+
+Builds on:
+
+  Goodix Fingerprint Linux Development - goodix-fp-dump: the wrapless message
+  format, the GEA cipher and the configuration layout (MIT)
+    https://github.com/goodix-fp-linux-dev/goodix-fp-dump
+
+  Matthieu Charette, Natasha England-Elbro, Timur Mangliev - SIGFM
+
+  Yassine Oudjana (@Tooniis) - SIGFM integration in libfprint, MR !530
+    https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/530

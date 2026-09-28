@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 102 USB fingerprint sensors below are on the official libfprint
+The 101 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -108,7 +108,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `27c6:5117` | MagicBook 2019 R7 / Huawei Matebook 13 2020 |  |
 | `27c6:5120` | Matebook D16 |  |
 | `27c6:5125` | HONOR HYM-WXX MagicBook 16 |  |
-| `27c6:5201` | ASUS ZenBook S UX391FA-AH001T |  |
 | `27c6:5301` | - |  |
 | `27c6:530c` | Dell G5 15 5590 |  |
 | `27c6:532d` | Dell XPS 13 7390 2-in-1 |  |
