@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-39 model listings map to a catalogued sensor; the rest are on the
+40 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -92,6 +92,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | HP Envy | `06cb:00ff` | Synaptics Tudor match-in-sensor family | Working | [entry](../devices/06cb:00ff/) |
 | HP ProBook | `06cb:00ff` | Synaptics Tudor match-in-sensor family | Working | [entry](../devices/06cb:00ff/) |
 | HP Spectre | `06cb:00ff` | Synaptics Tudor match-in-sensor family | Working | [entry](../devices/06cb:00ff/) |
+| HP EliteBook 840 G6 | `06cb:00b7` | Validity/Synaptics VCSFW 0xd51 | WIP | [entry](../devices/06cb:00b7/) |
 | HP Pavilion x360 14-dh | `06cb:00cb` | Validity/Synaptics VCSFW 0x969 | WIP | [entry](../devices/06cb:00cb/) |
 | HP ProBook 450 G6 | `06cb:00b7` | Validity/Synaptics VCSFW 0xd51 | WIP | [entry](../devices/06cb:00b7/) |
 | HP ZBook 17 G6 | `06cb:00b7` | Validity/Synaptics VCSFW 0xd51 | WIP | [entry](../devices/06cb:00b7/) |
