@@ -1,6 +1,6 @@
 # Validity/Synaptics VCSFW 0xd51 (USB 06cb:00b7)
 
-**Status: WIP (unmerged upstream MR) - registered from python-validity data, untested (the MR author has no hardware).**
+**Status: WIP (unmerged upstream MR). MR !626 is still untested on hardware, but the python-validity route below works on an HP EliteBook 840 G6 ([#32](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/32)).**
 
 Device ID(s): `06cb:00b7`
 
@@ -45,6 +45,24 @@ git checkout mr-626
 ```
 
 Then build and install per [docs/BUILD.md](../../docs/BUILD.md).
+
+## Hardware report: python-validity route
+
+The first hardware result for this ID came from a different route than MR !626:
+[python-validity PR #256](https://github.com/uunicorn/python-validity/pull/256)
+(head `128a9eb`) with open-fprintd replacing fprintd, built as `.deb` packages
+([#32](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/32)).
+
+On an HP EliteBook 840 G6 (sensor `57K0 FM-3439-001`, type `0xd51`,
+factory-provisioned) under Ubuntu 26.04, the reporter verified enroll, verify,
+wrong-finger rejection (3 of 3 refused), sudo through Ubuntu's own
+`pam_fprintd.so`, suspend/resume without restarting the service, GDM
+lock-screen and login fingerprint, and reboot persistence. The one caveat is
+GNOME's "login keyring not unlocked" dialog after a fingerprint login, which
+is expected for any fingerprint login. Full details are in the
+[PR comment](https://github.com/uunicorn/python-validity/pull/256#issuecomment-5914512416).
+
+A report from MR !626 itself is still wanted.
 
 ## Related entries
 
