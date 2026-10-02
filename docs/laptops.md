@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-40 model listings map to a catalogued sensor; the rest are on the
+41 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -70,6 +70,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Dell XPS 15 9500 | `27c6:533c` | Goodix 533c - Dell OEM TOD blob route | Working (vendor blob) | [entry](../devices/27c6:533c/) |
 | Dell Latitude 7300 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
 | Dell Precision 3490 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
+| Dell Precision 7560 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
 | Dell G5 15 5590 | `27c6:530c` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Inspiron 17 7000 | `27c6:538c` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Inspiron 17 7000 | `27c6:538d` | - | No known fix | [gap-map](unsupported-devices.md) |

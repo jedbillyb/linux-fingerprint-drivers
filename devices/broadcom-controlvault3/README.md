@@ -54,6 +54,16 @@ See the MR discussion for the current list of confirmed Dell models.
 
 ## Reports
 
+- **Dell Precision 7560, `0a5c:5842`, MR !620 build, not working**
+  ([#27](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/27), 2026-10-01).
+  The driver probes and opens the device, and the firmware (AAI `00515015`,
+  SBI 234) is above the MR's minimums. Enrollment fails before any finger
+  capture: `START_ENROLL (0x8a)` succeeds, then the first `GET_CHALLENGE (0x66)`
+  returns status `0x75`, which is not in the MR's status table. Under fprintd
+  the same `0x75` appears earlier, on the identify fprintd runs before enrolling;
+  a direct libfprint `enroll_sync` that skips it fails the same way, so this is
+  not just an identify quirk. The unit is open-box, so ControlVault state left by
+  a previous owner is a suspect, but that is unconfirmed.
 - **Dell Precision 3490, `0a5c:5865` (ControlVault3 Plus), not working**
   ([#28](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/28), 2026-09-26).
   Vendor TOD blob `brcm_linux_fp_6.4.372_6.4.062.0` detects the reader and
