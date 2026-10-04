@@ -62,8 +62,16 @@ See the MR discussion for the current list of confirmed Dell models.
   returns status `0x75`, which is not in the MR's status table. Under fprintd
   the same `0x75` appears earlier, on the identify fprintd runs before enrolling;
   a direct libfprint `enroll_sync` that skips it fails the same way, so this is
-  not just an identify quirk. The unit is open-box, so ControlVault state left by
-  a previous owner is a suspect, but that is unconfirmed.
+  not just an identify quirk. The vendor TOD driver (`5.15.377_5.15.021.0`) also
+  fails to enroll on this unit.
+  The MR author [looked into `0x75`](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620#note_3693300)
+  (2026-10-03): the CV3 firmware checks its hardware-discovery flags on
+  `GET_CHALLENGE` and returns `0x75` when it did not find or could not
+  initialise the fingerprint sensor at boot. So this is a fault on this unit
+  (cabling, damaged sensor or a bad earlier flash), not a driver bug. Untested
+  recovery ideas: force-reflashing with
+  [broadcom-cv3-fwupdater](https://github.com/erikhakansson/broadcom-cv3-fwupdater),
+  or Dell's Windows driver. Both carry flash risk.
 - **Dell Precision 3490, `0a5c:5865` (ControlVault3 Plus), not working**
   ([#28](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/28), 2026-09-26).
   Vendor TOD blob `brcm_linux_fp_6.4.372_6.4.062.0` detects the reader and
