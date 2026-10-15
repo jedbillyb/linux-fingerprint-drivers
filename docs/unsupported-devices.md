@@ -54,7 +54,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | [06cb:0051](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/06cb:0051) | - |  |
 | `06cb:0081` | lenovo Yoga 720 |  |
 | `06cb:0088` | External, Validity90 project is relevant |  |
-| `06cb:008a` | Toshiba B2B-range X30-D and X40-D |  |
 | `06cb:009b` | MSI Prestige 14 A10RB |  |
 | `06cb:00a1` | Validity90 |  |
 | `06cb:00a2` | Validity90 |  |
