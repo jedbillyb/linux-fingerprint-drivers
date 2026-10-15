@@ -73,6 +73,7 @@ appear in `lsusb` at all.
 | 04f3:0c4c (0c00)     | ELAN match-on-chip      | Working | Debian/Ubuntu               |
 | 138a:0090 (0097)     | Validity/Synaptics VFS0090 | Working | Ubuntu, Arch, Fedora, NixOS |
 | 06cb:009a (138a:009d)| Synaptics Prometheus    | Working | Ubuntu, Arch, Fedora         |
+| 06cb:008a            | Synaptics Viper         | Working | Ubuntu, Debian              |
 | 04f3:0c6c            | ELAN Match-on-Chip 2    | Working | Ubuntu/Debian, Fedora, Arch |
 | 10a5:9800            | FPC fpcmoh (match-on-host) | Working | Fedora, Arch              |
 | 2541:0236 (9711)     | Chipsailing CS9711      | Working | Arch (GPD Win Max 2, AYANEO 2) |
@@ -91,9 +92,10 @@ pinning, troubleshooting and revert steps are the same for all of them and live
 in **[docs/BUILD.md](docs/BUILD.md)**; each device entry covers only what is
 specific to that sensor.
 
-Note: `06cb:009a` (Synaptics Prometheus) is handled by **python-validity**, a
-userspace driver daemon that plugs into `fprintd` via `open-fprintd`, rather than
-a libfprint driver. See its [entry](devices/06cb:009a/) for the different stack.
+Note: `06cb:008a` (Synaptics Viper, see [entry](devices/06cb:008a/)) and `06cb:009a`
+(Synaptics Prometheus, see [entry](devices/06cb:009a/)) are handled by
+**python-validity**, a userspace driver daemon that plugs into `fprintd` via
+`open-fprintd`, rather than a libfprint driver.
 
 ## Vendor blob and non-LGPL routes (catalogued, never hosted)
 

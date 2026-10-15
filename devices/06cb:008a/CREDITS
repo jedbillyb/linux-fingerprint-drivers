@@ -1,0 +1,18 @@
+Device: Synaptics "Viper" (USB 06cb:008a)
+
+Match-on-Host 008a implementation: Muzammil Ali (the-muzammilali)
+  https://github.com/the-muzammilali/python-validity
+  PR: https://github.com/uunicorn/python-validity/pull/293
+
+python-validity original framework: uunicorn
+  https://github.com/uunicorn/python-validity
+  License: MIT
+
+fprintd-compatible DBus shim: open-fprintd
+  https://github.com/uunicorn/open-fprintd
+
+Protocol reverse engineering & sensor experiments:
+  Muzammil Ali, uunicorn, nmikhailov and contributors.
+
+Not a libfprint driver - a userspace driver daemon that registers with
+open-fprintd so standard fprintd clients and pam_fprintd work.
