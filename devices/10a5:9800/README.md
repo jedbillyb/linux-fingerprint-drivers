@@ -6,8 +6,10 @@ Fingerprint Cards (FPC) sensor.
 
 ## Hardware
 
-Seen on ThinkPad E14 Gen5. The sensor reports a 112x88 image and firmware
-27.26.23.30.
+Seen on ThinkPad E14 Gen5 and ThinkBook 14 G4 IAP. The sensor reports a
+112x88 image; firmware 27.26.23.30 (E14 Gen5) and 27.26.23.18 (ThinkBook 14 G4
+IAP) have been seen.
+
 
 ## What was broken
 
@@ -45,6 +47,28 @@ sudo fprintd-enroll "$USER"
 On other distros, build libfprint with the fpcmoh driver from that source and
 install the accompanying udev rules. furcom's repo (archived, read-only) packaged
 this for Fedora/dnf.
+
+### Ubuntu (TOD module)
+
+On Ubuntu there is no need to build anything. FPC's driver is packaged as a
+libfprint TOD module, `libfprint-2-tod1-fpc`, in
+[`ppa:libfprint-tod1-group/ppa`](https://launchpad.net/~libfprint-tod1-group/+archive/ubuntu/ppa).
+It loads into Ubuntu's stock `libfprint-2-tod1`, so nothing is rebuilt or
+replaced:
+
+```sh
+sudo add-apt-repository ppa:libfprint-tod1-group/ppa
+sudo apt update
+sudo apt install libfprint-2-tod1-fpc
+sudo pam-auth-update --enable fprintd
+fprintd-enroll && fprintd-verify
+```
+
+The PPA has builds for focal (20.04), jammy (22.04) and noble (24.04). There
+is **no build for 26.04 yet**. Inclusion in the Ubuntu archive for 26.04 and
+later is requested in
+[LP: #2024145](https://bugs.launchpad.net/bugs/2024145); if you are affected,
+mark it "affects me" there.
 
 ### Debian / Ubuntu (patch against libfprint v1.94.10)
 
@@ -109,3 +133,7 @@ Enable fprintd in your PAM stack: distro helper where there is one, otherwise
 - ThinkPad E14 Gen 5 (21JKS1Q500), sensor firmware 27.26.23.30: Debian forky
   with the v1.94.10 patch above and Debian's fprintd 1.94.5. Enroll,
   verify-match with the enrolled finger and verify-no-match with another finger.
+- ThinkBook 14 G4 IAP (21DH), sensor firmware 27.26.23.18: Ubuntu 24.04 with
+  the TOD module above (`libfprint-2-tod1` 1:1.94.7+tod1-0ubuntu5~24.04.8,
+  `libfprint-2-tod1-fpc` 27.23.44.2+2404-0ubuntu1, fprintd 1.94.3). Enroll,
+  verify, GDM login, sudo and lock screen.
