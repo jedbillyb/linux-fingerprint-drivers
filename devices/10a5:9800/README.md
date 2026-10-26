@@ -10,7 +10,6 @@ Seen on ThinkPad E14 Gen5 and ThinkBook 14 G4 IAP. The sensor reports a
 112x88 image; firmware 27.26.23.30 (E14 Gen5) and 27.26.23.18 (ThinkBook 14 G4
 IAP) have been seen.
 
-
 ## What was broken
 
 Upstream libfprint does not support this FPC sensor, so it is unrecognised.
