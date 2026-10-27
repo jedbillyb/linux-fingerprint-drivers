@@ -92,6 +92,10 @@ unlock as a separate fallback.
 
 - New driver: tested by its author; see the driver's README for hardware
   and results. Packages are built for Arch, Debian, Ubuntu and Fedora.
+- New driver: **Lenovo IdeaPad Flex 5 16ABR8** (82XY) on **Void Linux**
+  (firmware `GF3268_RTSEC_APP_10056`, libfprint 1.94.100 + goodix55b4
+  `v1.94.100.m4` built from source, fprintd 1.94.5): enroll and `sudo`.
+  Migrated from the old fork with no PSK provisioning or firmware flash.
 - Old fork: **Lenovo IdeaPad Flex 5 16ABR8** (82XY) on **Void Linux**
   (firmware `GF3268_RTSEC_APP_10056`, libfprint 1.94.6): login, sudo and
   screen-lock unlock.
