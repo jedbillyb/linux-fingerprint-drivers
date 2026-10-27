@@ -13,3 +13,6 @@ Driver: Jason Huang / Fingerprint Cards AB, libfprint MR !396
 
 Rebase onto libfprint v1.94.10 and Debian instructions: killixn
   https://github.com/killixn
+
+Ubuntu TOD module (libfprint-2-tod1-fpc): libfprint TOD group PPA
+  https://launchpad.net/~libfprint-tod1-group/+archive/ubuntu/ppa
