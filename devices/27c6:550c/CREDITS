@@ -1,0 +1,30 @@
+Device: Goodix GF5288 / GM168SEC (USB 27c6:550c)
+Device ID(s): 27c6:550c
+
+Status: working via community drivers, not upstream.
+
+Route A (keeps stock firmware 13021):
+
+  the-great-king-bart - fail-closed 550c patch series, Ubuntu TOD module,
+  reverse engineering and engineering record (MIT tooling; patched driver files
+  keep their LGPL-2.1-or-later license)
+    https://github.com/the-great-king-bart/goodix-550c-linux-driver
+
+  Nick B (@fdjfnd222dd) - Debian 13 packaging, driver reliability patches
+  (0015-0021), goodix550c-ctl and the finger TUI
+    https://github.com/fdjfnd222dd/goodix-550c-linux-debian
+
+Route B (reflashes firmware 13022):
+
+  @brianporeilly - goodix-550c-driver
+    https://github.com/brianporeilly/goodix-550c-driver
+
+Builds on:
+
+  AndyHazz - goodix53x5-libfprint, the parent driver family
+    https://github.com/AndyHazz/goodix53x5-libfprint
+
+  Goodix Fingerprint Linux Development - goodix-fp-dump (MIT)
+    https://github.com/goodix-fp-linux-dev/goodix-fp-dump
+
+  Matthieu Charette, Natasha England-Elbro, Timur Mangliev - SIGFM

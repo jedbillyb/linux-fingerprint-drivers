@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 100 USB fingerprint sensors below are on the official libfprint
+The 99 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -113,7 +113,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `27c6:538c` | Dell Inspiron 17 7000 |  |
 | `27c6:538d` | Dell Inspiron 17 7000 |  |
 | `27c6:5503` | Lenovo ThinkPad E14 |  |
-| `27c6:550c` | Lenovo Yoga 9 14IAP7 |  |
 | `27c6:5584` | yoga 730-13IWL 81JR |  |
 | `27c6:55a2` | Ideapad 5 |  |
 | `27c6:55a4` | Thinkpad E14 / Thinkbook 13s-IWL |  |

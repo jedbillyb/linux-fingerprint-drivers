@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-49 model listings map to a catalogued sensor; the rest are on the
+51 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -41,6 +41,8 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Lenovo ThinkBook 14 G4 IAP | `10a5:9800` | FPC Match-on-Host / fpcmoh | Working | [entry](../devices/10a5:9800/) |
 | Lenovo ThinkBook 15 G13 | `06cb:00fd` | Synaptics Tudor match-in-sensor | Working | [entry](../devices/06cb:00fd/) |
 | Lenovo ThinkPad E14 Gen 5 | `10a5:9800` | FPC Match-on-Host / fpcmoh | Working | [entry](../devices/10a5:9800/) |
+| Lenovo Yoga 9 14IAP7 | `27c6:550c` | Goodix GF5288 / GM168SEC | Working | [entry](../devices/27c6:550c/) |
+| Lenovo Yoga 9 14IRP8 | `27c6:550c` | Goodix GF5288 / GM168SEC | Working | [entry](../devices/27c6:550c/) |
 | Lenovo ThinkBook | `27c6:550a` | Goodix 550a - vendor TOD blob route | Working (vendor blob) | [entry](../devices/27c6:550a/) |
 | Lenovo ThinkPad E14 | `27c6:550a` | Goodix 550a - vendor TOD blob route | Working (vendor blob) | [entry](../devices/27c6:550a/) |
 | Lenovo ThinkPad E14 Gen 4 | `04f3:0c4b` | ELAN 0c4b - Lenovo TOD blob route | Working (vendor blob) | [entry](../devices/04f3:0c4b/) |
@@ -53,7 +55,6 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Lenovo IdeaPad 3-15ARE05 | `04f3:0c57` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Lenovo ThinkPad E14 | `27c6:5503` | - | No known fix | [gap-map](unsupported-devices.md) |
 | lenovo Yoga 720 | `06cb:0081` | - | No known fix | [gap-map](unsupported-devices.md) |
-| Lenovo Yoga 9 14IAP7 | `27c6:550c` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Lenovo Yoga 9i 14ITL | `0bda:5812` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Thinkpad C740, Yoga | `06cb:00be` | lead: RE effort exists | No known fix | [gap-map](unsupported-devices.md) |
 | ThinkPad E14 | `06cb:00da` | - | No known fix | [gap-map](unsupported-devices.md) |
