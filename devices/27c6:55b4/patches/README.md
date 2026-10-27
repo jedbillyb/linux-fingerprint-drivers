@@ -1,5 +1,8 @@
 # Patches for Goodix GF3268 (27c6:55b4)
 
+> **Deprecated.** These patches belong to the old goodixtls55x4 fork. New
+> installs should use the driver described in [`../README.md`](../README.md).
+
 These are `git format-patch` exports of the full `goodix-55b4-fixes` branch (see
 `../CREDITS`), one patch per commit, in order. Applied on top of the base commit
 below they reproduce the branch tip exactly (verified with `git am`).
