@@ -7,4 +7,12 @@ Packaging (Arch AUR): libfprint-goodix-521d
   https://aur.archlinux.org/packages/libfprint-goodix-521d
   (builds a patched libfprint ~1.94.1, "For Goodix 521d and 538d")
 
+Fork used for 27c6:538d on the verified Dell Inspiron 5405 (2026-10-29):
+  https://github.com/lbssousa/libfprint
+  branch goodix-538d-sigfm-gtls (v1.94.100-goodix538d.1, commit a1bde74)
+
+One-time sensor initialisation tool for 27c6:538d:
+  https://github.com/goodix-fp-linux-dev/goodix-fp-dump
+  run_538d.py (upstream issue #13 documents the USB-reset prerequisite)
+
 Based on libfprint (LGPL-2.1).

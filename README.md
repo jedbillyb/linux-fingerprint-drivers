@@ -184,7 +184,7 @@ in libfprint and may be unstable; see each device entry for details.
 
 | Device ID | Chip / sensor | Source | Notes |
 |-----------|---------------|--------|-------|
-| 27c6:521d (538d) | Goodix 521d/538d | [goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev) | Works via AUR `libfprint-goodix-521d` |
+| [27c6:521d (538d)](devices/27c6:521d/) | Goodix 521d/538d | [goodix-fp-linux-dev](https://github.com/goodix-fp-linux-dev), [lbssousa/libfprint](https://github.com/lbssousa/libfprint) | Works via AUR `libfprint-goodix-521d`; `27c6:538d` verified on a Dell Inspiron 5405 with the lbssousa SIGFM fork plus a one-time `goodix-fp-dump` init (see entry) |
 | 27c6:5110 + family | Goodix (newer) | [goodix-fp-linux-dev/libfprint](https://github.com/goodix-fp-linux-dev/libfprint) | **Experimental, not for daily use** |
 | [27c6:5201](devices/27c6:5201/) | Goodix GF5288 / HTK32 (ASUS ZenBook S UX391) | [J0UH/goodix-5201-linux](https://github.com/J0UH/goodix-5201-linux) | Enroll, verify and `sudo` work on one UX391UA. Patched libfprint with SIGFM ([!530](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/530)) |
 | [27c6:550c](devices/27c6:550c/) | Goodix GF5288 / GM168SEC (Lenovo Yoga 9 14IAP7) | [goodix-550c-linux-driver](https://github.com/the-great-king-bart/goodix-550c-linux-driver), [Debian packages](https://github.com/fdjfnd222dd/goodix-550c-linux-debian) | Enroll, verify, `sudo` and lock screen on stock firmware 13021; needs the PSK from the original Windows install. Reflash alternative: [brianporeilly/goodix-550c-driver](https://github.com/brianporeilly/goodix-550c-driver) |
