@@ -1,0 +1,14 @@
+Device: Blestech Betterlife btlfp (USB 347d:0302, 347d:0304)
+
+347d:0302 match-on-chip driver (betterlife347d_moc), protocol hardening, and Linux/Arch packaging:
+  Rubén García Sánchez (arqueon)
+  https://github.com/arqueon/betterlife-347d-libfprint
+  License: LGPL-2.1-or-later
+
+347d:0304 match-on-host driver (betterlife347d) and SM2/SM3/SM4 framing (huellero):
+  Light-log
+  https://github.com/Light-log/betterlife-347d-0304-fingerprint-linux
+  License: LGPL-2.1-or-later
+
+Arch packaging: AUR libfprint-betterlife-347d-git
+  https://aur.archlinux.org/packages/libfprint-betterlife-347d-git

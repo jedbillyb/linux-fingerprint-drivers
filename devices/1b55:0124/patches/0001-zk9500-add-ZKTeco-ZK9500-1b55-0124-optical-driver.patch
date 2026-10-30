@@ -1,0 +1,1184 @@
+From 8500b00efbdfd679e815aab466b80c93c1616ec2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Rub=C3=A9n=20Garc=C3=ADa=20S=C3=A1nchez?=
+ <66568719+arqueon@users.noreply.github.com>
+Date: Fri, 30 Oct 2026 16:27:56 -0600
+Subject: [PATCH] zk9500: add ZKTeco ZK9500 (1b55:0124) optical driver
+
+---
+ libfprint/drivers/zk9500.c        | 1125 +++++++++++++++++++++++++++++
+ libfprint/fprint-list-udev-hwdb.c |    1 +
+ libfprint/meson.build             |    1 +
+ meson.build                       |    1 +
+ 4 files changed, 1128 insertions(+)
+ create mode 100644 libfprint/drivers/zk9500.c
+
+diff --git a/libfprint/drivers/zk9500.c b/libfprint/drivers/zk9500.c
+new file mode 100644
+index 0000000..d2687ab
+--- /dev/null
++++ b/libfprint/drivers/zk9500.c
+@@ -0,0 +1,1125 @@
++/*
++ * ZKTeco ZK9500 (1b55:0124) optical fingerprint reader driver for libfprint-2
++ *
++ * Copyright (C) 2026 Rubén García Sánchez & contributors
++ *
++ * Protocol notes (USB 1b55:0124):
++ * - All control commands use Vendor Device requests on EP0 (0x40 OUT / 0xC0 IN).
++ * - Image payload streams uncompressed 8-bit grayscale frames (300x375 @ 500 DPI,
++ *   112,500 bytes) over Bulk IN endpoint 0x82.
++ * - Factory CMOS exposure/gain and 6-channel illumination LED levels are stored
++ *   in internal EEPROM at 0x30..0x3b and 0x70..0x75 (read 1 byte at a time via
++ *   bRequest 0xE7, wIndex = addr).
++ *
++ * SPDX-License-Identifier: LGPL-2.1-or-later
++ */
++
++#define FP_COMPONENT "zk9500"
++#include "fpi-log.h"
++
++#include "drivers_api.h"
++
++#define ZK9500_VID               0x1b55
++#define ZK9500_PID               0x0124
++
++#define ZK9500_WIDTH             300
++#define ZK9500_HEIGHT            375
++#define ZK9500_FRAME_SIZE        (ZK9500_WIDTH * ZK9500_HEIGHT)
++#define ZK9500_PPMM              (500.0 / 25.4)
++
++#define ZK9500_EP_IMAGE          (0x02 | FPI_USB_ENDPOINT_IN)
++
++#define ZK9500_REQ_SYNC          0x80
++#define ZK9500_REQ_START         0xE0
++#define ZK9500_REQ_GPIO_SET      0xE1
++#define ZK9500_REQ_GPIO_GET      0xE2
++#define ZK9500_REQ_SENSOR_REG    0xE3
++#define ZK9500_REQ_EEPROM        0xE7
++#define ZK9500_REQ_FINGER        0xEA
++
++#define ZK9500_CTRL_TIMEOUT_MS   1000
++#define ZK9500_SYNC_TIMEOUT_MS   500
++#define ZK9500_BULK_TIMEOUT_MS   3000
++#define ZK9500_STOP_TIMEOUT_MS   250
++
++#define ZK9500_POLL_INTERVAL_MS  60
++#define ZK9500_SETTLE_DELAY_MS   60
++#define ZK9500_MIN_VARIANCE      120
++
++#define ZK9500_EEPROM_CAM_ADDR   0x30
++#define ZK9500_EEPROM_CAM_LEN    12
++#define ZK9500_EEPROM_LED_ADDR   0x70
++#define ZK9500_EEPROM_LED_LEN    6
++#define ZK9500_EEPROM_TOTAL_LEN  (ZK9500_EEPROM_CAM_LEN + ZK9500_EEPROM_LED_LEN)
++
++#define ZK9500_NUM_LEDS          6
++#define ZK9500_NUM_CMOS_REGS     10
++#define ZK9500_NUM_ENABLE_CMDS   4
++#define ZK9500_NUM_STOP_CMDS     (ZK9500_NUM_LEDS + 3)
++
++typedef struct
++{
++  guint16 exposure;
++  guint16 gain_red;
++  guint16 gain_green1;
++  guint16 gain_green2;
++  guint16 gain_blue;
++  guint8  leds[ZK9500_NUM_LEDS];
++} Zk9500Settings;
++
++typedef struct
++{
++  guint16 idx;
++  guint16 val;
++} Zk9500RegVal;
++
++/* Activation state machine */
++typedef enum {
++  ACT_START = 0,
++  ACT_SYNC_OUT,
++  ACT_SYNC_ACK,
++  ACT_GPIO_PROBE,
++  ACT_READ_EEPROM,
++  ACT_APPLY_LEDS,
++  ACT_APPLY_CMOS,
++  ACT_ENABLE_CAPTURE,
++  ACT_NUM_STATES,
++} Zk9500ActivateState;
++
++/* Capture & finger-off polling state machine */
++typedef enum {
++  LOOP_WAIT_FINGER_DELAY = 0,
++  LOOP_POLL_FINGER_ON,
++  LOOP_READ_FRAME_1,
++  LOOP_SETTLE_DELAY,
++  LOOP_CHECK_SETTLE_FINGER,
++  LOOP_READ_FRAME_2,
++  LOOP_SUBMIT_IMAGE,
++  LOOP_WAIT_OFF_DELAY,
++  LOOP_POLL_FINGER_OFF,
++  LOOP_DRAIN_HELD_FRAME,
++  LOOP_NUM_STATES,
++} Zk9500LoopState;
++
++/* Deactivation state machine (turns off illumination LEDs & CMOS capture) */
++typedef enum {
++  DEACT_STOP_Step = 0,
++  DEACT_NUM_STATES,
++} Zk9500DeactivateState;
++
++struct _FpiDeviceZk9500
++{
++  FpImageDevice       parent;
++
++  FpiSsm             *active_ssm;
++  GCancellable       *poll_cancellable;
++  FpiImageDeviceState dev_state;
++
++  gboolean            deactivating;
++  gboolean            eeprom_loaded;
++  gboolean            report_finger_off;
++
++  Zk9500Settings      settings;
++  guint8              eeprom_raw[ZK9500_EEPROM_TOTAL_LEN];
++  guint               step_idx;
++
++  Zk9500RegVal        cmos_seq[ZK9500_NUM_CMOS_REGS];
++
++  guint8             *frame_buf;
++  guint8             *alt_buf;
++  gsize               bytes_read;
++};
++
++G_DECLARE_FINAL_TYPE (FpiDeviceZk9500, fpi_device_zk9500, FPI, DEVICE_ZK9500, FpImageDevice)
++G_DEFINE_TYPE (FpiDeviceZk9500, fpi_device_zk9500, FP_TYPE_IMAGE_DEVICE)
++
++static void zk9500_start_deactivate_ssm (FpiDeviceZk9500 *self);
++static void zk9500_start_loop_ssm (FpiDeviceZk9500 *self);
++
++static void
++zk9500_set_default_settings (Zk9500Settings *s)
++{
++  s->exposure = 1200;
++  s->gain_red = 200;
++  s->gain_green1 = 200;
++  s->gain_green2 = 182;
++  s->gain_blue = 200;
++  s->leds[0] = 200;
++  s->leds[1] = 200;
++  s->leds[2] = 175;
++  s->leds[3] = 175;
++  s->leds[4] = 120;
++  s->leds[5] = 120;
++}
++
++static gboolean
++zk9500_parse_eeprom (FpiDeviceZk9500 *self)
++{
++  const guint8 *cam = self->eeprom_raw;
++  const guint8 *leds = self->eeprom_raw + ZK9500_EEPROM_CAM_LEN;
++  guint16 w[6];
++  guint32 total;
++  guint i;
++
++  for (i = 0; i < 6; i++)
++    w[i] = (guint16) cam[2 * i] | ((guint16) cam[2 * i + 1] << 8);
++
++  total = (guint32) w[0] + w[1] + w[2] + w[3] + w[4];
++
++  if (w[5] != total && w[5] != total + 1)
++    return FALSE;
++
++  if (w[0] < 100 || w[0] > 10000)
++    return FALSE;
++
++  for (i = 0; i < ZK9500_NUM_LEDS; i++)
++    if (leds[i] == 0)
++      return FALSE;
++
++  self->settings.exposure = w[0];
++  self->settings.gain_red = w[1];
++  self->settings.gain_green1 = w[2];
++  self->settings.gain_green2 = w[3];
++  self->settings.gain_blue = w[4];
++  memcpy (self->settings.leds, leds, ZK9500_NUM_LEDS);
++
++  return TRUE;
++}
++
++static void
++zk9500_prepare_cmos_seq (FpiDeviceZk9500 *self)
++{
++  const Zk9500Settings *s = &self->settings;
++
++  self->cmos_seq[0] = (Zk9500RegVal) { 0xa5, s->gain_red };
++  self->cmos_seq[1] = (Zk9500RegVal) { 0xa6, s->gain_red };
++  self->cmos_seq[2] = (Zk9500RegVal) { 0xa3, s->gain_green1 };
++  self->cmos_seq[3] = (Zk9500RegVal) { 0xa4, s->gain_green1 };
++  self->cmos_seq[4] = (Zk9500RegVal) { 0xa9, s->gain_green2 };
++  self->cmos_seq[5] = (Zk9500RegVal) { 0xaa, s->gain_green2 };
++  self->cmos_seq[6] = (Zk9500RegVal) { 0xa7, s->gain_blue };
++  self->cmos_seq[7] = (Zk9500RegVal) { 0xa8, s->gain_blue };
++  self->cmos_seq[8] = (Zk9500RegVal) { 0x03, (guint16) (s->exposure >> 8) };
++  self->cmos_seq[9] = (Zk9500RegVal) { 0x04, (guint16) (s->exposure & 0xff) };
++}
++
++static void
++zk9500_submit_ctrl_out (FpiDeviceZk9500       *self,
++                        FpiSsm                *ssm,
++                        guint8                 request,
++                        guint16                value,
++                        guint16                idx,
++                        const guint8          *data,
++                        gsize                  length,
++                        guint                  timeout_ms,
++                        GCancellable          *cancellable,
++                        FpiUsbTransferCallback cb)
++{
++  FpiUsbTransfer *transfer = fpi_usb_transfer_new (FP_DEVICE (self));
++
++  transfer->ssm = ssm;
++  transfer->short_is_error = TRUE;
++  fpi_usb_transfer_fill_control (transfer,
++                                 G_USB_DEVICE_DIRECTION_HOST_TO_DEVICE,
++                                 G_USB_DEVICE_REQUEST_TYPE_VENDOR,
++                                 G_USB_DEVICE_RECIPIENT_DEVICE,
++                                 request, value, idx, length);
++  if (length > 0 && data != NULL)
++    memcpy (transfer->buffer, data, length);
++
++  fpi_usb_transfer_submit (transfer, timeout_ms, cancellable, cb, NULL);
++}
++
++static void
++zk9500_submit_ctrl_in (FpiDeviceZk9500       *self,
++                       FpiSsm                *ssm,
++                       guint8                 request,
++                       guint16                value,
++                       guint16                idx,
++                       gsize                  length,
++                       guint                  timeout_ms,
++                       GCancellable          *cancellable,
++                       FpiUsbTransferCallback cb)
++{
++  FpiUsbTransfer *transfer = fpi_usb_transfer_new (FP_DEVICE (self));
++
++  transfer->ssm = ssm;
++  transfer->short_is_error = TRUE;
++  fpi_usb_transfer_fill_control (transfer,
++                                 G_USB_DEVICE_DIRECTION_DEVICE_TO_HOST,
++                                 G_USB_DEVICE_REQUEST_TYPE_VENDOR,
++                                 G_USB_DEVICE_RECIPIENT_DEVICE,
++                                 request, value, idx, length);
++  fpi_usb_transfer_submit (transfer, timeout_ms, cancellable, cb, NULL);
++}
++
++/* ── Activation SSM ──────────────────────────────────────────────────────── */
++
++static void
++zk9500_ignore_error_next_cb (FpiUsbTransfer *transfer,
++                             FpDevice       *dev,
++                             gpointer        unused_data,
++                             GError         *error)
++{
++  if (error)
++    {
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        {
++          fpi_ssm_mark_failed (transfer->ssm, error);
++          return;
++        }
++      g_error_free (error);
++    }
++
++  fpi_ssm_next_state (transfer->ssm);
++}
++
++static void zk9500_eeprom_step (FpiDeviceZk9500 *self, FpiSsm *ssm);
++
++static void
++zk9500_eeprom_cb (FpiUsbTransfer *transfer,
++                  FpDevice       *dev,
++                  gpointer        unused_data,
++                  GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (error)
++    {
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        {
++          fpi_ssm_mark_failed (transfer->ssm, error);
++          return;
++        }
++      fp_dbg ("EEPROM read failed at step %u (%s), falling back to defaults",
++              self->step_idx, error->message);
++      g_error_free (error);
++      zk9500_set_default_settings (&self->settings);
++      self->eeprom_loaded = TRUE;
++      fpi_ssm_next_state (transfer->ssm);
++      return;
++    }
++
++  self->eeprom_raw[self->step_idx] = transfer->buffer[0];
++  self->step_idx++;
++
++  if (self->step_idx < ZK9500_EEPROM_TOTAL_LEN)
++    {
++      zk9500_eeprom_step (self, transfer->ssm);
++      return;
++    }
++
++  if (zk9500_parse_eeprom (self))
++    {
++      fp_dbg ("Loaded EEPROM calibration: exp=%u R=%u G1=%u G2=%u B=%u",
++              self->settings.exposure,
++              self->settings.gain_red,
++              self->settings.gain_green1,
++              self->settings.gain_green2,
++              self->settings.gain_blue);
++    }
++  else
++    {
++      fp_dbg ("EEPROM checksum mismatch, using default calibration");
++      zk9500_set_default_settings (&self->settings);
++    }
++
++  self->eeprom_loaded = TRUE;
++  fpi_ssm_next_state (transfer->ssm);
++}
++
++static void
++zk9500_eeprom_step (FpiDeviceZk9500 *self, FpiSsm *ssm)
++{
++  guint16 addr;
++
++  if (self->step_idx < ZK9500_EEPROM_CAM_LEN)
++    addr = ZK9500_EEPROM_CAM_ADDR + self->step_idx;
++  else
++    addr = ZK9500_EEPROM_LED_ADDR + (self->step_idx - ZK9500_EEPROM_CAM_LEN);
++
++  zk9500_submit_ctrl_in (self, ssm, ZK9500_REQ_EEPROM, 0, addr, 1,
++                         ZK9500_CTRL_TIMEOUT_MS,
++                         fpi_device_get_cancellable (FP_DEVICE (self)),
++                         zk9500_eeprom_cb);
++}
++
++static void zk9500_led_step (FpiDeviceZk9500 *self, FpiSsm *ssm);
++
++static void
++zk9500_led_cb (FpiUsbTransfer *transfer,
++               FpDevice       *dev,
++               gpointer        unused_data,
++               GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (error)
++    {
++      fpi_ssm_mark_failed (transfer->ssm, error);
++      return;
++    }
++
++  self->step_idx++;
++  if (self->step_idx < ZK9500_NUM_LEDS)
++    zk9500_led_step (self, transfer->ssm);
++  else
++    fpi_ssm_next_state (transfer->ssm);
++}
++
++static void
++zk9500_led_step (FpiDeviceZk9500 *self, FpiSsm *ssm)
++{
++  guint16 val = ((guint16) self->settings.leds[self->step_idx] << 8) | 1;
++
++  zk9500_submit_ctrl_out (self, ssm, ZK9500_REQ_GPIO_SET, val,
++                          (guint16) self->step_idx, NULL, 0,
++                          ZK9500_CTRL_TIMEOUT_MS,
++                          fpi_device_get_cancellable (FP_DEVICE (self)),
++                          zk9500_led_cb);
++}
++
++static void zk9500_cmos_step (FpiDeviceZk9500 *self, FpiSsm *ssm);
++
++static void
++zk9500_cmos_cb (FpiUsbTransfer *transfer,
++                FpDevice       *dev,
++                gpointer        unused_data,
++                GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (error)
++    {
++      fpi_ssm_mark_failed (transfer->ssm, error);
++      return;
++    }
++
++  self->step_idx++;
++  if (self->step_idx < ZK9500_NUM_CMOS_REGS)
++    zk9500_cmos_step (self, transfer->ssm);
++  else
++    fpi_ssm_next_state (transfer->ssm);
++}
++
++static void
++zk9500_cmos_step (FpiDeviceZk9500 *self, FpiSsm *ssm)
++{
++  Zk9500RegVal rv = self->cmos_seq[self->step_idx];
++
++  zk9500_submit_ctrl_out (self, ssm, ZK9500_REQ_SENSOR_REG, rv.val, rv.idx,
++                          NULL, 0, ZK9500_CTRL_TIMEOUT_MS,
++                          fpi_device_get_cancellable (FP_DEVICE (self)),
++                          zk9500_cmos_cb);
++}
++
++static const Zk9500RegVal zk9500_enable_cmds[ZK9500_NUM_ENABLE_CMDS] = {
++  { 0x53, 1 },
++  { 0x32, 0 },
++  { 0x31, 1 },
++  { 0x30, 3 },
++};
++
++static void zk9500_enable_step (FpiDeviceZk9500 *self, FpiSsm *ssm);
++
++static void
++zk9500_enable_cb (FpiUsbTransfer *transfer,
++                  FpDevice       *dev,
++                  gpointer        unused_data,
++                  GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (error)
++    {
++      fpi_ssm_mark_failed (transfer->ssm, error);
++      return;
++    }
++
++  self->step_idx++;
++  if (self->step_idx < ZK9500_NUM_ENABLE_CMDS)
++    zk9500_enable_step (self, transfer->ssm);
++  else
++    fpi_ssm_next_state (transfer->ssm);
++}
++
++static void
++zk9500_enable_step (FpiDeviceZk9500 *self, FpiSsm *ssm)
++{
++  Zk9500RegVal rv = zk9500_enable_cmds[self->step_idx];
++
++  zk9500_submit_ctrl_out (self, ssm, ZK9500_REQ_GPIO_SET, rv.val, rv.idx,
++                          NULL, 0, ZK9500_CTRL_TIMEOUT_MS,
++                          fpi_device_get_cancellable (FP_DEVICE (self)),
++                          zk9500_enable_cb);
++}
++
++static void
++zk9500_activate_run_state (FpiSsm *ssm, FpDevice *_dev)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (_dev);
++  FpiUsbTransfer *transfer;
++  static const guint8 sync_zeros[16] = { 0 };
++
++  switch ((Zk9500ActivateState) fpi_ssm_get_cur_state (ssm))
++    {
++    case ACT_START:
++      zk9500_submit_ctrl_out (self, ssm, ZK9500_REQ_START, 0, 0, NULL, 0,
++                              ZK9500_CTRL_TIMEOUT_MS,
++                              fpi_device_get_cancellable (_dev),
++                              fpi_ssm_usb_transfer_cb);
++      break;
++
++    case ACT_SYNC_OUT:
++      zk9500_submit_ctrl_out (self, ssm, ZK9500_REQ_SYNC, 0, 0,
++                              sync_zeros, sizeof (sync_zeros),
++                              ZK9500_CTRL_TIMEOUT_MS,
++                              fpi_device_get_cancellable (_dev),
++                              fpi_ssm_usb_transfer_cb);
++      break;
++
++    case ACT_SYNC_ACK:
++      transfer = fpi_usb_transfer_new (_dev);
++      transfer->ssm = ssm;
++      transfer->short_is_error = FALSE;
++      fpi_usb_transfer_fill_bulk (transfer, ZK9500_EP_IMAGE, 4);
++      fpi_usb_transfer_submit (transfer, ZK9500_SYNC_TIMEOUT_MS,
++                               fpi_device_get_cancellable (_dev),
++                               zk9500_ignore_error_next_cb, NULL);
++      break;
++
++    case ACT_GPIO_PROBE:
++      zk9500_submit_ctrl_in (self, ssm, ZK9500_REQ_GPIO_GET, 0, 0x0055, 2,
++                             ZK9500_CTRL_TIMEOUT_MS,
++                             fpi_device_get_cancellable (_dev),
++                             zk9500_ignore_error_next_cb);
++      break;
++
++    case ACT_READ_EEPROM:
++      if (self->eeprom_loaded)
++        {
++          fpi_ssm_next_state (ssm);
++        }
++      else
++        {
++          self->step_idx = 0;
++          zk9500_eeprom_step (self, ssm);
++        }
++      break;
++
++    case ACT_APPLY_LEDS:
++      self->step_idx = 0;
++      zk9500_led_step (self, ssm);
++      break;
++
++    case ACT_APPLY_CMOS:
++      zk9500_prepare_cmos_seq (self);
++      self->step_idx = 0;
++      zk9500_cmos_step (self, ssm);
++      break;
++
++    case ACT_ENABLE_CAPTURE:
++      self->step_idx = 0;
++      zk9500_enable_step (self, ssm);
++      break;
++
++    case ACT_NUM_STATES:
++    default:
++      g_assert_not_reached ();
++    }
++}
++
++static void
++zk9500_activate_complete (FpiSsm *ssm, FpDevice *_dev, GError *error)
++{
++  FpImageDevice *dev = FP_IMAGE_DEVICE (_dev);
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (_dev);
++
++  self->active_ssm = NULL;
++  fpi_image_device_activate_complete (dev, error);
++}
++
++/* ── Capture & Finger-Off Loop SSM ───────────────────────────────────────── */
++
++static gboolean
++zk9500_frame_is_dark_background (const guint8 *buf)
++{
++  guint64 sum = 0;
++  guint64 count = 0;
++  gint x, y;
++
++  for (y = 0; y < ZK9500_HEIGHT; y++)
++    {
++      for (x = 0; x < ZK9500_WIDTH; x++)
++        {
++          if (x < 10 || x >= ZK9500_WIDTH - 10 || y < 10 || y >= ZK9500_HEIGHT - 10)
++            {
++              sum += buf[y * ZK9500_WIDTH + x];
++              count++;
++            }
++        }
++    }
++
++  return (count > 0 && (sum / count) < 128);
++}
++
++static void
++zk9500_poll_finger_on_cb (FpiUsbTransfer *transfer,
++                          FpDevice       *dev,
++                          gpointer        unused_data,
++                          GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (self->deactivating)
++    {
++      g_clear_error (&error);
++      fpi_ssm_mark_completed (transfer->ssm);
++      return;
++    }
++
++  if (error)
++    {
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        {
++          g_error_free (error);
++          fpi_ssm_mark_completed (transfer->ssm);
++          return;
++        }
++      fpi_ssm_mark_failed (transfer->ssm, error);
++      return;
++    }
++
++  if (transfer->actual_length == 1 && transfer->buffer[0] == 1)
++    fpi_ssm_jump_to_state (transfer->ssm, LOOP_READ_FRAME_1);
++  else
++    fpi_ssm_jump_to_state (transfer->ssm, LOOP_WAIT_FINGER_DELAY);
++}
++
++static void zk9500_submit_bulk_chunk (FpiDeviceZk9500 *self,
++                                      FpiSsm          *ssm,
++                                      guint8          *target_buf,
++                                      int              next_state_on_done,
++                                      int              fallback_state_on_short);
++
++typedef struct
++{
++  guint8 *target_buf;
++  int     next_state_on_done;
++  int     fallback_state_on_short;
++} Zk9500BulkCtx;
++
++static void
++zk9500_bulk_chunk_cb (FpiUsbTransfer *transfer,
++                      FpDevice       *dev,
++                      gpointer        user_data,
++                      GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++  g_autofree Zk9500BulkCtx *ctx = user_data;
++
++  if (self->deactivating)
++    {
++      g_clear_error (&error);
++      fpi_ssm_mark_completed (transfer->ssm);
++      return;
++    }
++
++  if (error)
++    {
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        {
++          g_error_free (error);
++          fpi_ssm_mark_completed (transfer->ssm);
++          return;
++        }
++      if (self->bytes_read > 0)
++        {
++          g_error_free (error);
++          fpi_ssm_jump_to_state (transfer->ssm, ctx->fallback_state_on_short);
++          return;
++        }
++      fpi_ssm_mark_failed (transfer->ssm, error);
++      return;
++    }
++
++  if (transfer->actual_length <= 0)
++    {
++      fpi_ssm_jump_to_state (transfer->ssm, ctx->fallback_state_on_short);
++      return;
++    }
++
++  self->bytes_read += (gsize) transfer->actual_length;
++
++  if (self->bytes_read >= ZK9500_FRAME_SIZE)
++    {
++      fpi_ssm_jump_to_state (transfer->ssm, ctx->next_state_on_done);
++      return;
++    }
++
++  zk9500_submit_bulk_chunk (self, transfer->ssm, ctx->target_buf,
++                            ctx->next_state_on_done,
++                            ctx->fallback_state_on_short);
++}
++
++static void
++zk9500_submit_bulk_chunk (FpiDeviceZk9500 *self,
++                          FpiSsm          *ssm,
++                          guint8          *target_buf,
++                          int              next_state_on_done,
++                          int              fallback_state_on_short)
++{
++  FpiUsbTransfer *transfer = fpi_usb_transfer_new (FP_DEVICE (self));
++  Zk9500BulkCtx *ctx = g_new0 (Zk9500BulkCtx, 1);
++
++  ctx->target_buf = target_buf;
++  ctx->next_state_on_done = next_state_on_done;
++  ctx->fallback_state_on_short = fallback_state_on_short;
++
++  transfer->ssm = ssm;
++  transfer->short_is_error = FALSE;
++  fpi_usb_transfer_fill_bulk_full (transfer,
++                                   ZK9500_EP_IMAGE,
++                                   target_buf + self->bytes_read,
++                                   ZK9500_FRAME_SIZE - self->bytes_read,
++                                   NULL);
++  fpi_usb_transfer_submit (transfer, ZK9500_BULK_TIMEOUT_MS,
++                           self->poll_cancellable,
++                           zk9500_bulk_chunk_cb, ctx);
++}
++
++static void
++zk9500_check_settle_cb (FpiUsbTransfer *transfer,
++                        FpDevice       *dev,
++                        gpointer        unused_data,
++                        GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (self->deactivating)
++    {
++      g_clear_error (&error);
++      fpi_ssm_mark_completed (transfer->ssm);
++      return;
++    }
++
++  if (error)
++    {
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        {
++          g_error_free (error);
++          fpi_ssm_mark_completed (transfer->ssm);
++          return;
++        }
++      g_error_free (error);
++      fpi_ssm_jump_to_state (transfer->ssm, LOOP_SUBMIT_IMAGE);
++      return;
++    }
++
++  if (transfer->actual_length == 1 && transfer->buffer[0] == 1)
++    fpi_ssm_jump_to_state (transfer->ssm, LOOP_READ_FRAME_2);
++  else
++    fpi_ssm_jump_to_state (transfer->ssm, LOOP_SUBMIT_IMAGE);
++}
++
++static void
++zk9500_poll_finger_off_cb (FpiUsbTransfer *transfer,
++                           FpDevice       *dev,
++                           gpointer        unused_data,
++                           GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (self->deactivating)
++    {
++      g_clear_error (&error);
++      fpi_ssm_mark_completed (transfer->ssm);
++      return;
++    }
++
++  if (error)
++    {
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        {
++          g_error_free (error);
++          fpi_ssm_mark_completed (transfer->ssm);
++          return;
++        }
++      fpi_ssm_mark_failed (transfer->ssm, error);
++      return;
++    }
++
++  if (transfer->actual_length == 1 && transfer->buffer[0] == 1)
++    {
++      /* Finger is still resting on the prism; drain the queued frame so 0xEA updates */
++      fpi_ssm_jump_to_state (transfer->ssm, LOOP_DRAIN_HELD_FRAME);
++    }
++  else
++    {
++      self->report_finger_off = TRUE;
++      fpi_ssm_mark_completed (transfer->ssm);
++    }
++}
++
++static void
++zk9500_loop_run_state (FpiSsm *ssm, FpDevice *_dev)
++{
++  FpImageDevice *dev = FP_IMAGE_DEVICE (_dev);
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (_dev);
++  gint var1, var2;
++  FpImage *img;
++
++  if (self->deactivating)
++    {
++      fpi_ssm_mark_completed (ssm);
++      return;
++    }
++
++  switch ((Zk9500LoopState) fpi_ssm_get_cur_state (ssm))
++    {
++    case LOOP_WAIT_FINGER_DELAY:
++      fpi_ssm_next_state_delayed (ssm, ZK9500_POLL_INTERVAL_MS);
++      break;
++
++    case LOOP_POLL_FINGER_ON:
++      zk9500_submit_ctrl_in (self, ssm, ZK9500_REQ_FINGER, 0, 0, 1,
++                             ZK9500_CTRL_TIMEOUT_MS,
++                             self->poll_cancellable,
++                             zk9500_poll_finger_on_cb);
++      break;
++
++    case LOOP_READ_FRAME_1:
++      self->bytes_read = 0;
++      zk9500_submit_bulk_chunk (self, ssm, self->frame_buf,
++                                LOOP_SETTLE_DELAY,
++                                LOOP_WAIT_FINGER_DELAY);
++      break;
++
++    case LOOP_SETTLE_DELAY:
++      var1 = fpi_std_sq_dev (self->frame_buf, ZK9500_FRAME_SIZE);
++      if (var1 < ZK9500_MIN_VARIANCE)
++        {
++          fp_dbg ("Discarding low-variance initial touch (sq_dev=%d)", var1);
++          fpi_ssm_jump_to_state (ssm, LOOP_WAIT_FINGER_DELAY);
++          break;
++        }
++      fpi_ssm_next_state_delayed (ssm, ZK9500_SETTLE_DELAY_MS);
++      break;
++
++    case LOOP_CHECK_SETTLE_FINGER:
++      zk9500_submit_ctrl_in (self, ssm, ZK9500_REQ_FINGER, 0, 0, 1,
++                             ZK9500_CTRL_TIMEOUT_MS,
++                             self->poll_cancellable,
++                             zk9500_check_settle_cb);
++      break;
++
++    case LOOP_READ_FRAME_2:
++      self->bytes_read = 0;
++      zk9500_submit_bulk_chunk (self, ssm, self->alt_buf,
++                                LOOP_SUBMIT_IMAGE,
++                                LOOP_SUBMIT_IMAGE);
++      break;
++
++    case LOOP_SUBMIT_IMAGE:
++      var1 = fpi_std_sq_dev (self->frame_buf, ZK9500_FRAME_SIZE);
++      if (self->bytes_read == ZK9500_FRAME_SIZE)
++        {
++          var2 = fpi_std_sq_dev (self->alt_buf, ZK9500_FRAME_SIZE);
++          if (var2 > var1)
++            {
++              fp_dbg ("Using settled frame (sq_dev %d -> %d)", var1, var2);
++              memcpy (self->frame_buf, self->alt_buf, ZK9500_FRAME_SIZE);
++              var1 = var2;
++            }
++        }
++      self->bytes_read = 0;
++
++      fpi_image_device_report_finger_status (dev, TRUE);
++
++      img = fp_image_new (ZK9500_WIDTH, ZK9500_HEIGHT);
++      img->ppmm = ZK9500_PPMM;
++      img->flags = FPI_IMAGE_NONE;
++      if (zk9500_frame_is_dark_background (self->frame_buf))
++        img->flags |= FPI_IMAGE_COLORS_INVERTED;
++
++      memcpy (img->data, self->frame_buf, ZK9500_FRAME_SIZE);
++      fp_dbg ("Submitting 300x375 @ 500 DPI frame (sq_dev=%d, flags=0x%x)",
++              var1, img->flags);
++      fpi_image_device_image_captured (dev, img);
++
++      fpi_ssm_jump_to_state (ssm, LOOP_WAIT_OFF_DELAY);
++      break;
++
++    case LOOP_WAIT_OFF_DELAY:
++      fpi_ssm_next_state_delayed (ssm, ZK9500_POLL_INTERVAL_MS);
++      break;
++
++    case LOOP_POLL_FINGER_OFF:
++      zk9500_submit_ctrl_in (self, ssm, ZK9500_REQ_FINGER, 0, 0, 1,
++                             ZK9500_CTRL_TIMEOUT_MS,
++                             self->poll_cancellable,
++                             zk9500_poll_finger_off_cb);
++      break;
++
++    case LOOP_DRAIN_HELD_FRAME:
++      self->bytes_read = 0;
++      zk9500_submit_bulk_chunk (self, ssm, self->alt_buf,
++                                LOOP_WAIT_OFF_DELAY,
++                                LOOP_WAIT_OFF_DELAY);
++      break;
++
++    case LOOP_NUM_STATES:
++    default:
++      g_assert_not_reached ();
++    }
++}
++
++static void
++zk9500_loop_complete (FpiSsm *ssm, FpDevice *_dev, GError *error)
++{
++  FpImageDevice *dev = FP_IMAGE_DEVICE (_dev);
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (_dev);
++
++  self->active_ssm = NULL;
++  g_clear_object (&self->poll_cancellable);
++
++  if (self->deactivating)
++    {
++      g_clear_error (&error);
++      zk9500_start_deactivate_ssm (self);
++      return;
++    }
++
++  if (error)
++    {
++      fpi_image_device_session_error (dev, error);
++      return;
++    }
++
++  if (self->report_finger_off)
++    {
++      self->report_finger_off = FALSE;
++      fpi_image_device_report_finger_status (dev, FALSE);
++    }
++}
++
++static void
++zk9500_start_loop_ssm (FpiDeviceZk9500 *self)
++{
++  FpiSsm *ssm;
++
++  if (self->active_ssm != NULL || self->deactivating)
++    return;
++
++  g_clear_object (&self->poll_cancellable);
++  self->poll_cancellable = g_cancellable_new ();
++  self->report_finger_off = FALSE;
++  self->bytes_read = 0;
++
++  ssm = fpi_ssm_new (FP_DEVICE (self), zk9500_loop_run_state, LOOP_NUM_STATES);
++  fpi_ssm_silence_debug (ssm);
++  self->active_ssm = ssm;
++  fpi_ssm_start (ssm, zk9500_loop_complete);
++}
++
++/* ── Deactivation SSM ────────────────────────────────────────────────────── */
++
++static const guint16 zk9500_stop_indices[ZK9500_NUM_STOP_CMDS] = {
++  0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
++  0x15, 0x30, 0x31,
++};
++
++static void zk9500_stop_step (FpiDeviceZk9500 *self, FpiSsm *ssm);
++
++static void
++zk9500_stop_cb (FpiUsbTransfer *transfer,
++                FpDevice       *dev,
++                gpointer        unused_data,
++                GError         *error)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  if (error)
++    {
++      /* Device may have been unplugged; finish deactivation cleanly */
++      g_error_free (error);
++      fpi_ssm_mark_completed (transfer->ssm);
++      return;
++    }
++
++  self->step_idx++;
++  if (self->step_idx < ZK9500_NUM_STOP_CMDS)
++    zk9500_stop_step (self, transfer->ssm);
++  else
++    fpi_ssm_next_state (transfer->ssm);
++}
++
++static void
++zk9500_stop_step (FpiDeviceZk9500 *self, FpiSsm *ssm)
++{
++  zk9500_submit_ctrl_out (self, ssm, ZK9500_REQ_GPIO_SET, 0,
++                          zk9500_stop_indices[self->step_idx],
++                          NULL, 0, ZK9500_STOP_TIMEOUT_MS,
++                          NULL, zk9500_stop_cb);
++}
++
++static void
++zk9500_deactivate_run_state (FpiSsm *ssm, FpDevice *_dev)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (_dev);
++
++  switch ((Zk9500DeactivateState) fpi_ssm_get_cur_state (ssm))
++    {
++    case DEACT_STOP_Step:
++      self->step_idx = 0;
++      zk9500_stop_step (self, ssm);
++      break;
++
++    case DEACT_NUM_STATES:
++    default:
++      g_assert_not_reached ();
++    }
++}
++
++static void
++zk9500_deactivate_complete (FpiSsm *ssm, FpDevice *_dev, GError *error)
++{
++  FpImageDevice *dev = FP_IMAGE_DEVICE (_dev);
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (_dev);
++
++  self->active_ssm = NULL;
++  self->deactivating = FALSE;
++  g_clear_error (&error);
++
++  fpi_image_device_deactivate_complete (dev, NULL);
++}
++
++static void
++zk9500_start_deactivate_ssm (FpiDeviceZk9500 *self)
++{
++  FpiSsm *ssm;
++
++  ssm = fpi_ssm_new (FP_DEVICE (self), zk9500_deactivate_run_state, DEACT_NUM_STATES);
++  self->active_ssm = ssm;
++  fpi_ssm_start (ssm, zk9500_deactivate_complete);
++}
++
++/* ── FpImageDevice vfuncs ────────────────────────────────────────────────── */
++
++static void
++zk9500_dev_open (FpImageDevice *dev)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++  GUsbDevice *usb_dev = fpi_device_get_usb_device (FP_DEVICE (dev));
++  GError *error = NULL;
++
++  if (!g_usb_device_claim_interface (usb_dev, 0, 0, &error))
++    {
++      fpi_image_device_open_complete (dev, error);
++      return;
++    }
++
++  self->frame_buf = g_malloc0 (ZK9500_FRAME_SIZE);
++  self->alt_buf = g_malloc0 (ZK9500_FRAME_SIZE);
++  self->eeprom_loaded = FALSE;
++  self->deactivating = FALSE;
++  self->active_ssm = NULL;
++  zk9500_set_default_settings (&self->settings);
++
++  fpi_image_device_open_complete (dev, NULL);
++}
++
++static void
++zk9500_dev_close (FpImageDevice *dev)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++  GUsbDevice *usb_dev = fpi_device_get_usb_device (FP_DEVICE (dev));
++  GError *error = NULL;
++
++  g_clear_object (&self->poll_cancellable);
++  g_clear_pointer (&self->frame_buf, g_free);
++  g_clear_pointer (&self->alt_buf, g_free);
++
++  g_usb_device_release_interface (usb_dev, 0, 0, &error);
++  fpi_image_device_close_complete (dev, error);
++}
++
++static void
++zk9500_dev_activate (FpImageDevice *dev)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++  FpiSsm *ssm;
++
++  self->deactivating = FALSE;
++  ssm = fpi_ssm_new (FP_DEVICE (dev), zk9500_activate_run_state, ACT_NUM_STATES);
++  self->active_ssm = ssm;
++  fpi_ssm_start (ssm, zk9500_activate_complete);
++}
++
++static void
++zk9500_dev_deactivate (FpImageDevice *dev)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  self->deactivating = TRUE;
++
++  if (self->poll_cancellable)
++    g_cancellable_cancel (self->poll_cancellable);
++
++  if (self->active_ssm == NULL)
++    zk9500_start_deactivate_ssm (self);
++}
++
++static void
++zk9500_dev_change_state (FpImageDevice *dev, FpiImageDeviceState state)
++{
++  FpiDeviceZk9500 *self = FPI_DEVICE_ZK9500 (dev);
++
++  self->dev_state = state;
++
++  if (state == FPI_IMAGE_DEVICE_STATE_AWAIT_FINGER_ON)
++    zk9500_start_loop_ssm (self);
++}
++
++static const FpIdEntry id_table[] = {
++  { .vid = ZK9500_VID, .pid = ZK9500_PID },
++  { .vid = 0, .pid = 0, .driver_data = 0 },
++};
++
++static void
++fpi_device_zk9500_init (FpiDeviceZk9500 *self)
++{
++}
++
++static void
++fpi_device_zk9500_class_init (FpiDeviceZk9500Class *klass)
++{
++  FpDeviceClass *dev_class = FP_DEVICE_CLASS (klass);
++  FpImageDeviceClass *img_class = FP_IMAGE_DEVICE_CLASS (klass);
++
++  dev_class->id = FP_COMPONENT;
++  dev_class->full_name = "ZKTeco ZK9500 Optical Fingerprint Reader";
++  dev_class->type = FP_DEVICE_TYPE_USB;
++  dev_class->id_table = id_table;
++  dev_class->scan_type = FP_SCAN_TYPE_PRESS;
++  dev_class->nr_enroll_stages = 5;
++  /* Desktop optical prism + CMOS sensor has no resistive heater; disable
++   * libfprint's default 180s software thermal lockout (FP_DEVICE_ERROR_TOO_HOT)
++   * so multi-finger enrollment and lockscreen standby never trip overheating. */
++  dev_class->temp_hot_seconds = -1;
++
++  img_class->img_width = ZK9500_WIDTH;
++  img_class->img_height = ZK9500_HEIGHT;
++#if defined(__has_include) && __has_include("sigfm/sigfm.h")
++  img_class->algorithm = FPI_DEVICE_ALGO_NBIS;
++  img_class->score_threshold = 32;
++#else
++  img_class->bz3_threshold = 32;
++#endif
++
++  img_class->img_open = zk9500_dev_open;
++  img_class->img_close = zk9500_dev_close;
++  img_class->activate = zk9500_dev_activate;
++  img_class->deactivate = zk9500_dev_deactivate;
++  img_class->change_state = zk9500_dev_change_state;
++}
+diff --git a/libfprint/fprint-list-udev-hwdb.c b/libfprint/fprint-list-udev-hwdb.c
+index 539f3e6..26e3333 100644
+--- a/libfprint/fprint-list-udev-hwdb.c
++++ b/libfprint/fprint-list-udev-hwdb.c
+@@ -206,6 +206,7 @@ static const FpIdEntry allowlist_id_table[] = {
+ };
+ 
+ static const FpIdEntry denylist_id_table[] = {
++  { .vid = 0x1b55, .pid = 0x0124 }, /* ZKTeco ZK9500 */
+   { .vid = 0x0483, .pid = 0x2016 },
+   /* https://bugs.freedesktop.org/show_bug.cgi?id=66659 */
+   { .vid = 0x045e, .pid = 0x00bb },
+diff --git a/libfprint/meson.build b/libfprint/meson.build
+index f11533c..a1eca39 100644
+--- a/libfprint/meson.build
++++ b/libfprint/meson.build
+@@ -139,6 +139,7 @@ driver_sources = {
+     'focaltech_moc' : files('drivers/focaltech_moc/focaltech_moc.c'),
+     'mafpmoc' : files('drivers/mafpmoc/mafpmoc.c'),
+     'secugen' : files('drivers/secugen.c'),
++    'zk9500' : files('drivers/zk9500.c'),
+ }
+ 
+ helper_sources = {
+diff --git a/meson.build b/meson.build
+index ab09dc1..518ee49 100644
+--- a/meson.build
++++ b/meson.build
+@@ -147,6 +147,7 @@ drivers_info = {
+     'focaltech_moc': {},
+     'mafpmoc': {},
+     'secugen': {},
++    'zk9500': {},
+ 
+     # SPI driver (non-optional if SPI is available)
+     'elanspi': { 'spi': true, 'helper': ['udev'], 'optional': not have_spi },
+-- 
+2.56.0
+

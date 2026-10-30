@@ -1,0 +1,8 @@
+Device: iStorage ADST / BYD BF5325 (USB 2009:7638)
+
+Driver author: Rubén García Sánchez (arqueon)
+  https://github.com/arqueon/adst-2009-libfprint
+  License: LGPL-2.1-or-later
+
+Arch packaging: AUR libfprint-adst-2009-git
+  https://aur.archlinux.org/packages/libfprint-adst-2009-git

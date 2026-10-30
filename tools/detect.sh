@@ -16,7 +16,7 @@ unsupported="$repo/docs/unsupported-devices.md"
 
 # Vendor IDs known to ship fingerprint sensors, per the libfprint wiki.
 fp_vendors="047d 04e8 04f3 05ba 06cb 0a5c 0bda 10a5 1188 138a 147e 1491 16d1
-1c7a 2541 27c6 2808 298d 2df0 3274 3538"
+1b55 1c7a 2009 2541 27c6 2808 298d 2df0 3274 347d 3538"
 
 is_fp_vendor() {
 	for v in $fp_vendors; do
