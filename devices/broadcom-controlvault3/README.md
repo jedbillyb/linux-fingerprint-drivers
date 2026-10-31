@@ -86,6 +86,30 @@ See the MR discussion for the current list of confirmed Dell models.
   response on EP1 IN, `03 00 00 00 00 00 00 00` = finger on sensor), but the
   frames start `08 00 00 00` and the payload looks encrypted, where CV3 uses a
   version-1 header and plaintext TLVs.
+- **Dell Pro 14 Plus PB14250, `0a5c:5865` (ControlVault3 Plus), working (vendor blob 6.1.155)**
+  ([#28](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/28#issuecomment-6527783255), 2026-10-30).
+  Fedora 44, fprintd 1.94.5, libfprint-tod 1.94.10+tod1 from the
+  [grahamwhiteuk/libfprint-tod](https://copr.fedorainfracloud.org/coprs/grahamwhiteuk/libfprint-tod/)
+  COPR. The COPR's 6.0.055 blob flashes the ControlVault (AAI 6.0.55.0, SBI 48),
+  then enrollment hangs with `Device disabled to prevent overheating` and the
+  ControlVault wedges (`cv_get_ush_ver() status: (0xb)` in a loop). A full power
+  drain (shut down, unplug AC, hold power for about 30 s) recovered it.
+  Replacing both the TOD `.so` and `/var/lib/fprint/.broadcomCv3plusFW/` with
+  the files from Broadcom's `brcm_linux_fp_6.1.155_6.1.028.0.tgz` flashed the
+  ControlVault to SBI 69 (AAI 6.1.28.0), the sensor reported firmware
+  `4337987-2-200-4060`, and enroll, verify, unlock and `sudo` then worked first
+  try. So on CV3+ machines where 6.0.055 reports "overheating", **try 6.1.155
+  before concluding the hardware is unsupported** (it did not help the
+  Precision 3490 above, whose sensor is a different part).
+  Gotchas from the same report:
+  - **SELinux (Fedora):** files copied from `/tmp` keep the `user_tmp_t` label
+    and the blob then fails with the misleading `Can not find SBI file
+    (bcmsbiCitadelB0_7.otp)`. Fix: `sudo restorecon -RFv /var/lib/fprint`.
+  - **Flash time:** the probe-time flash took 61 s, close to fprintd's default
+    90 s start timeout. A `TimeoutStartSec=300` drop-in for `fprintd.service`
+    is a cheap safety net. Keep AC plugged in and never interrupt the flash.
+  - **Ghost devices:** right after the flash `fprintd-list` showed 3 copies of
+    the reader; one `sudo systemctl restart fprintd` cleared it.
 
 ## License
 
