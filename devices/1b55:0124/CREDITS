@@ -1,0 +1,8 @@
+Device: ZKTeco ZK9500 (USB 1b55:0124)
+
+Driver author: Rubén García Sánchez (arqueon)
+  https://github.com/arqueon/zk9500-libfprint
+  License: LGPL-2.1-or-later
+
+Arch packaging: AUR libfprint-zk9500-git
+  https://aur.archlinux.org/packages/libfprint-zk9500-git

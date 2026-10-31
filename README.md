@@ -80,6 +80,9 @@ appear in `lsusb` at all.
 | 06cb:00ff (+00c9/00d1/00e7/0124/0169) | Synaptics Tudor MiS | Working | Arch, Fedora, Ubuntu (community routes) |
 | 06cb:00fd                              | Synaptics Tudor MiS (IdeaPad pkg, v139) | Working | Ubuntu 26.04 |
 | 06cb:00eb                              | Synaptics Tudor MiS (Dynabook, synatlsmoc) | Working | Kali rolling |
+| 1b55:0124            | ZKTeco ZK9500 (optical) | Working | Arch / CachyOS              |
+| 347d:0302 (0304)     | Blestech Betterlife btlfp | Working | Arch / CachyOS            |
+| 2009:7638            | iStorage ADST / BYD BF5325 | Working | Arch / CachyOS           |
 | 2808:9e65            | FocalTech               | Partial | Undocumented (unconfirmed)  |
 | gxfp5187 (SPI)       | Goodix GXFP5187         | Working | Ubuntu 24.04 ([entry](devices/gxfp5187/)) |
 
