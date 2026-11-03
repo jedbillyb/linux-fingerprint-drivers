@@ -2,8 +2,30 @@
 
 **Status: Working via python-validity (userspace daemon, not a libfprint driver).**
 
-Synaptics/Validity "Viper" fingerprint readers (ASIC 57K0 FM-154-124, ROM 6.20).
+Synaptics/Validity "Viper" fingerprint readers (ROM 6.20).
 Found primarily in Toshiba / Dynabook business laptops (Tecra X40-D, Portégé X30-D).
+
+## Two sensor variants, two routes
+
+The same USB ID covers at least two sensors, and they need different software:
+
+| Sensor | Seen in | Route |
+|--------|---------|-------|
+| FM-154-124 | Tecra X40-D | python-validity `v0.16-viper1` (this page, below) |
+| TM-3322-001 (swipe strip in the touchpad) | Portégé X30-D | [AdriPerse/viper-fprintd](https://github.com/AdriPerse/viper-fprintd) |
+
+python-validity's hard-coded 008a calibration blobs come from the FM-154-124
+unit. On the TM-3322-001 the device opens and TLS works, but captures never
+complete: interrupt events stop at `03 41 03 00 40` without the completion bit
+([#46](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/46)).
+
+viper-fprintd reuses the python-validity session code, calibrates with the
+unit's own factory values, matches on the host and replaces the fprintd daemon
+with a compatible D-Bus service. Use it as a swipe sensor. Reported working on
+Ubuntu 26.04 with fprintd tools, sudo, polkit, the GNOME lock screen and GNOME
+Settings; about 80% of genuine swipes matched first try, no impostor accepts in
+about 140 attempts. It installs to `/usr/local/lib/viper-fprintd`, overrides
+`fprintd.service` with a systemd drop-in, and ships `uninstall.sh` to revert.
 
 ## What was broken
 
@@ -58,7 +80,8 @@ guide do not apply here, since python-validity is packaged rather than built.
 
 ## Tested on
 
-- Ubuntu 24.04 LTS (Toshiba Tecra X40-D)
+- Ubuntu 24.04 LTS (Toshiba Tecra X40-D, FM-154-124), python-validity
+- Ubuntu 26.04 LTS (Toshiba Portégé X30-D, TM-3322-001), viper-fprintd
 
 ## License note
 
