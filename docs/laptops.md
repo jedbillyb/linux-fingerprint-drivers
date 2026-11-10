@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-53 model listings map to a catalogued sensor; the rest are on the
+54 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -222,6 +222,7 @@ rather than a machine. Match these on the USB ID.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
+| DIGMA Pro Magnus M | `2808:9348` | FocalTech FT9348 - standalone capture + vendor matcher | Working (vendor blob) | [entry](../devices/2808:9348/) |
 | Broadcom Corp. 58200 | `0a5c:5864` | - | No known fix | [gap-map](unsupported-devices.md) |
 | DigitalPersona 5300 | `05ba:000e` | - | No known fix | [gap-map](unsupported-devices.md) |
 | ELAN/FA461D-2203 | `04f3:3128` | - | No known fix | [gap-map](unsupported-devices.md) |

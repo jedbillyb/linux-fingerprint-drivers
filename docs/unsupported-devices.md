@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 99 USB fingerprint sensors below are on the official libfprint
+The 98 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -123,7 +123,6 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `27c6:5f10` | Honor MagicBook X16Pro Ryzen 7 7840HS |  |
 | `27c6:5f91` | Honor Magicbook Art 14 |  |
 | `27c6:6382` | Dell XPS 9315 2-in-1 |  |
-| `2808:9348` | - |  |
 | `2808:a553` | Focaltech FT9365, Asus VivoBook |  |
 | `2808:a658` | Asus Vivobook K6500zc |  |
 | `3538:0930` | External |  |

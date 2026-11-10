@@ -1,0 +1,9 @@
+Device: FocalTech FT9348 (USB 2808:9348, chip id 0x9362)
+
+Author: narkomart
+  https://github.com/narkomart/focaltech-ft9348-linux
+  License: GPL-2.0 (not LGPL-2.1, so the code is not mirrored here - this entry is
+  a pointer only). Matching uses FocalTech's proprietary libfprint .so, supplied by
+  the user, not redistributed by either project.
+
+Standalone capture tool + PAM, not a libfprint driver.
