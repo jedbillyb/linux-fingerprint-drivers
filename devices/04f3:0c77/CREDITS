@@ -1,0 +1,21 @@
+Device: ELAN ARM-M4 (USB 04f3:0c77)
+Device ID(s): 04f3:0c77
+
+Status: community patch, not upstream
+
+Patch, package build and protocol notes: inumineq (@inumineq)
+  https://github.com/inumineq/libfprint-elan-0c77
+
+The driver is Davide Depau's elanmoc2 driver, ported to current upstream
+libfprint and adjusted for this sensor:
+  https://gitlab.freedesktop.org/Depau/libfprint (branch elanmoc2, commit 11f0316d)
+  https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/330
+  https://github.com/depau/elanpoc
+
+The first report that 04f3:0c77 speaks this protocol:
+  https://github.com/depau/elanpoc/issues/2
+
+The 15 enroll samples follow Prashant Adhikari's driver for 04f3:0c6c:
+  https://github.com/ITx-prash/libfprint-elan-04f3-0c6c
+
+Part of libfprint (LGPL-2.1).

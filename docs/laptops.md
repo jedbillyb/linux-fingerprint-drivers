@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-53 model listings map to a catalogued sensor; the rest are on the
+56 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -118,6 +118,9 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 |--------------|--------|--------|--------|-------------|
 | ASUS ZenBook S UX391FA | `27c6:5201` | Goodix GF5288 / HTK32 bridge | Working | [entry](../devices/27c6:5201/) |
 | ASUS ZenBook S UX391UA | `27c6:5201` | Goodix GF5288 / HTK32 bridge | Working | [entry](../devices/27c6:5201/) |
+| ASUS ExpertBook B5 Flip | `04f3:0c77` | ELAN ARM-M4 | Partial | [entry](../devices/04f3:0c77/) |
+| ASUS ExpertBook B7 Flip | `04f3:0c77` | ELAN ARM-M4 | Partial | [entry](../devices/04f3:0c77/) |
+| ASUS ExpertBook B9403CVAR | `04f3:0c77` | ELAN ARM-M4 | Partial | [entry](../devices/04f3:0c77/) |
 | ASUS Vivobook f571gt- al318t | `04f3:3104` | lead: partial | No known fix | [gap-map](unsupported-devices.md) |
 | Asus Vivobook K6500zc | `2808:a658` | - | No known fix | [gap-map](unsupported-devices.md) |
 | ASUS VivoBook Pro 15 N580GD | `04f3:3057` | - | No known fix | [gap-map](unsupported-devices.md) |
