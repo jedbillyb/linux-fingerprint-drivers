@@ -1,11 +1,3 @@
-elanmoc2 driver with support for the ELAN 04f3:0c77 fingerprint reader.
-
-Applies to upstream libfprint at commit 6f9479c3d55f847c1b3769f28ceb99227f9858cf
-(v1.94.100 + 10). Based on Davide Depau's elanmoc2 driver; see README.md for
-credits and docs/protocol-notes.md for what was changed and why.
-
-License: LGPL-2.1-or-later, like libfprint.
-
 diff --git a/data/autosuspend.hwdb b/data/autosuspend.hwdb
 index 104ce5e6..c7f02425 100644
 --- a/data/autosuspend.hwdb
