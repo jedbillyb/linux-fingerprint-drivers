@@ -121,6 +121,7 @@ your authentication path.
 | 04f3:0c4b | ELAN | Lenovo TOD blob (`libfprint-2-tod1-elan`); ThinkPad E14 Gen 4 | [entry](devices/04f3:0c4b/) |
 | 0a5c:58xx / 586x | Broadcom | Dell/Canonical TOD blob, alongside the open MR | [entry](devices/broadcom-controlvault3/) |
 | 10a5:9201 | FPC | `fingerprint-ocv`, standalone AGPL-3.0 daemon | [entry](devices/10a5:9201/) |
+| 2808:9348 | FocalTech FT9348 | standalone GPL-2.0 capture tool + FocalTech's proprietary matcher `.so`, PAM; DIGMA Pro Magnus M | [entry](devices/2808:9348/) |
 | 06cb:00ff family, 06cb:00fd | Synaptics Tudor | relinked vendor Windows driver, *or* a fully open native driver | [00ff entry](devices/06cb:00ff/), [00fd entry](devices/06cb:00fd/) |
 
 Still genuinely out of scope: sensors where nobody has published any working
