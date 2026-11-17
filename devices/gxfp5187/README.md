@@ -7,6 +7,8 @@ Enrols and verifies through `fprintd` and GNOME Settings; session unlock and
 
 Upstream libfprint has no driver for this sensor (tracked in
 [libfprint issue #112](https://gitlab.freedesktop.org/libfprint/libfprint/-/issues/112)).
+Sigfrodr, the author of the driver below, has since opened [!680](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/680)
+(2026-10-14) to add it to libfprint itself; it is not merged yet.
 This entry points at an out-of-tree **TOD** driver (a shared module libfprint
 loads at runtime), not a patch against libfprint's own sources. See
 [patches/](patches/) for the base version and where the code lives.

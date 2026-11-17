@@ -1,10 +1,12 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; kpagnussat's is now a packaged TOD module that installs alongside your distribution's libfprint. The sibling ID `2df0:0007` is a different, Realtek match-on-chip part that none of them cover. On the upstream Realtek driver it enrolls and has matched on the chip, but single-press verify is not yet reliable.**
+**Status: Working via community drivers, none of them upstream; kpagnussat's is now a packaged TOD module that installs alongside your distribution's libfprint. The sibling ID `2df0:0007` is a different, Realtek match-on-chip part that none of them cover. On the upstream Realtek driver it enrolls and has matched on the chip, but single-press verify is not yet reliable. Since October 2026 upstream merge requests exist for both IDs (none merged): [!687](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/687) and [!670](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/670) for `:0003`, [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) for `:0007`.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
-Book3 360 generation. Upstream libfprint has never supported it and there is no
-merge request for `2df0` in any state, but four independent people have
+Book3 360 generation. Upstream libfprint has never supported it. Two driver
+merge requests are now open: [!687](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/687) by kpagnussat (the driver in the first
+row below) and [!670](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/670) by rfocosi (from the fork in the fourth row). Neither
+is merged. Before those, four independent people had
 reverse-engineered it from the Samsung Windows driver, and at least two report
 daily use for login and `sudo`.
 
@@ -409,6 +411,19 @@ the identify reply and template table dumps above are for, plus a `:0007`
 specific answer to `05 11`.
 
 ### The path that is still open
+
+**New lead (2026-11): [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) adds `:0007` to the upstream Realtek driver.**
+Its author reports that this firmware only matches through the SDCP (secure)
+path: a plain identify (`45 22`) never matches, and templates committed the
+normal way are not usable by the matcher. The MR implements the SDCP host
+side (P-256 ECDH session, HMAC checked match result, 15-sample enroll) for
+`:0007` only and leaves other Realtek devices unchanged. If that holds, it
+explains the unreliable verify described below. It is not merged; try the MR
+branch and report back in
+[#17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17).
+
+The work below predates that MR.
+
 
 With the patch gone, the work in #17 is the live one, and it is further along
 in the part that matters: it keeps `fp_print_equal` and reaches a match anyway.

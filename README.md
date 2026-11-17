@@ -18,6 +18,7 @@ use your distro's libfprint. This repo is only for the ones that are not.
 - [Find your device](#find-your-device)
 - [Working fixes](#working-fixes)
 - [In progress (unmerged upstream MRs)](#in-progress-unmerged-upstream-mrs)
+- [Open upstream MRs with no entry here yet](#open-upstream-mrs-with-no-entry-here-yet)
 - [Recently merged upstream](#recently-merged-upstream)
 - [Stale (MR closed without merging)](#stale-merge-request-closed-without-merging)
 - [Experimental community forks](#experimental-community-forks-not-upstream)
@@ -136,34 +137,61 @@ under [`devices/`](devices/) with the merge-request link and build notes. Status
 changes to Working here once someone confirms it, and the row moves once the MR
 lands upstream.
 
-MR states were last verified against GitLab on **2026-07-26**; the merge request
+MR states were last verified against GitLab on **2026-11-17**; the merge request
 itself is always the authority.
 
 | Device ID | Chip / sensor | MR | Notes |
 |-----------|---------------|----|-------|
 | 147e:1002 | UPEK Touchstrip (upeksonly) | [!585](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/585) | Draft |
 | 0a5c:xxxx (Dell) | Broadcom ControlVault3 (fp + NFC) | [!620](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620) | Dell family; needs vendor firmware; see [entry](devices/broadcom-controlvault3/) |
-| 138a:0097 / 009d | Validity/Synaptics VFS0097 (VCSFW) | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626), [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579), [!619](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/619) | !626 is the active continuation of !579; also covers 0090 + 06cb:009a |
+| 138a:0097 / 009d | Validity/Synaptics VFS0097 (VCSFW) | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626), [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579), [!619](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/619) | !626 is the active continuation of !579 (now closed); also covers 0090 + 06cb:009a |
 | 138a:00ab | Validity VCSFW 0x969/0xd51 | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626) | hardware-validated; HP ZBook Studio x360 G5 |
 | 06cb:00cb | Validity VCSFW 0x969 | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626) | hardware-validated; HP Pavilion x360 14-dh |
 | 06cb:00b7 | Validity VCSFW 0xd51 | [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626) | registered, untested; HP G6 series |
 | 2808:c652 | FocalTech FT9362 (match-on-host) | [!588](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/588) | |
 | 2808:9338 / 93a9 | FocalTech FT9201 | [!572](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/572) | |
 | 10a5:9200 | FPC1022 (FPC Disum) | [!570](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/570) | |
-| 10a5:9924 | FPC match-on-host (Honor) | [!611](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/611) | |
+| 10a5:9924 | FPC match-on-host (Honor) | [!611](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/611), [!666](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/666) | !666 picks up !611 and fixes the USB reset that broke enrollment |
 | 04e8:7305 | Samsung 7305 | [!586](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/586) | |
 | 04e8:730b | Samsung 730B (image) | [!556](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/556) | |
 | 1c7a:0576 | EgisTec 0576 | [!571](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/571) | |
-| 1c7a:0575 | EgisTec EGIS0575 (swipe) | [!357](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357) | Needs work |
+| 1c7a:0575 | EgisTec EGIS0575 (swipe) | [!695](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/695), [!357](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357) | !695 (2026-11) rebases the stalled !357 and fixes its reported bugs; author uses it daily on an Acer Swift 3 SF314-43 |
 | 298d:2033 | NextBiometrics NB-2033-U | [!574](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/574) | |
 | crfpmoc (cros_ec) | Chromium OS EC FPMCU | [!512](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/512) | not USB |
 | mafp8800 (SPI) | Microarray MAFP8800 | [!580](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/580) | not USB (SPI) |
 
+### Open upstream MRs with no entry here yet
+
+Sensors that got a driver or a new product ID posted upstream since the last
+refresh, and that have no entry in this repo yet. None is merged, so build the
+MR branch to try one (see [docs/BUILD.md](docs/BUILD.md)). If one works for
+you, an entry with your laptop model is a welcome contribution. MRs for sensors
+on the [gap-map](docs/unsupported-devices.md) are listed in its Lead column
+instead.
+
+| Device ID | Chip / sensor | MR | Notes |
+|-----------|---------------|----|-------|
+| 04f3:0ca2 | ELAN match-on-chip (LG laptops) | [!693](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/693) | adds the PID to `elanmoc` |
+| 04f3:0c3d | ELAN press sensor | [!654](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/654) | new `elanpress` driver |
+| 06cb:0082 | Synaptics | [!664](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/664), [!665](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/665) | new driver; !665 (draft) drops its OpenCV dependency |
+| 1162:2370 | SecuGen U20-AL (external) | [!633](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/633) | new driver |
+| 1c7a:05b1 | Egis ETU906Axx-E | [!671](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/671) | draft, `egismoc` |
+| 2541:fa10 | Realtek (GPD Win 5) | [!677](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/677) | adds the PID to `realtek` |
+| 27c6:6005 | Goodix match-on-chip | [!678](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/678) | adds the PID to `goodixmoc` |
+| 27c6:6f94 | Goodix match-on-chip | [!667](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/667) | adds the PID to `goodixmoc` |
+| 2808:a573 | FocalTech FT9365 ESS | [!657](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/657) | adds the PID to `focaltech_moc` |
+| 28e9:5151 | Petaic match-on-chip | [!692](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/692) | new `petaicmoc` driver |
+| 2c0a:8132 | Generic Realtek USB2.0 bridge | [!661](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/661) | draft, `realtek` |
+| 3274:9011 | Realtek-based sensor | [!694](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/694) | adds the PID to `realtek` |
+| 33a7:2388 | Jiangxi OMS match-on-chip module | [!659](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/659) | draft, new driver |
+| 047d:8228 | Kensington VeriMark Desktop 2.0 (external) | [!663](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/663) | `realtek` |
+
 ### Recently merged upstream
 
-These were WIP here but their merge requests have since **merged into libfprint
-git master** (2026-06/07). They will be in the next libfprint release; build from
-git to get them now. Entries are kept for people still on an older libfprint.
+These were WIP here and their merge requests have since **merged into libfprint**
+(2026-06/07). They shipped in **libfprint 1.94.100** (2026-07-26), so a distro
+with that release or newer supports them out of the box. Entries are kept for
+people still on an older libfprint.
 
 | Device ID | Chip / sensor | MR | Merged |
 |-----------|---------------|----|--------|
@@ -171,6 +199,18 @@ git to get them now. Entries are kept for people still on an older libfprint.
 | 04f3:0c9c | ELAN ARM-M4 (0c9c) | [!568](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/568) | 2026-06-18 |
 | 3274:8012 | Microarray match-on-chip | [!492](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/492) | 2026-06-18 |
 | 298d:2020 | NextBiometrics NB-2020-U | [!569](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/569) | 2026-07-02 |
+
+Merged **after** 1.94.100, so only in libfprint git master until the next
+release. None of these ever had an entry here; they are product IDs added to
+existing drivers. If your reader is one of them, build libfprint from git.
+
+| Device ID | Driver | MR | Merged |
+|-----------|--------|----|--------|
+| 04f3:0cb6 | `elanmoc` | [!635](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/635) | 2026-07 |
+| 27c6:65ba, 6515, 66ac, 660a | `goodixmoc` | [!645](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/645) | 2026-08 |
+| 27c6:6082 | `goodixmoc` | [!652](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/652) | 2026-09 |
+| 06cb:010b | `synaptics` | [!653](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/653) | 2026-09 |
+| 04f3:0cb5 | `elanmoc` | [!696](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/696) | 2026-11 |
 
 ### Stale (merge request closed without merging)
 
@@ -192,7 +232,7 @@ in libfprint and may be unstable; see each device entry for details.
 | 27c6:5110 + family | Goodix (newer) | [goodix-fp-linux-dev/libfprint](https://github.com/goodix-fp-linux-dev/libfprint) | **Experimental, not for daily use** |
 | [27c6:5201](devices/27c6:5201/) | Goodix GF5288 / HTK32 (ASUS ZenBook S UX391) | [J0UH/goodix-5201-linux](https://github.com/J0UH/goodix-5201-linux) | Enroll, verify and `sudo` work on one UX391UA. Patched libfprint with SIGFM ([!530](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/530)) |
 | [27c6:550c](devices/27c6:550c/) | Goodix GF5288 / GM168SEC (Lenovo Yoga 9 14IAP7) | [goodix-550c-linux-driver](https://github.com/the-great-king-bart/goodix-550c-linux-driver), [Debian packages](https://github.com/fdjfnd222dd/goodix-550c-linux-debian) | Enroll, verify, `sudo` and lock screen on stock firmware 13021; needs the PSK from the original Windows install. Reflash alternative: [brianporeilly/goodix-550c-driver](https://github.com/brianporeilly/goodix-550c-driver) |
-| [2df0:0003](devices/2df0:0003/) | CanvasBio CB2000 (Samsung Galaxy Book2/Book3 360) | [four independent drivers](devices/2df0:0003/#the-drivers) | Two report daily use. **`2df0:0007` is a different part and is not supported by any of them**; an experimental patch on the upstream Realtek driver logs it in, [with a security caveat](devices/2df0:0003/#result-a-community-patch-logs-in-with-a-security-hole) |
+| [2df0:0003](devices/2df0:0003/) | CanvasBio CB2000 (Samsung Galaxy Book2/Book3 360) | [four independent drivers](devices/2df0:0003/#the-drivers) | Two report daily use. **`2df0:0007` is a different part and is not supported by any of them**; an experimental patch on the upstream Realtek driver logs it in, [with a security caveat](devices/2df0:0003/#result-a-community-patch-logs-in-with-a-security-hole). Upstream MRs now open: [!687](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/687), [!670](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/670) (`:0003`) and [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) (`:0007`, SDCP) |
 | [04f3:0c80](devices/04f3:0c80/) | ELAN ARM-M4 (Surface Laptop Go 2) | [patch on Depau's libfprint](devices/04f3:0c80/patches/) | Enroll + verify work; **clearing sensor storage still times out**, and re-enroll wipes all prints |
 
 

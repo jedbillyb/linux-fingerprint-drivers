@@ -82,7 +82,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Dell Latitude 3490 | `138a:00a6` | - | No known fix | [gap-map](unsupported-devices.md) |
 | dell latitude 7200 | `06cb:00bc` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude 7300 | `0a5c:5843` | - | No known fix | [gap-map](unsupported-devices.md) |
-| Dell Latitude 7480 | `0a5c:5834` | - | No known fix | [gap-map](unsupported-devices.md) |
+| Dell Latitude 7480 | `0a5c:5834` | lead: MR [!672](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/672) (new cv2 ControlVault2 driver, hardware-tested) | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude e5470 | `0a5c:5805` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude E6530 | `0a5c:5801` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Precision 7550 | `0a5c:5842` | - | No known fix | [gap-map](unsupported-devices.md) |
@@ -123,15 +123,15 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | ASUS VivoBook Pro 15 N580GD | `04f3:3057` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Asus Zenbook Pro UX580 | `04f3:2706` | - | No known fix | [gap-map](unsupported-devices.md) |
 | ASUS ZenBook UX330CA | `04f3:3032` | - | No known fix | [gap-map](unsupported-devices.md) |
-| ELAN:ARM-M4 ASUS Vivobook | `04f3:0c90` | - | No known fix | [gap-map](unsupported-devices.md) |
-| Focaltech FT9365, Asus VivoBook | `2808:a553` | - | No known fix | [gap-map](unsupported-devices.md) |
+| ELAN:ARM-M4 ASUS Vivobook | `04f3:0c90` | lead: MR [!641](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/641) (elanmoc PID, hardware-tested) | No known fix | [gap-map](unsupported-devices.md) |
+| Focaltech FT9365, Asus VivoBook | `2808:a553` | lead: MR [!685](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/685) (focaltech_moc PID) | No known fix | [gap-map](unsupported-devices.md) |
 
 ## Acer
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
 | Acer ConceptD CC314-72 | `06cb:00e4` | - | No known fix | [gap-map](unsupported-devices.md) |
-| Acer Spin 3, SP313-51N | `06cb:00dc` | - | No known fix | [gap-map](unsupported-devices.md) |
+| Acer Spin 3, SP313-51N | `06cb:00dc` | lead: MR [!682](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/682) (new syna_00dc driver, hardware-tested) | No known fix | [gap-map](unsupported-devices.md) |
 | Acer Swift 1 (SF114-32-P78E)? | `1c7a:0300` | lead: RE effort exists | No known fix | [gap-map](unsupported-devices.md) |
 | Acer Swift 3 | `04f3:0c7f` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Acer Swift 3 OLED (SF314-71-56U3) | `10a5:e340` | - | No known fix | [gap-map](unsupported-devices.md) |
@@ -159,7 +159,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
-| HONOR HYM-WXX MagicBook 16 | `27c6:5125` | - | No known fix | [gap-map](unsupported-devices.md) |
+| HONOR HYM-WXX MagicBook 16 | `27c6:5125` | lead: MRs [!669](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/669), [!648](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/648) (goodix5125, both hardware-tested) | No known fix | [gap-map](unsupported-devices.md) |
 | Honor Magicbook Art 14 | `27c6:5f91` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Honor Magicbook x16 plus 2024 | `10a5:a921` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Honor MagicBook X16Pro Ryzen 7 7840HS | `27c6:5f10` | - | No known fix | [gap-map](unsupported-devices.md) |
@@ -178,7 +178,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Laptop model | USB ID | Sensor | Status | Where to go |
 |--------------|--------|--------|--------|-------------|
 | Microsoft Surface Laptop Go 2 | `04f3:0c80` | ELAN ARM-M4 | Partial | [entry](../devices/04f3:0c80/) |
-| Surface Laptop Go | `04f3:0c5a` | - | No known fix | [gap-map](unsupported-devices.md) |
+| Surface Laptop Go | `04f3:0c5a` | lead: MR [!668](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/668) (elanmoc legacy command set) | No known fix | [gap-map](unsupported-devices.md) |
 
 ## MSI
 
@@ -229,7 +229,7 @@ rather than a machine. Match these on the USB ID.
 | External, Validity90 project is relevant | `06cb:0088` | - | No known fix | [gap-map](unsupported-devices.md) |
 | magikbook 14x | `10a5:a900` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Validity90 | `06cb:00a1` | - | No known fix | [gap-map](unsupported-devices.md) |
-| Validity90 | `06cb:00a2` | - | No known fix | [gap-map](unsupported-devices.md) |
+| Validity90 | `06cb:00a2` | lead: MR [!688](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/688) (validity VCSFW, hardware-tested) | No known fix | [gap-map](unsupported-devices.md) |
 
 ---
 

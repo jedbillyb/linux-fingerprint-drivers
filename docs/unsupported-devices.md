@@ -11,7 +11,9 @@ have one of these, a protocol dump or a driver is welcome.
 noted on the wiki.
 
 Source: libfprint wiki, fetched 2026-06-18. Rows are removed as devices gain
-an entry; last reconciled 2026-09-07.
+an entry; last reconciled 2026-11-17. An open merge request in the Lead column
+means someone has posted a driver upstream, but it is not merged and has no
+entry here yet.
 
 Most USB IDs below are plain text rather than links: the wiki's own
 `Unsupported-Devices` table links each device to a `Devices/<id>` subpage, but
@@ -24,8 +26,8 @@ Two clusters listed below do now have WIP driver work tracked in the README:
 the Dell **`0a5c:58xx` Broadcom** family is targeted by the ControlVault3 driver
 (MR [!620](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620),
 [entry](../devices/broadcom-controlvault3/)), and **`138a:009d`** by the Validity
-VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/579),
-[entry](../devices/138a:0097/)).
+VCSFW driver (MR [!626](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/626),
+which continues the now closed !579; [entry](../devices/138a:0097/)).
 
 | USB ID | Hardware | Lead |
 |--------|----------|------|
@@ -34,7 +36,7 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `047d:8055` | External (USB) |  |
 | `04f3:036b` | - |  |
 | `04f3:0c57` | Lenovo IdeaPad 3-15ARE05 |  |
-| `04f3:0c5a` | Surface Laptop Go |  |
+| `04f3:0c5a` | Surface Laptop Go | MR [!668](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/668) (elanmoc legacy command set) |
 | `04f3:0c5e` | HP Probook 450 G8 |  |
 | [04f3:0c60](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:0c60) | Lenovo Optical Mouse |  |
 | `04f3:0c70` | Redmi Book Pro, 14" AMD |  |
@@ -44,7 +46,7 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `04f3:0c7f` | Acer Swift 3 |  |
 | `04f3:0c85` | ELAN:ARM-M4 ACER Aspire Vero |  |
 | `04f3:0c8a` | - |  |
-| `04f3:0c90` | ELAN:ARM-M4 ASUS Vivobook |  |
+| `04f3:0c90` | ELAN:ARM-M4 ASUS Vivobook | MR [!641](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/641) (elanmoc PID, hardware-tested) |
 | `04f3:2706` | Asus Zenbook Pro UX580 |  |
 | `04f3:3032` | ASUS ZenBook UX330CA |  |
 | `04f3:3057` | ASUS VivoBook Pro 15 N580GD |  |
@@ -56,19 +58,19 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `06cb:0088` | External, Validity90 project is relevant |  |
 | `06cb:009b` | MSI Prestige 14 A10RB |  |
 | `06cb:00a1` | Validity90 |  |
-| `06cb:00a2` | Validity90 |  |
+| `06cb:00a2` | Validity90 | MR [!688](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/688) (validity VCSFW, hardware-tested) |
 | `06cb:00a8` | Clevo Laptops |  |
 | `06cb:00bb` | HP Spectre x360 - 13 -ap0xxxxx |  |
 | `06cb:00bc` | dell latitude 7200 |  |
 | `06cb:00be` | Thinkpad C740, Yoga | RE effort exists |
 | `06cb:00d8` | HP ProBook 430 G7 |  |
 | `06cb:00da` | ThinkPad E14 |  |
-| `06cb:00dc` | Acer Spin 3, SP313-51N |  |
+| `06cb:00dc` | Acer Spin 3, SP313-51N | MR [!682](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/682) (new syna_00dc driver, hardware-tested) |
 | `06cb:00e4` | Acer ConceptD CC314-72 |  |
 | `0a5c:5801` | Dell Latitude E6530 |  |
 | `0a5c:5802` | Dell Precision M4800 |  |
 | `0a5c:5805` | Dell Latitude e5470 |  |
-| `0a5c:5834` | Dell Latitude 7480 |  |
+| `0a5c:5834` | Dell Latitude 7480 | MR [!672](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/672) (new cv2 ControlVault2 driver, hardware-tested) |
 | `0a5c:5840` | - |  |
 | `0a5c:5841` | - |  |
 | `0a5c:5842` | Dell Precision 7550 |  |
@@ -97,15 +99,15 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `138a:0094` | - |  |
 | `138a:009d` | - |  |
 | `138a:00a6` | Dell Latitude 3490 |  |
-| `1491:0088` | - |  |
+| `1491:0088` | - | MR [!656](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/656) (new futronic FS88 driver, hardware-tested) |
 | `16d1:1027` | - |  |
 | `1c7a:0300` | Acer Swift 1 (SF114-32-P78E)? | RE effort exists |
 | `1c7a:0577` | GTR5 mini |  |
 | `1c7a:057e` | Samsung GalaxyBook Pro 360 |  |
-| `27c6:5042` | External |  |
+| `27c6:5042` | External | MR [!681](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/681) (new driver, BENSS UA002) |
 | `27c6:5117` | MagicBook 2019 R7 / Huawei Matebook 13 2020 |  |
 | `27c6:5120` | Matebook D16 |  |
-| `27c6:5125` | HONOR HYM-WXX MagicBook 16 |  |
+| `27c6:5125` | HONOR HYM-WXX MagicBook 16 | MRs [!669](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/669), [!648](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/648) (goodix5125, both hardware-tested) |
 | `27c6:5301` | - |  |
 | `27c6:530c` | Dell G5 15 5590 |  |
 | `27c6:532d` | Dell XPS 13 7390 2-in-1 |  |
@@ -123,7 +125,7 @@ VCSFW driver (MR [!579](https://gitlab.freedesktop.org/libfprint/libfprint/-/mer
 | `27c6:5f10` | Honor MagicBook X16Pro Ryzen 7 7840HS |  |
 | `27c6:5f91` | Honor Magicbook Art 14 |  |
 | `27c6:6382` | Dell XPS 9315 2-in-1 |  |
-| `2808:a553` | Focaltech FT9365, Asus VivoBook |  |
+| `2808:a553` | Focaltech FT9365, Asus VivoBook | MR [!685](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/685) (focaltech_moc PID) |
 | `2808:a658` | Asus Vivobook K6500zc |  |
 | `3538:0930` | External |  |
 

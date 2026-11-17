@@ -10,13 +10,18 @@ people with this sensor can find and build the work in progress.
 
 ## Upstream merge request
 
-- libfprint MR !357: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357
+- **libfprint MR !695 (current):** https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/695
+  - Author: gpro. Opened 2026-11-12 to continue !357, which had not changed
+    since March 2023. Rebased on current master, squashed as !357's reviewers
+    asked, plus two fixes for problems reported in the !357 discussion. The
+    author uses it daily on an Acer Swift 3 SF314-43.
+- libfprint MR !357 (original, stalled): https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357
 - Author: topni1 (@topni1)
 
 
 ## What it does
 
-New egis0575 driver, implemented as a swipe sensor; needs a long, steady swipe for good results. (USB ID inferred from the EgisTec vendor 1c7a and driver name; confirm against the MR.)
+New egis0575 driver, implemented as a swipe sensor; needs a long, steady swipe for good results.
 
 ## How to use it
 
@@ -28,13 +33,13 @@ troubleshooting steps), or follow any instructions in the MR discussion.
 ```sh
 # fetch the MR branch into a libfprint checkout, e.g.
 git fetch https://gitlab.freedesktop.org/libfprint/libfprint.git \
-  merge-requests/357/head:mr-357
-git checkout mr-357
+  merge-requests/695/head:mr-695
+git checkout mr-695
 ```
 
 ## Tested on
 
-Not documented.
+- Acer Swift 3 SF314-43 (reported by the author of !695, daily use)
 
 ## License
 

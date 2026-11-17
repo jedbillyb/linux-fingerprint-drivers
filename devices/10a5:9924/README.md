@@ -15,6 +15,12 @@ the work in progress.
 
 - libfprint MR !611: https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/611
 - Author: zeno (@Zeno-sole)
+- libfprint MR !666 (follow-up): https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/666
+  - Author: codethinki. Picks up !611 on an HONOR MagicBook Pro 14 (2025,
+    FMB-P). The sensor re-enumerates when `fpc_dev_open()` resets it, which
+    left the driver with a stale handle and broke enrollment; !666 skips the
+    reset for this PID and drops !611's identity fallback, so verify still
+    checks which print matched.
 
 ## What it does
 
