@@ -6,9 +6,40 @@ Fingerprint Cards (FPC) sensor.
 
 ## Hardware
 
-Seen on ThinkPad E14 Gen5 and ThinkBook 14 G4 IAP. The sensor reports a
-112x88 image; firmware 27.26.23.30 (E14 Gen5) and 27.26.23.18 (ThinkBook 14 G4
-IAP) have been seen.
+Seen on ThinkPad E14 Gen5, ThinkPad E15 Gen 4 and ThinkBook 14 G4 IAP. The
+sensor reports a 112x88 image; firmware 27.26.23.30 (E14 Gen5), 27.26.23.18
+(ThinkBook 14 G4 IAP) and 16.26.23.22 (E15 Gen 4, as shipped) have been seen.
+
+## Sensor firmware
+
+Units on 16.x firmware exist (`lsusb` shows `L:0001 FW:16.26.23.xx`). What that
+means depends on the route:
+
+- **Lenovo's package** (`r1slm01w`/`r1slm02w`) and the fpcmoh builds derived
+  from it require firmware **27.26.23.19 or newer**, per Lenovo's readme.
+- **The Ubuntu TOD module** has been reported working on 16.26.23.22 and
+  16.26.23.14 (E14 Gen 4,
+  [LP: #2024145](https://bugs.launchpad.net/bugs/2024145) comments #2 and #3).
+
+Getting the update through fwupd is currently awkward:
+
+- Stable LVFS only carries `com.fingerprints.lenfy.firmware` 27.26.23.19, which
+  has no CHID requirement. fwupd 2.x refuses it for this device ("generic GUID
+  requires a CHID, child, parent or sibling requirement"), so it is never
+  offered. This is intentional, see
+  [fwupd#5573](https://github.com/fwupd/fwupd/issues/5573).
+- `com.fingerprints.Lenovo.cs23.9800.firmware` 27.26.23.50 *is* restricted to
+  specific models (its CHIDs include ThinkPad E15 Gen 4), but it has only been
+  on the `lvfs-testing` remote since 2024. Promotion to stable is requested in
+  [fwupd/firmware-lenovo#653](https://github.com/fwupd/firmware-lenovo/issues/653).
+  Check with `fwupdmgr enable-remote lvfs-testing && fwupdmgr refresh &&
+  fwupdmgr get-updates`, and disable the remote again afterwards.
+
+Lenovo's readme also tells you to build fwupd from source and `ninja install`
+it. That leaves a `libfwupd.so.3` in `/usr/local/lib/x86_64-linux-gnu` that
+later shadows the distro library and breaks the packaged `fwupd.service`
+(`version 'LIBFWUPD_2.0.x' not found`). If you did that in the past, move the
+`/usr/local` fwupd files aside and run `sudo ldconfig`.
 
 ## What was broken
 
@@ -136,3 +167,9 @@ Enable fprintd in your PAM stack: distro helper where there is one, otherwise
   the TOD module above (`libfprint-2-tod1` 1:1.94.7+tod1-0ubuntu5~24.04.8,
   `libfprint-2-tod1-fpc` 27.23.44.2+2404-0ubuntu1, fprintd 1.94.3). Enroll,
   verify, GDM login, sudo and lock screen.
+- ThinkPad E15 Gen 4 (21E6), sensor firmware 16.26.23.22 updated to
+  27.26.23.19: Ubuntu 24.04, fprintd 1.94.3, with FPC's own fpcmoh source
+  ([fingerprint-cards/libfprint@ad19338](https://github.com/fingerprint-cards/libfprint/commit/ad1933814a775c11f9581507910bae525c67ff2a),
+  which `dlopen()`s `libfpcbep.so` at runtime) rebuilt into Ubuntu's
+  `libfprint` 1:1.94.7+tod1 source package. Enroll, verify, GDM login and sudo.
+  The TOD module above is the simpler route on Ubuntu.
