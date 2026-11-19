@@ -72,6 +72,20 @@ See the MR discussion for the current list of confirmed Dell models.
   recovery ideas: force-reflashing with
   [broadcom-cv3-fwupdater](https://github.com/erikhakansson/broadcom-cv3-fwupdater),
   or Dell's Windows driver. Both carry flash risk.
+- **Dell Precision 3551, `0a5c:5843` (BCM58200), MR !620 build, working**
+  ([MR !620 note](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/620#note_3790988), 2026-11-18).
+  Driver code at `c85e5bb`, Synaptics type-12 sensor behind the ControlVault.
+  With AAI `5.15.21.0` and SBI 240 the driver builds with `--werror`, enrolls
+  in 8 stages, verifies the enrolled print, and reopens cleanly in a new
+  process. **Update the firmware first:** on the older AAI `5.14.3.0` / SBI 202
+  every enrollment failed at `ENROLL_COMMIT` with `0x24`
+  (`CV_OBJECT_ATTRIBUTES_INVALID`), and Dell's proprietary Linux driver failed
+  at the same step. Possible gap for other units: some CV3 firmware sends
+  interrupt type 5 (`CV_GET_HOST_TIMESTAMP_INTERRUPT`), which Windows answers
+  with a vendor control request carrying the host time; the MR does not handle
+  it yet. It did not occur on this machine. Notes and a working interposer for
+  a Latitude 7400 that needs it:
+  [controlvault-fingerprint-passkey-toolkit](https://github.com/GrecAndrei/controlvault-fingerprint-passkey-toolkit).
 - **Dell Precision 3490, `0a5c:5865` (ControlVault3 Plus), not working**
   ([#28](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/28), 2026-09-26).
   Vendor TOD blob `brcm_linux_fp_6.4.372_6.4.062.0` detects the reader and

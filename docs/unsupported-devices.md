@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 96 USB fingerprint sensors below are on the official libfprint
+The 95 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -73,7 +73,6 @@ which continues the now closed !579; [entry](../devices/138a:0097/)).
 | `0a5c:5840` | - |  |
 | `0a5c:5841` | - |  |
 | `0a5c:5842` | Dell Precision 7550 |  |
-| `0a5c:5843` | Dell Latitude 7300 |  |
 | `0a5c:5844` | - |  |
 | `0a5c:5845` | - |  |
 | `0a5c:5860` | - |  |

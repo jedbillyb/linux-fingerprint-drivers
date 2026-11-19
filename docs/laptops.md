@@ -17,7 +17,7 @@ lsusb        # find the reader, e.g. 27c6:55b4
 then look it up in the [main README](../README.md), or run
 `./tools/detect.sh` to have it matched for you.
 
-58 model listings map to a catalogued sensor; the rest are on the
+59 model listings map to a catalogued sensor; the rest are on the
 gap-map with no known fix, and a protocol dump for any of them is welcome.
 
 **Adding your machine** is the single most useful small contribution here.
@@ -75,6 +75,7 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Dell Inspiron 5405 | `27c6:521d` | Goodix 521d | WIP | [entry](../devices/27c6:521d/) |
 | Dell Latitude 7300 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
 | Dell Precision 3490 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
+| Dell Precision 3551 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
 | Dell Precision 7560 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
 | Dell Pro 14 Plus PB14250 | `broadcom-controlvault3` | Broadcom ControlVault3 (Dell) | WIP | [entry](../devices/broadcom-controlvault3/) |
 | Dell G5 15 5590 | `27c6:530c` | - | No known fix | [gap-map](unsupported-devices.md) |
@@ -82,7 +83,6 @@ in practice), **Stale** (abandoned lead), **No known fix**.
 | Dell Inspiron 17 7000 | `27c6:538d` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude 3490 | `138a:00a6` | - | No known fix | [gap-map](unsupported-devices.md) |
 | dell latitude 7200 | `06cb:00bc` | - | No known fix | [gap-map](unsupported-devices.md) |
-| Dell Latitude 7300 | `0a5c:5843` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude 7480 | `0a5c:5834` | lead: MR [!672](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/672) (new cv2 ControlVault2 driver, hardware-tested) | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude e5470 | `0a5c:5805` | - | No known fix | [gap-map](unsupported-devices.md) |
 | Dell Latitude E6530 | `0a5c:5801` | - | No known fix | [gap-map](unsupported-devices.md) |
