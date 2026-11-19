@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 97 USB fingerprint sensors below are on the official libfprint
+The 96 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
