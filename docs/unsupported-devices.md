@@ -1,6 +1,6 @@
 # Devices with no known fix (contributor gap-map)
 
-The 98 USB fingerprint sensors below are on the official libfprint
+The 97 USB fingerprint sensors below are on the official libfprint
 [Unsupported Devices](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Unsupported-Devices)
 list and have **no working driver here or upstream**. Devices already covered by
 an entry in [`devices/`](../devices/) (working or WIP) are omitted - check the
@@ -41,7 +41,6 @@ which continues the now closed !579; [entry](../devices/138a:0097/)).
 | [04f3:0c60](https://gitlab.freedesktop.org/libfprint/wiki/-/wikis/Devices/04f3:0c60) | Lenovo Optical Mouse |  |
 | `04f3:0c70` | Redmi Book Pro, 14" AMD |  |
 | `04f3:0c72` | Acer Swift 3 SF314-43 |  |
-| `04f3:0c77` | - | partial |
 | `04f3:0c7c` | - | WIP/PoC upstream |
 | `04f3:0c7f` | Acer Swift 3 |  |
 | `04f3:0c85` | ELAN:ARM-M4 ACER Aspire Vero |  |
