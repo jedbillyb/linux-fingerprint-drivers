@@ -5,7 +5,7 @@
 Capacitive USB fingerprint sensors from Blestech / Shenzhen Betterlife (`btlfp Betterlife Fingerprint`) sharing an SM2/SM3/SM4 encrypted Bulk USB framing (`EP 0x02 OUT`, `EP 0x81 IN`):
 
 - **`347d:0302`** (scheme `0x10`, chip `0x5f83`, 112x96): **match-on-chip** (`betterlife347d_moc`, `FpDevice`), 10 on-chip flash template slots, 7 enroll stages (8 touches total including libfprint's initial duplicate check).
-- **`347d:00f0`** (scheme `0x10`, chip `0x5f83`, 112x96, firmware `proj=0x0f00 V1.0.1.0`): **match-on-chip** — same chip family as `347d:0302`, works unchanged with `betterlife347d_moc`.
+- **`347d:00f0`** (scheme `0x10`, chip `0x5f83`, 112x96, firmware `proj=0x0f00 V1.0.1.0`): **match-on-chip** — same chip and protocol as `347d:0302`, works with `betterlife347d_moc` once its USB ID is added to the driver's `id_table` and the udev rule, which is pending in [arqueon/betterlife-347d-libfprint#1](https://github.com/arqueon/betterlife-347d-libfprint/pull/1).
 - **`347d:0304`** (scheme `0x11`, 96x112): **match-on-host** (`betterlife347d`, `FpImageDevice`), streams decrypted 96x112 captures to the host.
 
 ## What was broken
@@ -30,14 +30,15 @@ Source repository: [arqueon/betterlife-347d-libfprint](https://github.com/arqueo
   sudo systemctl restart fprintd
   ```
 
-  If you only have a MOC sensor (`347d:0302` / `347d:00f0`) and want to avoid pulling in OpenCV, build `packaging/arch-upstream/PKGBUILD` from the source repo against vanilla upstream libfprint.
+  If you only have `347d:0302` and want to avoid pulling in OpenCV, build `packaging/arch-upstream/PKGBUILD` from the source repo against vanilla upstream libfprint.
 
 - **Other distros:**
-  - For **`347d:0302` / `347d:00f0` (MOC)** without OpenCV: apply [`patches/0001-betterlife347d-add-Blestech-Betterlife-347d-0302-and.patch`](patches/) to upstream libfprint git master (requires `openssl` >= 3.0 dev headers) and build per [docs/BUILD.md](../../docs/BUILD.md), or run `./scripts/install-generic-linux.sh --upstream-only` from the source repo.
+  - For **`347d:0302` (MOC)** without OpenCV: apply [`patches/0001-betterlife347d-add-Blestech-Betterlife-347d-0302-and.patch`](patches/) to upstream libfprint git master (requires `openssl` >= 3.0 dev headers) and build per [docs/BUILD.md](../../docs/BUILD.md), or run `./scripts/install-generic-linux.sh --upstream-only` from the source repo.
+  - For **`347d:00f0` (MOC)**: same build as `347d:0302`, but `347d:00f0` needs the [arqueon#1](https://github.com/arqueon/betterlife-347d-libfprint/pull/1) branch (or the one-line `id_table` addition) until that PR is merged — the released patch and `--upstream-only` path do not include this ID yet.
   - For **`347d:0304` (MOH)** (or both): install OpenCV dev headers and run `./scripts/install-generic-linux.sh` from [arqueon/betterlife-347d-libfprint](https://github.com/arqueon/betterlife-347d-libfprint) so `betterlife347d` links against SIGFM.
 
 ## Tested on
 
 - **`347d:0302` (MOC):** CachyOS / Arch Linux (chip `0x5f83`, firmware `proj=0x0f00 V1.0.0.0`, `libfprint` 1.94.10 / 1.94.100, `fprintd` 1.94.5): enroll (7/7 stages), verify, `sudo`, polkit, and lock screen.
-- **`347d:00f0` (MOC):** Linux Mint 22.3 (Cinnamon), vanilla upstream `libfprint` (`--upstream-only`, no OpenCV), `fprintd` 1.94.x: enroll, verify, `sudo` (PAM), and polkit unlock (1Password) all work.
+- **`347d:00f0` (MOC):** Linux Mint 22.3 (Cinnamon), vanilla upstream `libfprint` with `347d:00f0` added to the MOC driver's `id_table` (the arqueon#1 change): enroll, verify, `sudo` (PAM), and polkit unlock (1Password) all work.
 - **`347d:0304` (MOH):** Linux (`fprintd` + SIGFM build; capture and SM2/SM3/SM4 framing originally validated in [Light-log/betterlife-347d-0304-fingerprint-linux](https://github.com/Light-log/betterlife-347d-0304-fingerprint-linux)).
