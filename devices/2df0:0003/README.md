@@ -1,6 +1,6 @@
 # CanvasBio CB2000 (USB 2df0:0003)
 
-**Status: Working via community drivers, none of them upstream; kpagnussat's is now a packaged TOD module that installs alongside your distribution's libfprint. The sibling ID `2df0:0007` is a different, Realtek match-on-chip part that none of them cover. On the upstream Realtek driver it enrolls and has matched on the chip, but single-press verify is not yet reliable. Since October 2026 upstream merge requests exist for both IDs (none merged): [!687](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/687) and [!670](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/670) for `:0003`, [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) for `:0007`.**
+**Status: Working via community drivers, none of them upstream; kpagnussat's is now a packaged TOD module that installs alongside your distribution's libfprint. The sibling ID `2df0:0007` is a different, Realtek match-on-chip part that none of them cover. It works on the upstream Realtek driver with merge request [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) (SDCP): one tester reports enroll, verify, login and `sudo`, see [below](#result-upstream-mr-675-works-on-0007). Since October 2026 upstream merge requests exist for both IDs (none merged): [!687](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/687) and [!670](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/670) for `:0003`, [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) for `:0007`.**
 
 CanvasBio CB2000, the fingerprint reader in the Samsung Galaxy Book2 360 and
 Book3 360 generation. Upstream libfprint has never supported it. Two driver
@@ -44,7 +44,9 @@ into an LGPL-2.1 library.
 
 `2df0:0007` is a different part in the same family, reported in the Samsung
 Galaxy Book5 360. It is **not** supported by any driver here, and until
-recently one of them listed the ID anyway.
+recently one of them listed the ID anyway. For `:0007`, use upstream
+[!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675)
+instead; see [the result below](#result-upstream-mr-675-works-on-0007).
 
 kpagnussat's `R2.5` carried both `0x0003` and `0x0007` in its `id_table`, but
 nothing else in that driver looked at which product it was talking to, so a
@@ -410,20 +412,57 @@ passed review. A merge request needs verify bound to a template, which is what
 the identify reply and template table dumps above are for, plus a `:0007`
 specific answer to `05 11`.
 
-### The path that is still open
+### Result: upstream MR !675 works on :0007
 
-**New lead (2026-11): [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) adds `:0007` to the upstream Realtek driver.**
-Its author reports that this firmware only matches through the SDCP (secure)
-path: a plain identify (`45 22`) never matches, and templates committed the
-normal way are not usable by the matcher. The MR implements the SDCP host
+**[!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) makes `:0007` work.**
+It adds `:0007` to the upstream Realtek driver and implements the SDCP host
 side (P-256 ECDH session, HMAC checked match result, 15-sample enroll) for
-`:0007` only and leaves other Realtek devices unchanged. If that holds, it
-explains the unreliable verify described below. It is not merged; try the MR
-branch and report back in
-[#17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17).
+that ID only, leaving other Realtek devices unchanged. Its author reports that
+this firmware only matches through the SDCP path: a plain identify (`45 22`)
+never matches, and templates committed the normal way are not usable by the
+matcher. That is why every non-SDCP attempt in the next section ended in `0b`.
 
-The work below predates that MR.
+Tested in [#17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17#issuecomment-7014872085)
+on 2026-11-19, on a Samsung Galaxy Book5 360 (bcdDevice `f0.42`) under
+Kubuntu 26.04:
 
+- the SDCP session is established at open
+- 15-stage enroll, with the template stored on the chip
+- repeated `verify-match` with the enrolled finger, and `verify-no-match` with
+  another finger
+- `fprintd-enroll` and `fprintd-verify`, then login and `sudo` through PAM
+
+Two rough edges seen in that run:
+
+- **One USB re-enumeration during identify**, plus several USB resets. Both
+  stopped after USB autosuspend was turned off for the reader, though that is
+  not confirmed as the cause:
+  ```bash
+  echo on | sudo tee /sys/bus/usb/devices/<port>/power/control
+  ```
+- The libfprint `enroll` example reported `Current fingerprint is duplicate!`
+  after all 15 stages had succeeded, although the template was stored.
+  Enrolling through fprintd was fine.
+
+The MR is not merged. To try it:
+
+```bash
+git clone https://gitlab.freedesktop.org/libfprint/libfprint.git
+cd libfprint
+git fetch origin merge-requests/675/head:mr-675
+git checkout mr-675
+meson setup build-675 -Ddrivers=realtek -Ddoc=false -Dgtk-examples=false
+ninja -C build-675
+```
+
+Then install over your distribution's libfprint as in
+[docs/BUILD.md](../../docs/BUILD.md). Results posted on the MR itself help it
+get merged.
+
+### Before !675: the non-SDCP attempts
+
+Everything below predates the MR. It is kept as the record of what was ruled
+out on `:0007` without SDCP.
 
 With the patch gone, the work in #17 is the live one, and it is further along
 in the part that matters: it keeps `fp_print_equal` and reaches a match anyway.
@@ -444,7 +483,7 @@ That is the shape a merge request should take: stock verify, stock duplicate
 check, stock eight-stage enroll with the pause, and `05 11` non-fatal on
 `:0007` alone.
 
-**Verify is not reliable yet.** Reported on 2026-09-22: twelve verifies after a
+**Verify was not reliable.** Reported on 2026-09-22: twelve verifies after a
 clean enrollment with the pause gave no match at all. Eight were the on-chip
 `0b` no-match, and four (two `03`, two `07`) never reached a match decision.
 The last eight bytes of each `IDENTIFY_FEATURE` reply, read as two
@@ -459,9 +498,9 @@ The failures sit in a band about 1.5% wide; the match captured about 26% more
 by word 1. That points at how much of the finger each press captures, not at
 the template or the pause. The field meanings are inferred from nine samples
 and unconfirmed. The next tests, in
-[#17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17), are
-whether harder, flatter presses push word 1 past 200,000 and bring the matches
-back, and whether a second enrolled finger is correctly refused.
+[#17](https://github.com/jedbillyb/linux-fingerprint-drivers/issues/17), went on
+to rule out pressure, template coverage, storage and the `45 22` parameters.
+!675 later explained it: without SDCP this firmware never matches.
 
 ## Build and install
 
@@ -493,7 +532,10 @@ troubleshooting. Sensor-specific deltas:
   threshold tuning.
 - `2df0:0003` also recorded on a Samsung 730QED by a linuxhw hardware probe
   under Fedora 38.
-- `2df0:0007` on a Samsung Galaxy Book5 360: login and `sudo` with the
-  since-deleted community patch, per its author, with the verify caveat
+- `2df0:0007` on a Samsung Galaxy Book5 360 (Kubuntu 26.04): enroll, verify,
+  login and `sudo` with upstream
+  [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675),
+  reported in #17 on 2026-11-19. Earlier, login and `sudo` with the
+  since-deleted community patch, with the verify caveat
   [above](#result-a-community-patch-logs-in-with-a-security-hole). Not a
   `:0003` driver, so not in this entry's laptop list.
