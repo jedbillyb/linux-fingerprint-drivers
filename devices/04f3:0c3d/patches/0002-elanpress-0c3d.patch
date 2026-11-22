@@ -1,0 +1,81 @@
+diff --git i/data/autosuspend.hwdb w/data/autosuspend.hwdb
+index 104ce5e..ee2154c 100644
+--- i/data/autosuspend.hwdb
++++ w/data/autosuspend.hwdb
+@@ -148,13 +148,9 @@ usb:v04F3p0C30*
+ usb:v04F3p0C31*
+ usb:v04F3p0C32*
+ usb:v04F3p0C33*
+-usb:v04F3p0C3D*
+ usb:v04F3p0C42*
+ usb:v04F3p0C4B*
+ usb:v04F3p0C4D*
+-usb:v04F3p0C4F*
+-usb:v04F3p0C63*
+-usb:v04F3p0C6E*
+ usb:v04F3p0C58*
+  ID_AUTOSUSPEND=1
+  ID_PERSIST=0
+@@ -180,6 +176,14 @@ usb:v04F3p0CB6*
+  ID_AUTOSUSPEND=1
+  ID_PERSIST=0
+ 
++# Supported by libfprint driver elanpress
++usb:v04F3p0C3D*
++usb:v04F3p0C6E*
++usb:v04F3p0C4F*
++usb:v04F3p0C63*
++ ID_AUTOSUSPEND=1
++ ID_PERSIST=0
++
+ # Supported by libfprint driver etes603
+ usb:v1C7Ap0603*
+  ID_AUTOSUSPEND=1
+diff --git i/libfprint/drivers/elan.h w/libfprint/drivers/elan.h
+index 6bbaae0..2f77cad 100644
+--- i/libfprint/drivers/elan.h
++++ w/libfprint/drivers/elan.h
+@@ -216,13 +216,11 @@ static const FpIdEntry elan_id_table[] = {
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c31, .driver_data = ELAN_ALL_DEV},
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c32, .driver_data = ELAN_ALL_DEV},
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c33, .driver_data = ELAN_ALL_DEV},
+-  {.vid = ELAN_VEND_ID,  .pid = 0x0c3d, .driver_data = ELAN_ALL_DEV},
++  /* 0x0c3d is a press sensor, claimed by elanpress. */
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c42, .driver_data = ELAN_0C42},
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c4b, .driver_data = ELAN_ALL_DEV},
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c4d, .driver_data = ELAN_ALL_DEV},
+-  {.vid = ELAN_VEND_ID,  .pid = 0x0c4f, .driver_data = ELAN_ALL_DEV},
+-  {.vid = ELAN_VEND_ID,  .pid = 0x0c63, .driver_data = ELAN_ALL_DEV},
+-  {.vid = ELAN_VEND_ID,  .pid = 0x0c6e, .driver_data = ELAN_ALL_DEV},
++  /* 0x0c4f, 0x0c63 and 0x0c6e are press sensors, claimed by elanpress. */
+   {.vid = ELAN_VEND_ID,  .pid = 0x0c58, .driver_data = ELAN_0C58},
+   {.vid = 0,  .pid = 0,  .driver_data = 0},
+ };
+diff --git i/libfprint/meson.build w/libfprint/meson.build
+index f11533c..5f9d6ae 100644
+--- i/libfprint/meson.build
++++ w/libfprint/meson.build
+@@ -120,6 +120,11 @@ driver_sources = {
+     'egis_etu905' : files('drivers/egismoc/egis_etu905.c'),
+     'vfs0050' : files('drivers/vfs0050.c'),
+     'elan' : files('drivers/elan.c'),
++    'elanpress' : files(
++        'drivers/elanpress.c',
++        'drivers/elanpress-match.c',
++        'drivers/elanpress-sift.c',
++    ),
+     'elanmoc' : files('drivers/elanmoc/elanmoc.c'),
+     'elanspi' : files('drivers/elanspi.c'),
+     'nb1010' : files('drivers/nb1010.c'),
+diff --git i/meson.build w/meson.build
+index ab09dc1..9e33a3a 100644
+--- i/meson.build
++++ w/meson.build
+@@ -135,6 +135,7 @@ drivers_info = {
+     'vcom5s': {},
+     'synaptics': {},
+     'elan': { 'endian_dependent': true },
++    'elanpress': {},
+     'elanmoc': {},
+     'uru4000': { 'helper': ['openssl'] },
+     'upektc': {},

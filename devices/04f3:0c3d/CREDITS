@@ -1,0 +1,20 @@
+Device: ELAN press sensor (USB 04f3:0c3d), FeinTech FPS00201
+Device ID(s): 04f3:0c3d
+
+Status: community patch against an unmerged upstream MR, not in libfprint yet
+
+Patch, package build and testing: Ivo Verlaek (@iverlaek)
+  https://github.com/iverlaek/libfprint-elanpress-0c3d
+  https://github.com/jedbillyb/linux-fingerprint-drivers/issues/52
+
+Upstream driver proposal (elanpress, 04f3:0c3d):
+  https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/654
+  author: Mohammad Nauman (@inauman)
+
+The elanpress driver itself is Filip Spanne's work:
+  https://github.com/filip-rs/libfprint (branch elanpress)
+
+The per-PID weak-threshold patch is also proposed here:
+  https://github.com/filip-rs/libfprint/pull/14
+
+libfprint is licensed LGPL-2.1; these patches follow that license.

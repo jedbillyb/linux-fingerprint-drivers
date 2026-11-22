@@ -155,6 +155,7 @@ itself is always the authority.
 | 10a5:9924 | FPC match-on-host (Honor) | [!611](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/611), [!666](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/666) | !666 picks up !611 and fixes the USB reset that broke enrollment |
 | 04e8:7305 | Samsung 7305 | [!586](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/586) | |
 | 04e8:730b | Samsung 730B (image) | [!556](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/556) | |
+| 04f3:0c3d | ELAN press sensor (FeinTech FPS00201) | [!654](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/654) | [entry](devices/04f3:0c3d/) - needs a lower touch delta on this pad |
 | 1c7a:0576 | EgisTec 0576 | [!571](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/571) | |
 | 1c7a:0575 | EgisTec EGIS0575 (swipe) | [!695](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/695), [!357](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/357) | !695 (2026-11) rebases the stalled !357 and fixes its reported bugs; author uses it daily on an Acer Swift 3 SF314-43 |
 | 298d:2033 | NextBiometrics NB-2033-U | [!574](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/574) | |
@@ -173,7 +174,6 @@ instead.
 | Device ID | Chip / sensor | MR | Notes |
 |-----------|---------------|----|-------|
 | 04f3:0ca2 | ELAN match-on-chip (LG laptops) | [!693](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/693) | adds the PID to `elanmoc` |
-| 04f3:0c3d | ELAN press sensor | [!654](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/654) | new `elanpress` driver |
 | 06cb:0082 | Synaptics | [!664](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/664), [!665](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/665) | new driver; !665 (draft) drops its OpenCV dependency |
 | 1162:2370 | SecuGen U20-AL (external) | [!633](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/633) | new driver |
 | 1c7a:05b1 | Egis ETU906Axx-E | [!671](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/671) | draft, `egismoc` |
