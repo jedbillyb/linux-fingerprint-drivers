@@ -31,8 +31,8 @@ instead of 1200+). Three small changes make it work:
    `ELANPRESS_0C3D` `driver_data` flag.
 2. Select a per-device `ELANPRESS_TOUCH_PIXEL_DELTA_WEAK` of 600 for that flag;
    the other pads keep the default 1200.
-3. Move `usb:v04F3p0C3D*` in `data/autosuspend.hwdb` from the generic list to
-   the `# Supported by libfprint driver elanpress` section.
+3. Move `usb:v04F3p0C3D*` in `data/autosuspend.hwdb` from the `elan` section to
+   the `# Supported by libfprint driver elanpress` section that patch 0001 adds.
 
 The change is also proposed to the driver's source fork as
 [filip-rs/libfprint#14](https://github.com/filip-rs/libfprint/pull/14).

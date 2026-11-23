@@ -1,8 +1,8 @@
 diff --git i/data/autosuspend.hwdb w/data/autosuspend.hwdb
-index 104ce5e..ee2154c 100644
+index a37ba23..ee2154c 100644
 --- i/data/autosuspend.hwdb
 +++ w/data/autosuspend.hwdb
-@@ -148,13 +148,9 @@ usb:v04F3p0C30*
+@@ -148,7 +148,6 @@ usb:v04F3p0C30*
  usb:v04F3p0C31*
  usb:v04F3p0C32*
  usb:v04F3p0C33*
@@ -10,32 +10,19 @@ index 104ce5e..ee2154c 100644
  usb:v04F3p0C42*
  usb:v04F3p0C4B*
  usb:v04F3p0C4D*
--usb:v04F3p0C4F*
--usb:v04F3p0C63*
--usb:v04F3p0C6E*
- usb:v04F3p0C58*
-  ID_AUTOSUSPEND=1
-  ID_PERSIST=0
-@@ -180,6 +176,14 @@ usb:v04F3p0CB6*
-  ID_AUTOSUSPEND=1
+@@ -178,6 +177,7 @@ usb:v04F3p0CB6*
   ID_PERSIST=0
  
-+# Supported by libfprint driver elanpress
+ # Supported by libfprint driver elanpress
 +usb:v04F3p0C3D*
-+usb:v04F3p0C6E*
-+usb:v04F3p0C4F*
-+usb:v04F3p0C63*
-+ ID_AUTOSUSPEND=1
-+ ID_PERSIST=0
-+
- # Supported by libfprint driver etes603
- usb:v1C7Ap0603*
-  ID_AUTOSUSPEND=1
+ usb:v04F3p0C6E*
+ usb:v04F3p0C4F*
+ usb:v04F3p0C63*
 diff --git i/libfprint/drivers/elan.h w/libfprint/drivers/elan.h
-index 6bbaae0..2f77cad 100644
+index 80f598b..2f77cad 100644
 --- i/libfprint/drivers/elan.h
 +++ w/libfprint/drivers/elan.h
-@@ -216,13 +216,11 @@ static const FpIdEntry elan_id_table[] = {
+@@ -216,7 +216,7 @@ static const FpIdEntry elan_id_table[] = {
    {.vid = ELAN_VEND_ID,  .pid = 0x0c31, .driver_data = ELAN_ALL_DEV},
    {.vid = ELAN_VEND_ID,  .pid = 0x0c32, .driver_data = ELAN_ALL_DEV},
    {.vid = ELAN_VEND_ID,  .pid = 0x0c33, .driver_data = ELAN_ALL_DEV},
@@ -44,38 +31,113 @@ index 6bbaae0..2f77cad 100644
    {.vid = ELAN_VEND_ID,  .pid = 0x0c42, .driver_data = ELAN_0C42},
    {.vid = ELAN_VEND_ID,  .pid = 0x0c4b, .driver_data = ELAN_ALL_DEV},
    {.vid = ELAN_VEND_ID,  .pid = 0x0c4d, .driver_data = ELAN_ALL_DEV},
--  {.vid = ELAN_VEND_ID,  .pid = 0x0c4f, .driver_data = ELAN_ALL_DEV},
--  {.vid = ELAN_VEND_ID,  .pid = 0x0c63, .driver_data = ELAN_ALL_DEV},
--  {.vid = ELAN_VEND_ID,  .pid = 0x0c6e, .driver_data = ELAN_ALL_DEV},
-+  /* 0x0c4f, 0x0c63 and 0x0c6e are press sensors, claimed by elanpress. */
-   {.vid = ELAN_VEND_ID,  .pid = 0x0c58, .driver_data = ELAN_0C58},
-   {.vid = 0,  .pid = 0,  .driver_data = 0},
+diff --git i/libfprint/drivers/elanpress-match.c w/libfprint/drivers/elanpress-match.c
+index 815bb73..44091ef 100644
+--- i/libfprint/drivers/elanpress-match.c
++++ w/libfprint/drivers/elanpress-match.c
+@@ -172,6 +172,7 @@ gboolean
+ elanpress_frame_has_touch (const unsigned short *frame,
+                            const unsigned short *background,
+                            unsigned int size,
++                           unsigned int pixel_delta,
+                            ElanpressTouchStats *stats)
+ {
+   gint64 sum = 0;
+@@ -196,7 +197,7 @@ elanpress_frame_has_touch (const unsigned short *frame,
+         continue;
+ 
+       sum += d;
+-      if (d >= ELANPRESS_TOUCH_PIXEL_DELTA)
++      if (d >= pixel_delta)
+         covered++;
+     }
+ 
+diff --git i/libfprint/drivers/elanpress-match.h w/libfprint/drivers/elanpress-match.h
+index ca20af6..cd61ab7 100644
+--- i/libfprint/drivers/elanpress-match.h
++++ w/libfprint/drivers/elanpress-match.h
+@@ -81,8 +81,12 @@
+  * a lightly resting finger from being diluted by the untouched area around
+  * it: a finger landing on a third of the pad drives those pixels hard but
+  * moves the whole-sensor mean very little, so a mean test only notices once
+- * the finger is pressed hard or slid across to cover more of the pad. */
++ * the finger is pressed hard or slid across to cover more of the pad. The
++ * 04f3:0c3d pad lights a pressed finger far more weakly than the pads this
++ * was tuned on (a settled press sits around 300-900 above background
++ * rather than 1200+), so it gets its own threshold from the id table. */
+ #define ELANPRESS_TOUCH_PIXEL_DELTA 1200
++#define ELANPRESS_TOUCH_PIXEL_DELTA_WEAK 600
+ #define ELANPRESS_TOUCH_MIN_COVERAGE 0.12
+ 
+ /* Image kept for matching. Presence is allowed on a small contact so a
+@@ -117,5 +121,6 @@ guint    elanpress_match_features (const ElanpressFeatures *probe,
+ gboolean elanpress_frame_has_touch (const unsigned short *frame,
+                                     const unsigned short *background,
+                                     unsigned int size,
++                                    unsigned int pixel_delta,
+                                     ElanpressTouchStats *stats);
+ gdouble  elanpress_image_quality (const guint8 *img, unsigned int size);
+diff --git i/libfprint/drivers/elanpress.c w/libfprint/drivers/elanpress.c
+index 298f127..d292efa 100644
+--- i/libfprint/drivers/elanpress.c
++++ w/libfprint/drivers/elanpress.c
+@@ -92,6 +92,10 @@ struct _FpiDeviceElanPress
+   /* processed images collected during enrollment */
+   GPtrArray      *enroll_images;
+   int             enroll_stage;
++
++  /* how far above the background a pixel must sit to count as covered;
++   * from the id table's driver_data, set when the device is opened */
++  unsigned int    touch_pixel_delta;
  };
-diff --git i/libfprint/meson.build w/libfprint/meson.build
-index f11533c..5f9d6ae 100644
---- i/libfprint/meson.build
-+++ w/libfprint/meson.build
-@@ -120,6 +120,11 @@ driver_sources = {
-     'egis_etu905' : files('drivers/egismoc/egis_etu905.c'),
-     'vfs0050' : files('drivers/vfs0050.c'),
-     'elan' : files('drivers/elan.c'),
-+    'elanpress' : files(
-+        'drivers/elanpress.c',
-+        'drivers/elanpress-match.c',
-+        'drivers/elanpress-sift.c',
-+    ),
-     'elanmoc' : files('drivers/elanmoc/elanmoc.c'),
-     'elanspi' : files('drivers/elanspi.c'),
-     'nb1010' : files('drivers/nb1010.c'),
-diff --git i/meson.build w/meson.build
-index ab09dc1..9e33a3a 100644
---- i/meson.build
-+++ w/meson.build
-@@ -135,6 +135,7 @@ drivers_info = {
-     'vcom5s': {},
-     'synaptics': {},
-     'elan': { 'endian_dependent': true },
-+    'elanpress': {},
-     'elanmoc': {},
-     'uru4000': { 'helper': ['openssl'] },
-     'upektc': {},
+ 
+ G_DEFINE_TYPE (FpiDeviceElanPress, fpi_device_elanpress, FP_TYPE_DEVICE);
+@@ -516,6 +520,7 @@ capture_run_state (FpiSsm *ssm, FpDevice *dev)
+       has_touch = elanpress_frame_has_touch (self->last_frame,
+                                              self->background,
+                                              elanpress_frame_size (self),
++                                             self->touch_pixel_delta,
+                                              &stats);
+ 
+       fp_dbg ("poll: %s (coverage %.1f%%, mean delta %.0f)",
+@@ -1224,6 +1229,11 @@ elanpress_open (FpDevice *dev)
+    * the user meant for it, so it is imaged rather than waited out */
+   self->wait_for_finger_off = FALSE;
+ 
++  self->touch_pixel_delta =
++    (fpi_device_get_driver_data (dev) & ELANPRESS_0C3D)
++      ? ELANPRESS_TOUCH_PIXEL_DELTA_WEAK
++      : ELANPRESS_TOUCH_PIXEL_DELTA;
++
+   if (!g_usb_device_claim_interface (fpi_device_get_usb_device (dev),
+                                      0, 0, &error))
+     {
+@@ -1261,6 +1271,7 @@ elanpress_cancel (FpDevice *dev)
+ static void
+ fpi_device_elanpress_init (FpiDeviceElanPress *self)
+ {
++  self->touch_pixel_delta = ELANPRESS_TOUCH_PIXEL_DELTA;
+ }
+ 
+ static void
+diff --git i/libfprint/drivers/elanpress.h w/libfprint/drivers/elanpress.h
+index ba02d66..903e9da 100644
+--- i/libfprint/drivers/elanpress.h
++++ w/libfprint/drivers/elanpress.h
+@@ -146,10 +146,16 @@
+ /* version tag for the serialized print data */
+ #define ELANPRESS_PRINT_VERSION 1
+ 
++/* id table driver_data: the 04f3:0c3d pad lights a pressed finger more weakly
++ * than the pads the pixel-delta threshold was tuned on, so it needs a lower
++ * one (see ELANPRESS_TOUCH_PIXEL_DELTA_WEAK) */
++#define ELANPRESS_0C3D (1 << 0)
++
+ G_DECLARE_FINAL_TYPE (FpiDeviceElanPress, fpi_device_elanpress, FPI,
+                       DEVICE_ELANPRESS, FpDevice);
+ 
+ static const FpIdEntry elanpress_id_table[] = {
++  {.vid = ELANPRESS_VEND_ID, .pid = 0x0c3d, .driver_data = ELANPRESS_0C3D}, /* 04f3:0c3d FeinTech FPS00201 */
+   {.vid = ELANPRESS_VEND_ID, .pid = 0x0c6e, }, /* 04f3:0c6e Rog Flow x13 etc. */
+   {.vid = ELANPRESS_VEND_ID, .pid = 0x0c4f, }, /* 04f3:0c4f Acer Aspire A515-45 */
+   {.vid = ELANPRESS_VEND_ID, .pid = 0x0c63, }, /* 04f3:0c63 */

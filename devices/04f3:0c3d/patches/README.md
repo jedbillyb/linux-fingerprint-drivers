@@ -17,8 +17,9 @@ patch -Np1 -i 0002-elanpress-0c3d.patch
   Omarchy carries for those press sensors.
 - `0002-elanpress-0c3d.patch` adds `0x0c3d` to `elanpress_id_table` with the
   `ELANPRESS_0C3D` flag, uses `ELANPRESS_TOUCH_PIXEL_DELTA_WEAK` (600) for it,
-  removes it from the swipe driver and moves its `autosuspend.hwdb` line to the
-  elanpress section. Other PIDs keep the default threshold of 1200.
+  removes it from the swipe driver, and moves its `autosuspend.hwdb` line from
+  the `elan` section to the elanpress section added by patch 0001. Other PIDs
+  keep the default threshold of 1200.
 
 The same pair is wired into an Arch `PKGBUILD` at
 https://github.com/iverlaek/libfprint-elanpress-0c3d. MR !654 takes a different,
