@@ -101,7 +101,9 @@ specific to that sensor.
 Note: `06cb:008a` (Synaptics Viper, see [entry](devices/06cb:008a/)) and `06cb:009a`
 (Synaptics Prometheus, see [entry](devices/06cb:009a/)) are handled by
 **python-validity**, a userspace driver daemon that plugs into `fprintd` via
-`open-fprintd`, rather than a libfprint driver.
+`open-fprintd`, rather than a libfprint driver. `06cb:009a` additionally has a native
+`libfprint-2-tod1` route from a community fork - see the
+[community forks table](#experimental-community-forks-not-upstream).
 
 ## Vendor blob and non-LGPL routes (catalogued, never hosted)
 
@@ -235,6 +237,7 @@ in libfprint and may be unstable; see each device entry for details.
 | [27c6:550c](devices/27c6:550c/) | Goodix GF5288 / GM168SEC (Lenovo Yoga 9 14IAP7) | [goodix-550c-linux-driver](https://github.com/the-great-king-bart/goodix-550c-linux-driver), [Debian packages](https://github.com/fdjfnd222dd/goodix-550c-linux-debian) | Enroll, verify, `sudo` and lock screen on stock firmware 13021; needs the PSK from the original Windows install. Reflash alternative: [brianporeilly/goodix-550c-driver](https://github.com/brianporeilly/goodix-550c-driver) |
 | [2df0:0003](devices/2df0:0003/) | CanvasBio CB2000 (Samsung Galaxy Book2/Book3 360) | [four independent drivers](devices/2df0:0003/#the-drivers) | Two report daily use. **`2df0:0007` is a different part and is not supported by any of them**; it works with upstream MR [!675](devices/2df0:0003/#result-upstream-mr-675-works-on-0007) (SDCP, not merged), one tester reporting login and `sudo`. Upstream MRs now open: [!687](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/687), [!670](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/670) (`:0003`) and [!675](https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/675) (`:0007`, SDCP) |
 | [04f3:0c80](devices/04f3:0c80/) | ELAN ARM-M4 (Surface Laptop Go 2) | [patch on Depau's libfprint](devices/04f3:0c80/patches/) | Enroll + verify work; **clearing sensor storage still times out**, and re-enroll wipes all prints |
+| [06cb:009a](devices/06cb:009a/) | Synaptics Prometheus / Metallica MIS Touch | [t480s-fingerprint-driver-for-linux](https://github.com/corradoproietti/t480s-fingerprint-driver-for-linux) (Arch fork: [blackandcold](https://github.com/blackandcold/t480s-fingerprint-driver-for-linux)); packaging: [hustles/libfprint-2-tod1-synaptics009a](https://github.com/hustles/libfprint-2-tod1-synaptics009a) | Arch: AUR `libfprint-2-tod1-synaptics009a` on AUR `libfprint-tod-git` - enroll, verify, `sudo` and login on a T480. Needs a one-time firmware-extension upload from Lenovo's Windows package, and **cannot coexist with python-validity** (one sensor, one driver) |
 
 
 ## Claimed upstream, but unreliable

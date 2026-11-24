@@ -1,4 +1,6 @@
-Device: Synaptics "Prometheus" (USB 06cb:009a; also 138a:0090/0097/009d)
+Device: Synaptics "Prometheus" / "Metallica MIS Touch" (USB 06cb:009a; also 138a:0090/0097/009d)
+
+== Route 1: python-validity (userspace daemon) ==
 
 Driver (userspace daemon): uunicorn
   https://github.com/uunicorn/python-validity
@@ -12,3 +14,30 @@ Protocol reverse engineering: nmikhailov, uunicorn and contributors
 
 Not a libfprint driver - a userspace driver daemon that registers with
 open-fprintd so standard fprintd clients and pam_fprintd work.
+
+== Route 2: native libfprint-2-tod1 (TOD) driver ==
+
+Driver: Corrado Proietti (corradoproietti)
+  https://github.com/corradoproietti/t480s-fingerprint-driver-for-linux
+  Native Rust libfprint-2-tod1 match-on-chip driver; publishes a .deb.
+  License: MIT OR LGPL-2.1-or-later (declared in Cargo.toml; the repository
+  carries no LICENSE file).
+
+Arch fork (the branch this entry's Arch package builds): blackandcold
+  https://github.com/blackandcold/t480s-fingerprint-driver-for-linux
+  branch arch-adoption, commit 216361ebeccb3d427844a4f15be8d6f96eaaf1c3
+  Carries the Arch build fixes, the pre-TLS clean-slate init and the
+  firmware-extension uploader that this sensor needs.
+
+Arch packaging and the fixes above: hustles
+  (AUR: libfprint-2-tod1-synaptics009a)
+  https://github.com/hustles/libfprint-2-tod1-synaptics009a
+  License: MIT (packaging), MIT OR LGPL-2.1-or-later (driver)
+
+TOD-enabled libfprint: AUR libfprint-tod-git
+  https://aur.archlinux.org/packages/libfprint-tod-git
+
+Sensor firmware: the QMatcher firmware extension (6_07f_lenovo_mis_qm.xpfwext)
+comes from Lenovo's Windows driver package (nz3gf07w.exe) and is downloaded at
+build time, not mirrored here. Capture/init blobs in the driver originate in
+Synaptics' Windows driver, as distributed by python-validity.
